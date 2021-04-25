@@ -1,11 +1,13 @@
 #include <vector>
+#include <functional>
 #include "glm.hpp"
 
 using namespace std;
+using namespace glm;
 
 struct Ray {
-	glm::vec3 origin;
-	glm::vec3 direction;
+	vec3 origin;
+	vec3 direction;
 };
 
-//vector<Ray> generateRays(double origin[3], const function<vec3()> &&sampler);
+vector<Ray> generatePointRays(vec3 origin, double angle, const function<vec3(void)> &&sampler);
