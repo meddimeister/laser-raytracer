@@ -11,10 +11,11 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall")
 
 ############# SOURCE ###############
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(include)
+include_directories(lib/glm/glm)
 
 FILE(GLOB_RECURSE PROG_SRC  src/*.cpp)
-FILE(GLOB_RECURSE PROG_HEADER  src/*.h)
+FILE(GLOB_RECURSE PROG_HEADER  include/*.h)
 
 add_executable(${PROG_NAME} ${PROG_SRC} ${PROG_HEADER})
 target_link_libraries(${PROG_NAME} ${LIBS} )
