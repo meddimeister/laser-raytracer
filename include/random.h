@@ -16,7 +16,7 @@ namespace RNG {
 		return diskRand(1.0f);
 	}
 
-	inline vec3 uniformSphere(){
+	inline vec3 uniformBall(){
 		return ballRand(1.0f);
 	}
 }
