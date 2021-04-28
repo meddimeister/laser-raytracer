@@ -71,8 +71,8 @@ void VTKWriter::write(const string &outputDirectory) {
                << r.origin.y + r.t * r.direction.y << " 0.0" << endl;
   	}
 		else{
-    rays2DFile << r.origin.x + r.direction.x << " "
-               << r.origin.y + r.direction.y << " 0.0" << endl;
+    rays2DFile << r.origin.x + 1000.0f * r.direction.x << " "
+               << r.origin.y + 1000.0f * r.direction.y << " 0.0" << endl;
 		}
 	}
   rays2DFile << "LINES " << rays2D.size() << " " << 3 * rays2D.size() << endl;

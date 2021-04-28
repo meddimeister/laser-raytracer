@@ -1,6 +1,8 @@
 #pragma once
 
 #include "glm.hpp"
+#include "gtx/rotate_vector.hpp"
+#include "gtx/vector_angle.hpp"
 
 using namespace std;
 using namespace glm;
