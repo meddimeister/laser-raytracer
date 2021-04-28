@@ -16,6 +16,8 @@ private:
 public:
 	void add(const Line2D &line);
 	void add(const Ray2D &ray);
+	void add(const vector<Line2D> &lines);
+	void add(const vector<Ray2D> &rays);
 
   void write(const string &outputDirectory);
 };

@@ -11,6 +11,8 @@ using namespace glm;
 struct Ray3D {
   vec3 origin;
   vec3 direction;
+	bool hit = false;
+	float t;
 
   Ray3D(const vec3 &_origin, const vec3 &_direction)
       : origin(_origin), direction(_direction) {}
@@ -25,6 +27,8 @@ struct Ray3D {
 struct Ray2D {
   vec2 origin;
   vec2 direction;
+	bool hit = false;
+	float t;
 
   Ray2D(const vec2 &_origin, const vec2 &_direction)
       : origin(_origin), direction(_direction) {}

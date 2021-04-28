@@ -8,27 +8,15 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-	vector<Ray2D> rays = generatePointRays({0.0f,0.0f}, {0.0f, 1.0f}, 0.5f, 10, RNG::uniformLine);
+	vector<Ray2D> rays = generatePointRays({0.0f,0.0f}, {1.0f, 0.0f}, 0.5f, 10, RNG::uniformLine);
   
-	for(const auto& ray : rays){
-		cout << ray << endl;
-	}
-
-	Ray2D testray({0.0f, 0.0f}, {1.0f, 0.0f});
-	cout << testray << endl;
-
 	Line2D line({0.0f, -1.0f}, {2.0f, 1.0f});
-	cout << line << endl; 
 
-	IntersectResult2D intersectResult = line.intersect(testray);
-	cout << intersectResult << endl;
-
-	Ray2D reflection = testray.reflect(intersectResult.t, intersectResult.normal);
-	cout << reflection << endl;
+	vector<Ray2D> reflections = line.reflect(rays);
 
 	VTKWriter vtkWriter;
 	vtkWriter.add(line);
-	vtkWriter.add(testray);
-	vtkWriter.add(reflection);
+	vtkWriter.add(rays);
+	vtkWriter.add(reflections);
 	vtkWriter.write("vtkOut");
 }

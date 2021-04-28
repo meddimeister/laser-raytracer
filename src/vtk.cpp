@@ -5,12 +5,20 @@ void VTKWriter::add(const Line2D &line) { lines2D.push_back(line); }
 
 void VTKWriter::add(const Ray2D &ray) { rays2D.push_back(ray); }
 
+void VTKWriter::add(const vector<Line2D> &lines) {
+  lines2D.insert(lines2D.end(), lines.begin(), lines.end());
+}
+
+void VTKWriter::add(const vector<Ray2D> &rays) {
+  rays2D.insert(rays2D.end(), rays.begin(), rays.end());
+}
+
 void VTKWriter::write(const string &outputDirectory) {
 
-	if(filesystem::create_directories(outputDirectory + "/")){
-		cerr << "Could not create directory " << outputDirectory << endl;
-		return;
-	}
+  if (filesystem::create_directories(outputDirectory + "/")) {
+    cerr << "Could not create directory " << outputDirectory << endl;
+    return;
+  }
 
   fstream lines2DFile(outputDirectory + "/lines2D.vtk",
                       fstream::in | fstream::out | fstream::trunc);
@@ -58,9 +66,15 @@ void VTKWriter::write(const string &outputDirectory) {
   rays2DFile << "POINTS " << nPointsRays2D << " float" << endl;
   for (auto &r : rays2D) {
     rays2DFile << r.origin.x << " " << r.origin.y << " 0.0" << endl;
+		if(r.hit){
+    rays2DFile << r.origin.x + r.t * r.direction.x << " "
+               << r.origin.y + r.t * r.direction.y << " 0.0" << endl;
+  	}
+		else{
     rays2DFile << r.origin.x + r.direction.x << " "
                << r.origin.y + r.direction.y << " 0.0" << endl;
-  }
+		}
+	}
   rays2DFile << "LINES " << rays2D.size() << " " << 3 * rays2D.size() << endl;
   for (unsigned int idx = 0; idx < 2 * rays2D.size(); idx += 2) {
     rays2DFile << "2 " << idx << " " << idx + 1 << endl;

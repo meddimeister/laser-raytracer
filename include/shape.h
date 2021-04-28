@@ -17,12 +17,12 @@ struct IntersectResult3D {
 
 class Shape2D {
 public:
-  virtual IntersectResult2D intersect(const Ray2D &ray) = 0;
+  virtual IntersectResult2D intersect(Ray2D &ray) = 0;
 };
 
 class Shape3D {
 public:
-  virtual IntersectResult3D intersect(const Ray3D &ray) = 0;
+  virtual IntersectResult3D intersect(Ray3D &ray) = 0;
 };
 
 class Line2D : public Shape2D {
@@ -31,7 +31,7 @@ public:
 
   Line2D(const vec2 &_a, const vec2 &_b) : a(_a), b(_b) {}
 
-  inline IntersectResult2D intersect(const Ray2D &ray) {
+  inline IntersectResult2D intersect(Ray2D &ray) {
 
     IntersectResult2D result;
 
@@ -46,10 +46,15 @@ public:
         result.t = t;
         result.hit = true;
         result.normal = normalize(vec2(a.y - b.y, b.x - a.x));
+				ray.t = t;
+				ray.hit = true;
       }
     }
     return result;
   }
+
+	vector<IntersectResult2D> intersect(vector<Ray2D> &rays);
+	vector<Ray2D> reflect(vector<Ray2D> &rays);
 };
 
 ostream &operator<<(ostream &stream, const IntersectResult2D &intersectResult);
