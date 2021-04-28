@@ -7,14 +7,21 @@
 using namespace std;
 using namespace glm;
 
-struct TraceResult {
+struct TraceResult2D {
 	float t;
 	bool hit = false;
+	vec2 normal;
 };
 
-inline TraceResult intersectLine(const vec2 &a , const vec2 &b, const Ray2D &ray){
+struct TraceResult3D {
+	float t;
+	bool hit = false;
+	vec3 normal;
+};
 
-	TraceResult result;
+inline TraceResult2D intersectLine(const vec2 &a , const vec2 &b, const Ray2D &ray){
+
+	TraceResult2D result;
 
 	float t = ((ray.origin.x - a.x)*(b.y - a.y) + (ray.origin.y - a.y)*(b.x - a.x))/
 		(ray.direction.y*(b.x - a.x) - ray.direction.x*(b.y - a.y));
@@ -27,8 +34,10 @@ inline TraceResult intersectLine(const vec2 &a , const vec2 &b, const Ray2D &ray
 		else
 			alpha = (ray.origin.y + t * ray.direction.y - a.y)/(b.y - a.y);
 
-		if(alpha <= 1.0f && alpha >= 0.0f)
+		if(alpha <= 1.0f && alpha >= 0.0f){
 			result.hit = true;
+			result.normal = normalize(vec2(a.y - b.y, b.x - a.x));
+		}
 	}
 
 	result.t = t;
@@ -36,4 +45,17 @@ inline TraceResult intersectLine(const vec2 &a , const vec2 &b, const Ray2D &ray
 	return result;
 }
 
-ostream &operator<<(ostream &stream, const TraceResult &ray);
+inline Ray2D reflect(const Ray2D &incoming, float t, const vec2 &normal){
+	vec2 origin = incoming.origin + t * incoming.direction;
+	vec2 direction = reflect(incoming.direction, normal);
+	return Ray2D(origin, direction);
+}
+
+inline Ray3D reflect(const Ray3D &incoming, float t, const vec3 &normal){
+	vec3 origin = incoming.origin + t * incoming.direction;
+	vec3 direction = reflect(incoming.direction, normal);
+	return Ray3D(origin, direction);
+}
+
+ostream &operator<<(ostream &stream, const TraceResult2D &ray);
+ostream &operator<<(ostream &stream, const TraceResult2D &ray);

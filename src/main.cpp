@@ -14,8 +14,11 @@ int main(int argc, char *argv[]) {
 	}
 
 	Ray2D testray({0.0f, 0.0f}, {1.0f, 0.0f});
+	cout << testray << endl;
 
-	TraceResult traceResult = intersectLine({1.0f, 0.0f}, {1.0f, 1.0f}, testray);
-
+	TraceResult2D traceResult = intersectLine({0.0f, -1.0f}, {2.0f, 1.0f}, testray);
 	cout << traceResult << endl;
+
+	Ray2D reflection = reflect(testray, traceResult.t, traceResult.normal);
+	cout << reflection << endl;
 }
