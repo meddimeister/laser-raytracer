@@ -1,6 +1,7 @@
 #include "ray.h"
 #include "random.h"
 #include "shape.h"
+#include "vtk.h"
 #include <iostream>
 
 using namespace std;
@@ -24,4 +25,10 @@ int main(int argc, char *argv[]) {
 
 	Ray2D reflection = testray.reflect(intersectResult.t, intersectResult.normal);
 	cout << reflection << endl;
+
+	VTKWriter vtkWriter;
+	vtkWriter.add(line);
+	vtkWriter.add(testray);
+	vtkWriter.add(reflection);
+	vtkWriter.write("vtkOut");
 }
