@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glm.hpp"
+#include "math.h"
 #include <vector>
 
 using namespace std;

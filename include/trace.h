@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glm.hpp"
 #include "ray.h"
 #include "math.h"
 #include <iostream>
