@@ -1,6 +1,6 @@
 #include "ray.h"
 #include "random.h"
-#include "trace.h"
+#include "shape.h"
 #include <iostream>
 
 using namespace std;
@@ -16,9 +16,12 @@ int main(int argc, char *argv[]) {
 	Ray2D testray({0.0f, 0.0f}, {1.0f, 0.0f});
 	cout << testray << endl;
 
-	TraceResult2D traceResult = intersectLine({0.0f, -1.0f}, {2.0f, 1.0f}, testray);
-	cout << traceResult << endl;
+	Line2D line({0.0f, -1.0f}, {2.0f, 1.0f});
+	cout << line << endl; 
 
-	Ray2D reflection = reflect(testray, traceResult.t, traceResult.normal);
+	IntersectResult2D intersectResult = line.intersect(testray);
+	cout << intersectResult << endl;
+
+	Ray2D reflection = testray.reflect(intersectResult.t, intersectResult.normal);
 	cout << reflection << endl;
 }
