@@ -1,23 +1,28 @@
 #pragma once
 
 #include <fstream>
-#include <string>
 #include <iostream>
-#include <shape.h>
 #include <ray.h>
+#include <shape.h>
+#include <string>
+#include <unordered_map>
 
 using namespace std;
 
 class VTKWriter {
 private:
-	vector<Line2D> lines2D;
-	vector<Ray2D> rays2D;
+  unordered_map<string, vector<Line2D>> lines2D;
+  unordered_map<string, vector<Ray2D>> rays2D;
+	string outputDirectory;
 
 public:
-	void add(const Line2D &line);
-	void add(const Ray2D &ray);
-	void add(const vector<Line2D> &lines);
-	void add(const vector<Ray2D> &rays);
 
-  void write(const string &outputDirectory);
+	VTKWriter(const string &_outputDirectory) : outputDirectory(_outputDirectory) {}
+
+  void add(const Line2D &line, const string &name);
+  void add(const Ray2D &ray, const string &name);
+  void add(const vector<Line2D> &lines, const string &name);
+  void add(const vector<Ray2D> &rays, const string &name);
+
+  void write();
 };
