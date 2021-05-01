@@ -4,15 +4,19 @@
 #include "ray.h"
 
 struct IntersectResult2D {
-  float t;
+  float tEnter;
+  float tLeave;
   bool hit = false;
-  vec2 normal;
+  vec2 normalEnter;
+  vec2 normalLeave;
 };
 
 struct IntersectResult3D {
-  float t;
+  float tEnter;
+  float tLeave;
   bool hit = false;
-  vec3 normal;
+  vec3 normalEnter;
+  vec3 normalLeave;
 };
 
 class Shape2D {
@@ -46,9 +50,11 @@ public:
     if (alpha >= 0.0f && alpha <= 1.0f) {
       float t = cross(ame, bma) / dxbma;
       if (t >= 0.0f) {
-        result.t = t;
+        result.tEnter = t;
+        result.tLeave = t;
         result.hit = true;
-        result.normal = normalize(vec2(a.y - b.y, b.x - a.x));
+        result.normalEnter = normalize(vec2(a.y - b.y, b.x - a.x));
+				result.normalLeave = result.normalEnter;
         ray.t = t;
         ray.hit = true;
       }

@@ -1,4 +1,5 @@
 #include "object.h"
+#include <algorithm>
 
 void Object2D::setPos(const vec2 &_pos) { pos = _pos; }
 void Object2D::setUp(const vec2 &_up) { up = _up; }
@@ -13,15 +14,22 @@ vec2 Object2D::getScale() const { return scale; }
 
 IntersectResult2D Object2D::intersect(Ray2D &ray) {
   IntersectResult2D ret;
-  ret.t = MAXFLOAT;
+  ret.tEnter = MAXFLOAT;
+  ret.tLeave = -MAXFLOAT;
   ret.hit = false;
 
   for (auto &shape : shapes) {
     IntersectResult2D result = shape->intersect(ray);
-    if (result.hit && result.t < ret.t) {
-      ret.t = result.t;
-      ret.hit = true;
-      ret.normal = result.normal;
+    if (result.hit) {
+			ret.hit = true;
+			if(result.tEnter < ret.tEnter){
+      	ret.tEnter = result.tEnter;
+      	ret.normalEnter = result.normalEnter;
+			}
+			if(result.tLeave > ret.tLeave){
+				ret.tLeave = result.tLeave;
+				ret.normalLeave = result.normalLeave;
+			}
     }
   }
 
@@ -42,7 +50,17 @@ vector<Ray2D> Object2D::reflect(vector<Ray2D> &rays) {
     IntersectResult2D result = intersect(ray);
 
     if (result.hit)
-      reflections.push_back(ray.reflect(result.t, result.normal));
+      reflections.push_back(ray.reflect(result.tEnter, result.normalEnter));
   }
   return reflections;
+}
+
+vector<IntersectResult2D> Object2D::pass(Ray2D &ray) {
+  vector<IntersectResult2D> results;
+  for (auto &shape : shapes) {
+    IntersectResult2D result = shape->intersect(ray);
+    if (result.hit)
+      results.push_back(result);
+  }
+  return results;
 }

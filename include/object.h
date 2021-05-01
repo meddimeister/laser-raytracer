@@ -33,4 +33,6 @@ public:
   vector<IntersectResult2D> intersect(vector<Ray2D> &ray);
 
   vector<Ray2D> reflect(vector<Ray2D> &ray);
+
+	vector<IntersectResult2D> pass(Ray2D &ray);
 };
