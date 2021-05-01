@@ -29,9 +29,11 @@ void VTKWriter::add(const vector<Object2D> &objects, const string &name) {
 
 void VTKWriter::write() {
 
-  if (!filesystem::create_directories(outputDirectory + "/")) {
-    cerr << "Could not create directory " << outputDirectory << endl;
-    return;
+  if (!filesystem::exists(outputDirectory + "/")) {
+    if (!filesystem::create_directories(outputDirectory + "/")) {
+      cerr << "Could not create directory " << outputDirectory << endl;
+      return;
+    }
   }
 
   for (auto &p : shapes2D) {

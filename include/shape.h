@@ -57,9 +57,6 @@ public:
   }
 
   vector<vec4> lineRepresentation();
-
-  vector<IntersectResult2D> intersect(vector<Ray2D> &rays);
-  vector<Ray2D> reflect(vector<Ray2D> &rays);
 };
 
 ostream &operator<<(ostream &stream, const IntersectResult2D &intersectResult);
