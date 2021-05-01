@@ -4,20 +4,23 @@
 #include "ray.h"
 
 struct IntersectResult2D {
-	float t;
-	bool hit = false;
-	vec2 normal;
+  float t;
+  bool hit = false;
+  vec2 normal;
 };
 
 struct IntersectResult3D {
-	float t;
-	bool hit = false;
-	vec3 normal;
+  float t;
+  bool hit = false;
+  vec3 normal;
 };
 
 class Shape2D {
 public:
-  virtual IntersectResult2D intersect(Ray2D &ray) = 0;
+  virtual IntersectResult2D intersect(Ray2D &ray) {
+    return IntersectResult2D();
+  }
+  virtual vector<vec4> lineRepresentation() { return {}; }
 };
 
 class Shape3D {
@@ -46,15 +49,17 @@ public:
         result.t = t;
         result.hit = true;
         result.normal = normalize(vec2(a.y - b.y, b.x - a.x));
-				ray.t = t;
-				ray.hit = true;
+        ray.t = t;
+        ray.hit = true;
       }
     }
     return result;
   }
 
-	vector<IntersectResult2D> intersect(vector<Ray2D> &rays);
-	vector<Ray2D> reflect(vector<Ray2D> &rays);
+  vector<vec4> lineRepresentation();
+
+  vector<IntersectResult2D> intersect(vector<Ray2D> &rays);
+  vector<Ray2D> reflect(vector<Ray2D> &rays);
 };
 
 ostream &operator<<(ostream &stream, const IntersectResult2D &intersectResult);

@@ -16,13 +16,14 @@ ostream &operator<<(ostream &stream, const Ray2D &ray) {
   return stream << "Ray2D: {"
                 << "origin: [" << ray.origin.x << "," << ray.origin.y << "]"
                 << ", "
-                << "direction: [" << ray.direction.x << "," << ray.direction.y << "]"
+                << "direction: [" << ray.direction.x << "," << ray.direction.y
+                << "]"
                 << "}";
 }
 
-vector<Ray3D> generatePointRays(
-    vec3 origin, vec3 direction, float maxAngle, unsigned int count,
-    const function<vec2()> &&diskDistribution) {
+vector<Ray3D> generatePointRays(vec3 origin, vec3 direction, float maxAngle,
+                                unsigned int count,
+                                const function<vec2()> &&diskDistribution) {
 
   vector<Ray3D> rays;
 
@@ -41,9 +42,9 @@ vector<Ray3D> generatePointRays(
   return rays;
 }
 
-vector<Ray2D> generatePointRays(
-    vec2 origin, vec2 direction, float maxAngle, unsigned int count,
-    const function<float()> &&lineDistribution) {
+vector<Ray2D> generatePointRays(vec2 origin, vec2 direction, float maxAngle,
+                                unsigned int count,
+                                const function<float()> &&lineDistribution) {
 
   vector<Ray2D> rays;
 

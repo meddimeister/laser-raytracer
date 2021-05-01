@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 	vector<Ray2D> reflections = mirror.reflect(rays);
 
 	VTKWriter vtkWriter("vtkOut");
-	vtkWriter.add(mirror.segments, "mirror");
+	vtkWriter.add(mirror, "mirror");
 	vtkWriter.add(rays, "rays0");
 	vtkWriter.add(reflections, "rays1");
 	vtkWriter.write();

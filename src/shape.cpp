@@ -1,21 +1,24 @@
 #include "shape.h"
 
 vector<IntersectResult2D> Line2D::intersect(vector<Ray2D> &rays) {
-	vector<IntersectResult2D> results;
+  vector<IntersectResult2D> results;
   for (auto &ray : rays) {
     results.push_back(intersect(ray));
   }
-	return results;
+  return results;
 }
 
-vector<Ray2D> Line2D::reflect(vector<Ray2D> &rays){
-	vector<Ray2D> reflections;
+vector<vec4> Line2D::lineRepresentation() { return {{a.x, a.y, b.x, b.y}}; }
+
+vector<Ray2D> Line2D::reflect(vector<Ray2D> &rays) {
+  vector<Ray2D> reflections;
   for (auto &ray : rays) {
     IntersectResult2D intersectResult = intersect(ray);
-		if(intersectResult.hit)
-    	reflections.push_back(ray.reflect(intersectResult.t, intersectResult.normal));
+    if (intersectResult.hit)
+      reflections.push_back(
+          ray.reflect(intersectResult.t, intersectResult.normal));
   }
-	return reflections;
+  return reflections;
 }
 
 ostream &operator<<(ostream &stream, const IntersectResult2D &intersectResult) {

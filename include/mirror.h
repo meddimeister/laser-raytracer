@@ -2,19 +2,18 @@
 
 #include "math.h"
 #include "shape.h"
+#include "object.h"
 #include <vector>
+#include <memory>
 
 using namespace std;
 using namespace glm;
 
-struct Mirror2D {
-  vec2 pos;
-  vec2 opticalAxis;
-  vector<Line2D> segments;
-
+class Mirror2D : public Object2D {
+public:
   Mirror2D(const vec2 &_pos, const vec2 &_opticalAxis,
            const function<float(float)> &&_shapeFunction, int _segments)
-		: pos(_pos), opticalAxis(_opticalAxis) {
+		: Object2D(_pos, _opticalAxis) {
 			for(int i = 0; i < _segments; ++i){
 				vec2 ap = {i*(1.0f/_segments), _shapeFunction(i*(1.0f/_segments))};
 				vec2 bp = {(i+1)*(1.0f/_segments), _shapeFunction((i+1)*(1.0f/_segments))};
@@ -22,7 +21,7 @@ struct Mirror2D {
 				vec2 am = {-i*(1.0f/_segments), _shapeFunction(-i*(1.0f/_segments))};
 				vec2 bm = {-(i+1)*(1.0f/_segments), _shapeFunction(-(i+1)*(1.0f/_segments))};
 				
-				float rotationAngle = orientedAngle({0.0f, 1.0f}, opticalAxis);
+				float rotationAngle = orientedAngle({0.0f, 1.0f}, _opticalAxis);
 
 				ap = rotate(ap, rotationAngle);
 				bp = rotate(bp, rotationAngle);
@@ -36,10 +35,8 @@ struct Mirror2D {
 				am += pos;
 				bm += pos;
 
-				segments.push_back(Line2D(ap, bp));
-				segments.push_back(Line2D(am, bm));
+				shapes.push_back(make_shared<Line2D>(Line2D(ap, bp)));
+				shapes.push_back(make_shared<Line2D>(Line2D(am, bm)));
 			}
 		}
-
-	vector<Ray2D> reflect(vector<Ray2D> &rays);
 };
