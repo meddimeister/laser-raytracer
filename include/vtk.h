@@ -25,6 +25,8 @@ public:
   void add(const Ray2D &ray, const string &name);
   void add(const vector<shared_ptr<Shape2D>> &shapes, const string &name);
   void add(const vector<Ray2D> &rays, const string &name);
+  void addAsComposition(const vector<vector<Ray2D>> &rays, const string &name);
+  void addAsSequence(const vector<vector<Ray2D>> &rays, const string &name);
   void add(const Object2D &object, const string &name);
   void add(const vector<Object2D> &objects, const string &name);
 

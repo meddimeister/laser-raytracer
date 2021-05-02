@@ -13,7 +13,7 @@ class Mirror2D : public Object2D {
 public:
   Mirror2D(const vec2 &_pos, const vec2 &_opticalAxis,
            const function<float(float)> &&_shapeFunction, int _segments)
-		: Object2D(_pos, _opticalAxis) {
+		: Object2D(REFLECT, _pos, _opticalAxis) {
 			for(int i = 0; i < _segments; ++i){
 				vec2 ap = {i*(1.0f/_segments), _shapeFunction(i*(1.0f/_segments))};
 				vec2 bp = {(i+1)*(1.0f/_segments), _shapeFunction((i+1)*(1.0f/_segments))};

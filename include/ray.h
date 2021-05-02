@@ -5,6 +5,8 @@
 #include <ostream>
 #include <vector>
 
+#define RAY_REFLECT_EPSILON 0.000001f
+
 using namespace std;
 using namespace glm;
 
@@ -34,7 +36,7 @@ struct Ray2D {
       : origin(_origin), direction(_direction) {}
 
   Ray2D reflect(float t, const vec2 &normal) const {
-    vec2 ori = origin + t * direction;
+    vec2 ori = origin + (t - RAY_REFLECT_EPSILON) * direction;
     vec2 dir = glm::reflect(direction, normal);
     return Ray2D(ori, dir);
   }

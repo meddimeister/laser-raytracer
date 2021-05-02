@@ -11,6 +11,7 @@ const vector<shared_ptr<Shape2D>> &Object2D::getShapes() const {
 vec2 Object2D::getPos() const { return pos; }
 vec2 Object2D::getUp() const { return up; }
 vec2 Object2D::getScale() const { return scale; }
+OBJECT_TYPE Object2D::getType() const { return type; }
 
 IntersectResult2D Object2D::intersect(Ray2D &ray) {
   IntersectResult2D ret;

@@ -18,6 +18,18 @@ void VTKWriter::add(const vector<Ray2D> &rays, const string &name) {
   rays2D[name].insert(rays2D[name].end(), rays.begin(), rays.end());
 }
 
+void VTKWriter::addAsComposition(const vector<vector<Ray2D>> &raySequence, const string &name) {
+	for(unsigned int i = 0; i < raySequence.size(); ++i){
+		add(raySequence[i], name);
+	}
+}
+
+void VTKWriter::addAsSequence(const vector<vector<Ray2D>> &raySequence, const string &name) {
+	for(unsigned int i = 0; i < raySequence.size(); ++i){
+		add(raySequence[i], name + "_" + to_string(i));
+	}
+}
+
 void VTKWriter::add(const Object2D &object, const string &name) {
   add(object.getShapes(), name);
 }
