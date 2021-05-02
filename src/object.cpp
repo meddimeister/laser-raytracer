@@ -49,9 +49,12 @@ vector<Ray2D> Object2D::reflect(vector<Ray2D> &rays) {
   for (auto &ray : rays) {
     IntersectResult2D result = intersect(ray);
 
-    if (result.hit)
+    if (result.hit){
+			ray.hit = true;
+			ray.t = result.tEnter;
       reflections.push_back(ray.reflect(result.tEnter, result.normalEnter));
-  }
+		}
+	}
   return reflections;
 }
 

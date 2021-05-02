@@ -35,8 +35,8 @@ public:
 				am += pos;
 				bm += pos;
 
-				shapes.push_back(make_shared<Line2D>(Line2D(ap, bp)));
-				shapes.push_back(make_shared<Line2D>(Line2D(am, bm)));
+				shapes.push_back(make_shared<Line2D>(ap, bp));
+				shapes.push_back(make_shared<Line2D>(am, bm));
 			}
 		}
 };

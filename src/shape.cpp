@@ -2,6 +2,13 @@
 
 vector<vec4> Line2D::lineRepresentation() { return {{a.x, a.y, b.x, b.y}}; }
 
+vector<vec4> AABB2D::lineRepresentation() { return {
+	{bmin.x, bmin.y, bmin.x, bmax.y},
+	{bmax.x, bmin.y, bmax.x, bmax.y},
+	{bmin.x, bmin.y, bmax.x, bmin.y},
+	{bmin.x, bmax.y, bmax.x, bmax.y}
+}; }
+
 ostream &operator<<(ostream &stream, const IntersectResult2D &intersectResult) {
   return stream << "IntersectResult2D: {tEnter: " << intersectResult.tEnter
                 << ", tLeave: " << intersectResult.tLeave
