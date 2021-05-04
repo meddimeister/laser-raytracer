@@ -13,7 +13,7 @@ vec2 Object2D::getUp() const { return up; }
 vec2 Object2D::getScale() const { return scale; }
 OBJECT_TYPE Object2D::getType() const { return type; }
 
-IntersectResult2D Object2D::intersect(Ray2D &ray) {
+IntersectResult2D Object2D::intersect(Ray2D &ray) const {
   IntersectResult2D ret;
   ret.tEnter = MAXFLOAT;
   ret.tLeave = -MAXFLOAT;
@@ -22,22 +22,22 @@ IntersectResult2D Object2D::intersect(Ray2D &ray) {
   for (auto &shape : shapes) {
     IntersectResult2D result = shape->intersect(ray);
     if (result.hit) {
-			ret.hit = true;
-			if(result.tEnter < ret.tEnter){
-      	ret.tEnter = result.tEnter;
-      	ret.normalEnter = result.normalEnter;
-			}
-			if(result.tLeave > ret.tLeave){
-				ret.tLeave = result.tLeave;
-				ret.normalLeave = result.normalLeave;
-			}
+      ret.hit = true;
+      if (result.tEnter < ret.tEnter) {
+        ret.tEnter = result.tEnter;
+        ret.normalEnter = result.normalEnter;
+      }
+      if (result.tLeave > ret.tLeave) {
+        ret.tLeave = result.tLeave;
+        ret.normalLeave = result.normalLeave;
+      }
     }
   }
 
   return ret;
 }
 
-vector<IntersectResult2D> Object2D::intersect(vector<Ray2D> &rays) {
+vector<IntersectResult2D> Object2D::intersect(vector<Ray2D> &rays) const {
   vector<IntersectResult2D> results;
   for (auto &ray : rays) {
     results.push_back(intersect(ray));
@@ -45,21 +45,21 @@ vector<IntersectResult2D> Object2D::intersect(vector<Ray2D> &rays) {
   return results;
 }
 
-vector<Ray2D> Object2D::reflect(vector<Ray2D> &rays) {
+vector<Ray2D> Object2D::reflect(vector<Ray2D> &rays) const {
   vector<Ray2D> reflections;
   for (auto &ray : rays) {
     IntersectResult2D result = intersect(ray);
 
-    if (result.hit){
-			ray.hit = true;
-			ray.t = result.tEnter;
+    if (result.hit) {
+      ray.hit = true;
+      ray.t = result.tEnter;
       reflections.push_back(ray.reflect(result.tEnter, result.normalEnter));
-		}
-	}
+    }
+  }
   return reflections;
 }
 
-vector<IntersectResult2D> Object2D::pass(Ray2D &ray) {
+vector<IntersectResult2D> Object2D::pass(Ray2D &ray) const {
   vector<IntersectResult2D> results;
   for (auto &shape : shapes) {
     IntersectResult2D result = shape->intersect(ray);

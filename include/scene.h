@@ -9,7 +9,7 @@ public:
 
   void add(const shared_ptr<Object2D> &object);
 
-  void generatePointRays(vec2 origin, vec2 direction, float maxAngle,
+  void generatePointRays(const vec2 &origin, const vec2 &direction, float maxAngle,
                                   unsigned int count,
                                   const function<float()> &&lineDistribution);
 

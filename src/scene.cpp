@@ -6,7 +6,7 @@ void Scene2D::add(const shared_ptr<Object2D> &object) {
 }
 
 void
-Scene2D::generatePointRays(vec2 origin, vec2 direction, float maxAngle,
+Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction, float maxAngle,
                            unsigned int count,
                            const function<float()> &&lineDistribution) {
 

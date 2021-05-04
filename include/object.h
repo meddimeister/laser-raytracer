@@ -33,10 +33,8 @@ public:
   vec2 getScale() const;
 	OBJECT_TYPE getType() const;
 
-  IntersectResult2D intersect(Ray2D &ray);
-  vector<IntersectResult2D> intersect(vector<Ray2D> &ray);
-
-  vector<Ray2D> reflect(vector<Ray2D> &ray);
-
-  vector<IntersectResult2D> pass(Ray2D &ray);
+  IntersectResult2D intersect(Ray2D &ray) const;
+  vector<IntersectResult2D> intersect(vector<Ray2D> &ray) const;
+  vector<Ray2D> reflect(vector<Ray2D> &ray) const;
+  vector<IntersectResult2D> pass(Ray2D &ray) const;
 };

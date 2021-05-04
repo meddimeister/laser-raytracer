@@ -30,5 +30,5 @@ public:
   void add(const Object2D &object, const string &name);
   void add(const vector<Object2D> &objects, const string &name);
 
-  void write();
+  void write() const;
 };

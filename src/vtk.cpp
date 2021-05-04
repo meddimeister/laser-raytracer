@@ -39,7 +39,7 @@ void VTKWriter::add(const vector<Object2D> &objects, const string &name) {
     add(object, name);
 }
 
-void VTKWriter::write() {
+void VTKWriter::write() const{
 
   if (!filesystem::exists(outputDirectory + "/")) {
     if (!filesystem::create_directories(outputDirectory + "/")) {
@@ -48,9 +48,9 @@ void VTKWriter::write() {
     }
   }
 
-  for (auto &p : shapes2D) {
+  for (const auto &p : shapes2D) {
     string filename = p.first + ".vtk";
-    vector<shared_ptr<Shape2D>> &shapes = p.second;
+    const auto &shapes = p.second;
 
     fstream fs(outputDirectory + "/" + filename,
                fstream::in | fstream::out | fstream::trunc);
@@ -89,9 +89,9 @@ void VTKWriter::write() {
     fs.close();
   }
 
-  for (auto &p : rays2D) {
+  for (const auto &p : rays2D) {
     string filename = p.first + ".vtk";
-    vector<Ray2D> &rays = p.second;
+    const auto &rays = p.second;
 
     fstream fs(outputDirectory + "/" + filename,
                fstream::in | fstream::out | fstream::trunc);
