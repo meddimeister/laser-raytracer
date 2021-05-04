@@ -1,14 +1,28 @@
 #include "scene.h"
 #include <cmath>
 
-void Scene2D::add(const shared_ptr<Object2D> &object){
-	objects.push_back(object);
+void Scene2D::add(const shared_ptr<Object2D> &object) {
+  objects.push_back(object);
 }
 
-vector<vector<Ray2D>> Scene2D::trace(vector<Ray2D> &rays, unsigned int depth) {
+void
+Scene2D::generatePointRays(vec2 origin, vec2 direction, float maxAngle,
+                           unsigned int count,
+                           const function<float()> &&lineDistribution) {
+
+  for (unsigned int i = 0; i < count; ++i) {
+    float angle = maxAngle * lineDistribution();
+    vec2 dir = rotate(direction, angle);
+    dir = normalize(dir);
+
+    startrays.push_back(Ray2D(origin, dir));
+  }
+}
+
+vector<vector<Ray2D>> Scene2D::trace(unsigned int depth) {
 
   vector<vector<Ray2D>> allrays(depth);
-  allrays[0] = rays;
+  allrays[0] = startrays;
 
   for (unsigned int d = 1; d < depth; ++d) {
     vector<Ray2D> reflections;

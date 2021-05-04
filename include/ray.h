@@ -44,11 +44,3 @@ struct Ray2D {
 
 ostream &operator<<(ostream &stream, const Ray3D &ray);
 ostream &operator<<(ostream &stream, const Ray2D &ray);
-
-vector<Ray3D> generatePointRays(vec3 origin, vec3 direction, float maxAngle,
-                                unsigned int count,
-                                const function<vec2()> &&diskDistribution);
-
-vector<Ray2D> generatePointRays(vec2 origin, vec2 direction, float maxAngle,
-                                unsigned int count,
-                                const function<float()> &&lineDistribution);

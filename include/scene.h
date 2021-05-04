@@ -4,9 +4,14 @@
 
 class Scene2D {
 public:
-	vector<shared_ptr<Object2D>> objects;
+  vector<shared_ptr<Object2D>> objects;
+	vector<Ray2D> startrays;
 
-	void add(const shared_ptr<Object2D> &object);
+  void add(const shared_ptr<Object2D> &object);
 
-	vector<vector<Ray2D>> trace(vector<Ray2D> &rays, unsigned int depth = 1);
+  void generatePointRays(vec2 origin, vec2 direction, float maxAngle,
+                                  unsigned int count,
+                                  const function<float()> &&lineDistribution);
+
+  vector<vector<Ray2D>> trace(unsigned int depth = 1);
 };
