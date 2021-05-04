@@ -4,11 +4,11 @@ vector<vec4> Line2D::lineRepresentation() const {
   return {{a.x, a.y, b.x, b.y}};
 }
 
-vector<vec4> AABB2D::lineRepresentation() const {
-  return {{bmin.x, bmin.y, bmin.x, bmax.y},
-          {bmax.x, bmin.y, bmax.x, bmax.y},
-          {bmin.x, bmin.y, bmax.x, bmin.y},
-          {bmin.x, bmax.y, bmax.x, bmax.y}};
+vector<vec4> BoundingBox2D::lineRepresentation() const {
+  return {{aabb.bmin.x, aabb.bmin.y, aabb.bmin.x, aabb.bmax.y},
+          {aabb.bmax.x, aabb.bmin.y, aabb.bmax.x, aabb.bmax.y},
+          {aabb.bmin.x, aabb.bmin.y, aabb.bmax.x, aabb.bmin.y},
+          {aabb.bmin.x, aabb.bmax.y, aabb.bmax.x, aabb.bmax.y}};
 }
 
 ostream &operator<<(ostream &stream, const IntersectResult2D &intersectResult) {
