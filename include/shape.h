@@ -68,6 +68,23 @@ public:
   vec2 bmin, bmax;
 
   AABB2D(const vec2 &_bmin, const vec2 &_bmax) : bmin(_bmin), bmax(_bmax) {}
+  AABB2D(const vector<vec2> &points) {
+    float xMin, yMin;
+    float xMax, yMax;
+    for (const auto &p : points) {
+      if (p.x < xMin)
+        xMin = p.x;
+      if (p.y < yMin)
+        yMin = p.y;
+      if (p.x > xMax)
+        xMax = p.x;
+      if (p.y > yMax)
+        yMax = p.y;
+    }
+
+    bmin = {xMin, yMin};
+    bmax = {xMax, yMax};
+  }
 
   inline IntersectResult2D intersect(Ray2D &ray) const {
     IntersectResult2D ret;
@@ -107,6 +124,30 @@ public:
       } else if (tmax == ty2) {
         ret.normalLeave = {0.0f, 1.0f};
       }
+    }
+
+    return ret;
+  }
+
+  inline IntersectResult2D intersectCheck(Ray2D &ray) const {
+    IntersectResult2D ret;
+
+    float tx1 = (bmin.x - ray.origin.x) / ray.direction.x;
+    float tx2 = (bmax.x - ray.origin.x) / ray.direction.x;
+
+    float tmin = glm::min(tx1, tx2);
+    float tmax = glm::max(tx1, tx2);
+
+    float ty1 = (bmin.y - ray.origin.y) / ray.direction.y;
+    float ty2 = (bmax.y - ray.origin.y) / ray.direction.y;
+
+    tmin = glm::max(tmin, glm::min(ty1, ty2));
+    tmax = glm::min(tmax, glm::max(ty1, ty2));
+
+    if (tmin >= 0 && tmax >= tmin) {
+      ret.hit = true;
+      ret.tEnter = tmin;
+      ret.tLeave = tmax;
     }
 
     return ret;
