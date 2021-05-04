@@ -1,6 +1,10 @@
 #include "scene.h"
 #include <cmath>
 
+void Scene2D::add(const shared_ptr<Object2D> &object){
+	objects.push_back(object);
+}
+
 vector<vector<Ray2D>> Scene2D::trace(vector<Ray2D> &rays, unsigned int depth) {
 
   vector<vector<Ray2D>> allrays(depth);

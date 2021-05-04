@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
 
 	Scene2D scene;
 	
-	scene.objects.push_back(make_shared<Mirror2D>(mirror));
-	scene.objects.push_back(make_shared<Crystal2D>(crystal));
+	scene.add(make_shared<Mirror2D>(mirror));
+	scene.add(make_shared<Crystal2D>(crystal));
 
 	vector<vector<Ray2D>> rays = scene.trace(startrays, 3);
 
