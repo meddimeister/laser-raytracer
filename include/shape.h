@@ -20,29 +20,46 @@ struct IntersectResult3D {
 };
 
 struct AABB2D {
-	vec2 bmin, bmax;
-  AABB2D(const vector<vec2> &points) {
-    float xMin = MAXFLOAT, yMin = MAXFLOAT;
-    float xMax = -MAXFLOAT, yMax = -MAXFLOAT;
-    for (const auto &p : points) {
-      if (p.x < xMin)
-        xMin = p.x;
-      if (p.y < yMin)
-        yMin = p.y;
-      if (p.x > xMax)
-        xMax = p.x;
-      if (p.y > yMax)
-        yMax = p.y;
+  vec2 bmin, bmax;
+  AABB2D(const vector<vec2> &points = {{0.0f, 0.0f}, {0.0f, 0.0f}}) {
+    if (points.empty()) {
+      bmin = {0.0f, 0.0f};
+      bmax = {0.0f, 0.0f};
+    } else {
+      float xMin = MAXFLOAT, yMin = MAXFLOAT;
+      float xMax = -MAXFLOAT, yMax = -MAXFLOAT;
+      for (const auto &p : points) {
+        if (p.x < xMin)
+          xMin = p.x;
+        if (p.y < yMin)
+          yMin = p.y;
+        if (p.x > xMax)
+          xMax = p.x;
+        if (p.y > yMax)
+          yMax = p.y;
+      }
+      bmin = {xMin, yMin};
+      bmax = {xMax, yMax};
     }
+  }
 
-    bmin = {xMin, yMin};
-    bmax = {xMax, yMax};
+  vec2 getMidPoint() const {
+    return {(bmin.x + bmax.x) / 2, (bmin.y + bmax.y) / 2};
+  }
+
+  bool isInside(const vec2 &point) const {
+    if (bmin.x <= point.x && point.x < bmax.x) {
+      if (bmin.y <= point.y && point.y < bmax.y) {
+        return true;
+      }
+    }
+    return false;
   }
 };
 
 class Shape2D {
 public:
-  AABB2D aabb = AABB2D({{0.0f, 0.0f}, {0.0f, 0.0f}});
+  AABB2D aabb;
 
   virtual IntersectResult2D intersect(Ray2D &ray) const {
     return IntersectResult2D();
@@ -59,9 +76,9 @@ class Line2D : public Shape2D {
 public:
   vec2 a, b;
 
-	Line2D(const vec2 &_a, const vec2 &_b) : a(_a), b(_b) {
-		aabb = AABB2D({a, b});
-	}
+  Line2D(const vec2 &_a, const vec2 &_b) : a(_a), b(_b) {
+    aabb = AABB2D({a, b});
+  }
 
   inline IntersectResult2D intersect(Ray2D &ray) const {
 
@@ -90,37 +107,34 @@ public:
 
 class BoundingBox2D : public Shape2D {
 public:
-	BoundingBox2D(const vec2 &_bmin, const vec2 &_bmax) {
-		aabb = AABB2D({_bmin, _bmax});
-	}
+  BoundingBox2D(const vec2 &_bmin = {0.0f, 0.0f},
+                const vec2 &_bmax = {0.0f, 0.0f}) {
+    aabb = AABB2D({_bmin, _bmax});
+  }
 
-	BoundingBox2D(const vector<vec2> &points) {
-		aabb = AABB2D(points);
-	}
+  BoundingBox2D(const vector<vec2> &points) { aabb = AABB2D(points); }
 
-	BoundingBox2D(const AABB2D &_aabb) {
-		aabb = _aabb;
-	}
+  BoundingBox2D(const AABB2D &_aabb) { aabb = _aabb; }
 
-	BoundingBox2D(const vector<AABB2D> &aabbs) {
-		vector<vec2> points;
-		for(const auto &_aabb : aabbs){
-			points.push_back(_aabb.bmin);
-			points.push_back(_aabb.bmax);
-		}
-		aabb = AABB2D(points);
-	}
+  BoundingBox2D(const vector<AABB2D> &aabbs) {
+    vector<vec2> points;
+    for (const auto &_aabb : aabbs) {
+      points.push_back(_aabb.bmin);
+      points.push_back(_aabb.bmax);
+    }
+    aabb = AABB2D(points);
+  }
 
-	BoundingBox2D(const vector<BoundingBox2D> &aabbs) {
-		vector<vec2> points;
-		for(const auto &_aabb : aabbs){
-			points.push_back(_aabb.aabb.bmin);
-			points.push_back(_aabb.aabb.bmax);
-		}
-		aabb = AABB2D(points);
-	}
+  BoundingBox2D(const vector<BoundingBox2D> &aabbs) {
+    vector<vec2> points;
+    for (const auto &_aabb : aabbs) {
+      points.push_back(_aabb.aabb.bmin);
+      points.push_back(_aabb.aabb.bmax);
+    }
+    aabb = AABB2D(points);
+  }
 
-  inline IntersectResult2D intersect(Ray2D &ray) const{
+  inline IntersectResult2D intersect(Ray2D &ray) const {
     IntersectResult2D ret;
 
     float tx1 = (aabb.bmin.x - ray.origin.x) / ray.direction.x;
@@ -163,8 +177,7 @@ public:
     return ret;
   }
 
-  inline IntersectResult2D
-  intersectCheck(Ray2D &ray) const{
+  inline IntersectResult2D intersectCheck(Ray2D &ray) const {
     IntersectResult2D ret;
 
     float tx1 = (aabb.bmin.x - ray.origin.x) / ray.direction.x;

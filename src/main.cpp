@@ -26,7 +26,9 @@ int main(int argc, char *argv[]) {
 
 	VTKWriter vtkWriter("vtkOut");
 	vtkWriter.add(mirror, "mirror");
+	vtkWriter.add(mirror.getAABBs(), "mirror.AABB");
 	vtkWriter.add(crystal, "crystal");
+	vtkWriter.add(crystal.getAABBs(), "crystal.AABB");
 	vtkWriter.addAsSequence(rays, "rays");
 	vtkWriter.addAsComposition(rays, "rays_composition");
 	vtkWriter.write();
