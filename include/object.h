@@ -17,7 +17,8 @@ class Object2D {
     vector<shared_ptr<Tree>> children;
 
     void subdivide(unsigned int maxdepth = 1, unsigned int currdepth = 0);
-    void forEach(const function<void(shared_ptr<Tree>)> func) const;
+    void forEach(function<void(shared_ptr<Tree>)> func) const;
+    void forEachConditional(function<bool(shared_ptr<Tree>)> func) const;
   };
 
   void buildTree();

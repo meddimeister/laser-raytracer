@@ -4,15 +4,30 @@
 #include <queue>
 
 void Object2D::Tree::forEach(
-    const function<void(shared_ptr<Tree>)> func) const {
+    function<void(shared_ptr<Tree>)> func) const {
   queue<shared_ptr<Tree>> q;
   q.push(make_shared<Tree>(*this));
 
   while (!q.empty()) {
     auto t = q.front();
-    func(t);
+		func(t);
     for (auto c : t->children)
       q.push(c);
+    q.pop();
+  }
+}
+
+void Object2D::Tree::forEachConditional(
+    function<bool(shared_ptr<Tree>)> func) const {
+  queue<shared_ptr<Tree>> q;
+  q.push(make_shared<Tree>(*this));
+
+  while (!q.empty()) {
+    auto t = q.front();
+    if(func(t)){
+    	for (auto c : t->children)
+      	q.push(c);
+		}
     q.pop();
   }
 }
@@ -34,17 +49,21 @@ void Object2D::Tree::subdivide(unsigned int maxdepth, unsigned int currdepth) {
 
     vector<shared_ptr<Shape2D>> subshapes[4];
 
-    for (const auto &shape : shapes) {
+    for (auto it = shapes.begin(); it != shapes.end();) {
+			auto shape = *it;
       vec2 midpoint = shape->aabb.getMidPoint();
+			bool erased = false;
       for (unsigned int i = 0; i < 4; ++i) {
         if (subs[i].isInside(midpoint)) {
           subshapes[i].push_back(shape);
+					it = shapes.erase(it);
+					erased = true;
           break;
         }
       }
+			if(!erased)
+				it++;
     }
-
-    // shapes.clear();
 
     for (unsigned int i = 0; i < 4; ++i) {
       if (subshapes[i].empty())
