@@ -36,19 +36,24 @@ public:
            unsigned int _subdivisions = 0, const vec2 &_pos = {0.0f, 0.0f},
            const vec2 &_up = {0.0f, 1.0f}, const vec2 &_scale = {1.0f, 1.0f});
 
-  void setPos(const vec2 &_pos);
-  void setUp(const vec2 &_up);
-  void setScale(const vec2 &_scale);
+	void setPos(const vec2 &_pos) { pos = _pos; }
+	void setUp(const vec2 &_up) { up = _up; }
+	void setScale(const vec2 &_scale) { scale = _scale; }
+	
+	const vector<shared_ptr<Shape2D>> &getShapes() const {
+	  return shapes;
+	}
+	
+	vector<shared_ptr<Shape2D>> getAABBs() const {
+	  vector<shared_ptr<Shape2D>> boxes;
+	  root->forEach([&](shared_ptr<Tree> t) { boxes.push_back(t->box); });
+	  return boxes;
+	}
+	
+	vec2 getPos() const { return pos; }
+	vec2 getUp() const { return up; }
+	vec2 getScale() const { return scale; }
+	OBJECT_TYPE getType() const { return type; }
 
-  const vector<shared_ptr<Shape2D>> &getShapes() const;
-  vector<shared_ptr<Shape2D>> getAABBs() const;
-  vec2 getPos() const;
-  vec2 getUp() const;
-  vec2 getScale() const;
-  OBJECT_TYPE getType() const;
-
-  IntersectResult2D intersect(Ray2D &ray) const;
-  vector<IntersectResult2D> intersect(vector<Ray2D> &ray) const;
-  vector<Ray2D> reflect(vector<Ray2D> &ray) const;
-  vector<IntersectResult2D> pass(Ray2D &ray) const;
+  IntersectResult2D intersect(const Ray2D &ray) const;
 };

@@ -100,26 +100,7 @@ Object2D::Object2D(OBJECT_TYPE _type,
   buildTree(_subdivisions);
 }
 
-void Object2D::setPos(const vec2 &_pos) { pos = _pos; }
-void Object2D::setUp(const vec2 &_up) { up = _up; }
-void Object2D::setScale(const vec2 &_scale) { scale = _scale; }
-
-const vector<shared_ptr<Shape2D>> &Object2D::getShapes() const {
-  return shapes;
-}
-
-vector<shared_ptr<Shape2D>> Object2D::getAABBs() const {
-  vector<shared_ptr<Shape2D>> boxes;
-  root->forEach([&](shared_ptr<Tree> t) { boxes.push_back(t->box); });
-  return boxes;
-}
-
-vec2 Object2D::getPos() const { return pos; }
-vec2 Object2D::getUp() const { return up; }
-vec2 Object2D::getScale() const { return scale; }
-OBJECT_TYPE Object2D::getType() const { return type; }
-
-IntersectResult2D Object2D::intersect(Ray2D &ray) const {
+IntersectResult2D Object2D::intersect(const Ray2D &ray) const {
   IntersectResult2D ret;
   ret.tEnter = MAXFLOAT;
   ret.tLeave = -MAXFLOAT;
@@ -149,36 +130,4 @@ IntersectResult2D Object2D::intersect(Ray2D &ray) const {
 	});
 
   return ret;
-}
-
-vector<IntersectResult2D> Object2D::intersect(vector<Ray2D> &rays) const {
-  vector<IntersectResult2D> results;
-  for (auto &ray : rays) {
-    results.push_back(intersect(ray));
-  }
-  return results;
-}
-
-vector<Ray2D> Object2D::reflect(vector<Ray2D> &rays) const {
-  vector<Ray2D> reflections;
-  for (auto &ray : rays) {
-    IntersectResult2D result = intersect(ray);
-
-    if (result.hit) {
-      ray.hit = true;
-      ray.t = result.tEnter;
-      reflections.push_back(ray.reflect(result.tEnter, result.normalEnter));
-    }
-  }
-  return reflections;
-}
-
-vector<IntersectResult2D> Object2D::pass(Ray2D &ray) const {
-  vector<IntersectResult2D> results;
-  for (auto &shape : shapes) {
-    IntersectResult2D result = shape->intersect(ray);
-    if (result.hit)
-      results.push_back(result);
-  }
-  return results;
 }
