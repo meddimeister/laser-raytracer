@@ -81,7 +81,7 @@ void Object2D::Tree::subdivide(unsigned int maxdepth, unsigned int currdepth) {
   }
 }
 
-void Object2D::buildTree() {
+void Object2D::buildTree(unsigned int subdivisions) {
   vector<AABB2D> aabbs;
   for (const auto &shape : shapes) {
     aabbs.push_back(shape->aabb);
@@ -89,16 +89,15 @@ void Object2D::buildTree() {
   root = make_shared<Tree>();
   root->box = make_shared<BoundingBox2D>(aabbs);
   root->shapes = shapes;
-  root->subdivide(4);
-
-  return;
+  root->subdivide(subdivisions);
 }
 
 Object2D::Object2D(OBJECT_TYPE _type,
                    const vector<shared_ptr<Shape2D>> &&_shapes,
+									 unsigned int _subdivisions,
                    const vec2 &_pos, const vec2 &_up, const vec2 &_scale)
     : type(_type), shapes(_shapes), pos(_pos), up(_up), scale(_scale) {
-  buildTree();
+  buildTree(_subdivisions);
 }
 
 void Object2D::setPos(const vec2 &_pos) { pos = _pos; }
@@ -126,20 +125,28 @@ IntersectResult2D Object2D::intersect(Ray2D &ray) const {
   ret.tLeave = -MAXFLOAT;
   ret.hit = false;
 
-  for (auto &shape : shapes) {
-    IntersectResult2D result = shape->intersect(ray);
-    if (result.hit) {
-      ret.hit = true;
-      if (result.tEnter < ret.tEnter) {
-        ret.tEnter = result.tEnter;
-        ret.normalEnter = result.normalEnter;
-      }
-      if (result.tLeave > ret.tLeave) {
-        ret.tLeave = result.tLeave;
-        ret.normalLeave = result.normalLeave;
-      }
-    }
-  }
+	root->forEachConditional([&](shared_ptr<Tree> t){
+		IntersectResult2D boxResult = t->box->intersect(ray);
+		if(boxResult.hit){
+			//intersect shapes if any there
+  		for (auto &shape : t->shapes) {
+  		  IntersectResult2D shapeResult = shape->intersect(ray);
+  		  if (shapeResult.hit) {
+  		    ret.hit = true;
+  		    if (shapeResult.tEnter < ret.tEnter) {
+  		      ret.tEnter = shapeResult.tEnter;
+  		      ret.normalEnter = shapeResult.normalEnter;
+  		    }
+  		    if (shapeResult.tLeave > ret.tLeave) {
+  		      ret.tLeave = shapeResult.tLeave;
+  		      ret.normalLeave = shapeResult.normalLeave;
+  		    }
+  		  }
+  		}
+			return true;
+		}
+		return false;
+	});
 
   return ret;
 }

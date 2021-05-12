@@ -21,7 +21,7 @@ class Object2D {
     void forEachConditional(function<bool(shared_ptr<Tree>)> func) const;
   };
 
-  void buildTree();
+  void buildTree(unsigned int subdivisions);
 
 protected:
   OBJECT_TYPE type;
@@ -33,8 +33,8 @@ protected:
 
 public:
   Object2D(OBJECT_TYPE _type, const vector<shared_ptr<Shape2D>> &&_shapes,
-           const vec2 &_pos = {0.0f, 0.0f}, const vec2 &_up = {0.0f, 1.0f},
-           const vec2 &_scale = {1.0f, 1.0f});
+           unsigned int _subdivisions = 0, const vec2 &_pos = {0.0f, 0.0f},
+           const vec2 &_up = {0.0f, 1.0f}, const vec2 &_scale = {1.0f, 1.0f});
 
   void setPos(const vec2 &_pos);
   void setUp(const vec2 &_up);
