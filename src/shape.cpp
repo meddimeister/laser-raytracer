@@ -50,7 +50,7 @@ IntersectResult2D Line2D::intersect(const Ray2D &ray) const {
 
   if (alpha >= 0.0f && alpha <= 1.0f) {
     float t = cross(ame, bma) / dxbma;
-    if (t >= 0.0f) {
+    if (t > 0.0f) {
       result.tEnter = t;
       result.tLeave = t;
       result.hit = true;
@@ -108,7 +108,7 @@ IntersectResult2D BoundingBox2D::intersect(const Ray2D &ray) const {
   tmin = glm::max(tmin, glm::min(ty1, ty2));
   tmax = glm::min(tmax, glm::max(ty1, ty2));
 
-  if (tmin >= 0 && tmax >= tmin) {
+  if (tmin > 0 && tmax >= tmin) {
     ret.hit = true;
     ret.tEnter = tmin;
     ret.tLeave = tmax;
