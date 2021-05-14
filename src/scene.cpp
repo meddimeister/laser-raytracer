@@ -5,13 +5,13 @@ void Scene2D::add(const shared_ptr<Object2D> &object) {
   objects.push_back(object);
 }
 
-void
-Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction, float maxAngle,
-                           unsigned int count,
-                           const function<float()> &&lineDistribution) {
+void Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction,
+                                float maxAngle, unsigned int count,
+                                RNG::Sampler<float> &sampler) {
 
+	sampler.init(count);
   for (unsigned int i = 0; i < count; ++i) {
-    float angle = maxAngle * lineDistribution();
+    float angle = maxAngle * (2.0f * sampler.next() - 1.0f);
     vec2 dir = rotate(direction, angle);
     dir = normalize(dir);
 

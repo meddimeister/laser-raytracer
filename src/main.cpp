@@ -20,7 +20,8 @@ int main(int argc, char *argv[]) {
 	scene.add(make_shared<Mirror2D>(mirror));
 	scene.add(make_shared<Crystal2D>(crystal));
 
-	scene.generatePointRays({0.0f,0.0f}, {1.0f, 0.0f}, 0.5f, 100, RNG::uniformLine);
+	RNG::StratifiedSampler1D sampler;
+	scene.generatePointRays({0.0f,0.0f}, {1.0f, 0.0f}, 0.5f, 100, sampler);
 
 	vector<vector<Ray2D>> rays = scene.trace(3);
 
