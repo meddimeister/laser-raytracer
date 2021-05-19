@@ -27,8 +27,8 @@ struct Ray3D {
 struct Ray2D {
   vec2 origin;
   vec2 direction;
-  bool hit = false;
-  float t;
+  bool terminated = false;
+  float terminatedAt;
 
   Ray2D(const vec2 &_origin, const vec2 &_direction)
       : origin(_origin), direction(_direction) {}
@@ -38,6 +38,11 @@ struct Ray2D {
     vec2 dir = glm::reflect(direction, normal);
     return Ray2D(ori, dir);
   }
+
+	void terminate(float t){
+		terminated = true;
+		terminatedAt = t;
+	}
 };
 
 ostream &operator<<(ostream &stream, const Ray3D &ray);

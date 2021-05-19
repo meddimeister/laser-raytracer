@@ -3,6 +3,22 @@
 #include <algorithm>
 #include <queue>
 
+namespace ACTION_PRESETS {
+  void pass(Ray2D &ray, const IntersectResult2D &result,
+            vector<Ray2D> &createdRays) {}
+
+  void absorb(Ray2D &ray, const IntersectResult2D &result,
+              vector<Ray2D> &createdRays) {
+    ray.terminate(result.tEnter);
+  }
+
+  void reflect(Ray2D &ray, const IntersectResult2D &result,
+               vector<Ray2D> &createdRays) {
+    ray.terminate(result.tEnter);
+    createdRays.push_back(ray.reflect(result.tEnter, result.normalEnter));
+  }
+} // namespace ACTION_PRESETS
+
 void Object2D::Tree::forEach(function<void(shared_ptr<Tree>)> func) const {
   queue<shared_ptr<Tree>> q;
   q.push(make_shared<Tree>(*this));

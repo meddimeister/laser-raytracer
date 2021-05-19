@@ -45,7 +45,7 @@ vector<vector<Ray2D>> Scene2D::trace(unsigned int depth) {
 				auto &pair = *it;
 				auto &[object, result] = pair.second;
 				object->executeAction(ray, result, reflections);
-				if(ray.hit)
+				if(ray.terminated)
 					break;
       }
     }

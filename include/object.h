@@ -10,22 +10,15 @@ using namespace std;
 using namespace glm;
 
 namespace ACTION_PRESETS {
-  inline void pass(Ray2D &ray, const IntersectResult2D &result,
-            vector<Ray2D> &createdRays) {}
+  void pass(Ray2D &ray, const IntersectResult2D &result,
+            vector<Ray2D> &createdRays);
 
-  inline void absorb(Ray2D &ray, const IntersectResult2D &result,
-              vector<Ray2D> &createdRays) {
-    ray.hit = true;
-    ray.t = result.tEnter;
-  }
+  void absorb(Ray2D &ray, const IntersectResult2D &result,
+              vector<Ray2D> &createdRays);
 
-  inline void reflect(Ray2D &ray, const IntersectResult2D &result,
-               vector<Ray2D> &createdRays) {
-    ray.hit = true;
-    ray.t = result.tEnter;
-    createdRays.push_back(ray.reflect(result.tEnter, result.normalEnter));
-  }
-} // namespace ACTION_PRESETS
+  void reflect(Ray2D &ray, const IntersectResult2D &result,
+               vector<Ray2D> &createdRays);
+}// namespace ACTION_PRESETS
 
 class Object2D {
   struct Tree {

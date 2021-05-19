@@ -111,9 +111,9 @@ void VTKWriter::write() const{
     fs << "POINTS " << nPoints << " float" << endl;
     for (auto &r : rays) {
       fs << r.origin.x << " " << r.origin.y << " 0.0" << endl;
-      if (r.hit) {
-        fs << r.origin.x + r.t * r.direction.x << " "
-           << r.origin.y + r.t * r.direction.y << " 0.0" << endl;
+      if (r.terminated) {
+        fs << r.origin.x + r.terminatedAt * r.direction.x << " "
+           << r.origin.y + r.terminatedAt * r.direction.y << " 0.0" << endl;
       } else {
         fs << r.origin.x + 1000.0f * r.direction.x << " "
            << r.origin.y + 1000.0f * r.direction.y << " 0.0" << endl;
