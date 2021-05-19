@@ -29,6 +29,8 @@ public:
   void addAsSequence(const vector<vector<Ray2D>> &rays, const string &name);
   void add(const Object2D &object, const string &name);
   void add(const vector<Object2D> &objects, const string &name);
+  void add(const shared_ptr<Object2D> &object, const string &name);
+  void add(const vector<shared_ptr<Object2D>> &objects, const string &name);
 
   void write() const;
 };

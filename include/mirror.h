@@ -18,6 +18,10 @@ class Mirror2D : public Object2D {
 public:
   Mirror2D(const vec2 &_pos, const vec2 &_opticalAxis,
            function<float(float)> _shapeFunction, int _segments)
-      : Object2D(build(_pos, _opticalAxis, _shapeFunction, _segments),
-                 ACTION_PRESETS::reflect, 4, _pos, _opticalAxis){};
+      : Object2D(build(_pos, _opticalAxis, _shapeFunction, _segments), 4, _pos, _opticalAxis){};
+
+  void action(Ray2D &ray, const IntersectResult2D &result,
+                      vector<Ray2D> &createdRays) {
+		ACTION_PRESETS::reflect(ray, result, createdRays);
+  }
 };

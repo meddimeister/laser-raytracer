@@ -44,7 +44,7 @@ vector<vector<Ray2D>> Scene2D::trace(unsigned int depth) {
       for (auto it = intersections.begin(); it != intersections.end(); it++) {
 				auto &pair = *it;
 				auto &[object, result] = pair.second;
-				object->executeAction(ray, result, reflections);
+				object->action(ray, result, reflections);
 				if(ray.terminated)
 					break;
       }

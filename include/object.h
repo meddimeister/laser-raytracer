@@ -35,7 +35,6 @@ class Object2D {
 
 protected:
   vector<shared_ptr<Shape2D>> shapes;
-  function<void(Ray2D &, const IntersectResult2D &, vector<Ray2D> &)> action;
   shared_ptr<Tree> root;
   vec2 pos;
   vec2 up;
@@ -43,8 +42,6 @@ protected:
 
 public:
   Object2D(const vector<shared_ptr<Shape2D>> &&_shapes,
-           function<void(Ray2D &, const IntersectResult2D &, vector<Ray2D> &)>
-               _action,
            unsigned int _subdivisions = 0, const vec2 &_pos = {0.0f, 0.0f},
            const vec2 &_up = {0.0f, 1.0f}, const vec2 &_scale = {1.0f, 1.0f});
 
@@ -66,8 +63,8 @@ public:
 
   IntersectResult2D intersect(const Ray2D &ray) const;
 
-  void executeAction(Ray2D &ray, const IntersectResult2D &result,
+  virtual void action(Ray2D &ray, const IntersectResult2D &result,
                       vector<Ray2D> &createdRays) {
-		action(ray, result, createdRays);
+		ACTION_PRESETS::pass(ray, result, createdRays);
   }
 };

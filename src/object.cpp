@@ -109,10 +109,9 @@ void Object2D::buildTree(unsigned int subdivisions) {
 
 Object2D::Object2D(
     const vector<shared_ptr<Shape2D>> &&_shapes,
-    function<void(Ray2D &, const IntersectResult2D &, vector<Ray2D> &)> _action,
     unsigned int _subdivisions, const vec2 &_pos, const vec2 &_up,
     const vec2 &_scale)
-    : shapes(_shapes), action(_action), pos(_pos), up(_up), scale(_scale) {
+    : shapes(_shapes), pos(_pos), up(_up), scale(_scale) {
   buildTree(_subdivisions);
 }
 

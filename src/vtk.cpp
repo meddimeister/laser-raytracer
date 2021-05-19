@@ -39,6 +39,15 @@ void VTKWriter::add(const vector<Object2D> &objects, const string &name) {
     add(object, name);
 }
 
+void VTKWriter::add(const shared_ptr<Object2D> &object, const string &name) {
+  add(object->getShapes(), name);
+}
+
+void VTKWriter::add(const vector<shared_ptr<Object2D>> &objects, const string &name) {
+  for (auto &object : objects)
+    add(object, name);
+}
+
 void VTKWriter::write() const{
 
   if (!filesystem::exists(outputDirectory + "/")) {
