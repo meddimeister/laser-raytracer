@@ -3,14 +3,13 @@
 #include <algorithm>
 #include <queue>
 
-void Object2D::Tree::forEach(
-    function<void(shared_ptr<Tree>)> func) const {
+void Object2D::Tree::forEach(function<void(shared_ptr<Tree>)> func) const {
   queue<shared_ptr<Tree>> q;
   q.push(make_shared<Tree>(*this));
 
   while (!q.empty()) {
     auto t = q.front();
-		func(t);
+    func(t);
     for (auto c : t->children)
       q.push(c);
     q.pop();
@@ -24,10 +23,10 @@ void Object2D::Tree::forEachConditional(
 
   while (!q.empty()) {
     auto t = q.front();
-    if(func(t)){
-    	for (auto c : t->children)
-      	q.push(c);
-		}
+    if (func(t)) {
+      for (auto c : t->children)
+        q.push(c);
+    }
     q.pop();
   }
 }
@@ -50,19 +49,19 @@ void Object2D::Tree::subdivide(unsigned int maxdepth, unsigned int currdepth) {
     vector<shared_ptr<Shape2D>> subshapes[4];
 
     for (auto it = shapes.begin(); it != shapes.end();) {
-			auto shape = *it;
+      auto shape = *it;
       vec2 midpoint = shape->aabb.getMidPoint();
-			bool erased = false;
+      bool erased = false;
       for (unsigned int i = 0; i < 4; ++i) {
         if (subs[i].isInside(midpoint)) {
           subshapes[i].push_back(shape);
-					it = shapes.erase(it);
-					erased = true;
+          it = shapes.erase(it);
+          erased = true;
           break;
         }
       }
-			if(!erased)
-				it++;
+      if (!erased)
+        it++;
     }
 
     for (unsigned int i = 0; i < 4; ++i) {
@@ -92,11 +91,12 @@ void Object2D::buildTree(unsigned int subdivisions) {
   root->subdivide(subdivisions);
 }
 
-Object2D::Object2D(OBJECT_TYPE _type,
-                   const vector<shared_ptr<Shape2D>> &&_shapes,
-									 unsigned int _subdivisions,
-                   const vec2 &_pos, const vec2 &_up, const vec2 &_scale)
-    : type(_type), shapes(_shapes), pos(_pos), up(_up), scale(_scale) {
+Object2D::Object2D(
+    const vector<shared_ptr<Shape2D>> &&_shapes,
+    function<void(Ray2D &, const IntersectResult2D &, vector<Ray2D> &)> _action,
+    unsigned int _subdivisions, const vec2 &_pos, const vec2 &_up,
+    const vec2 &_scale)
+    : shapes(_shapes), action(_action), pos(_pos), up(_up), scale(_scale) {
   buildTree(_subdivisions);
 }
 
@@ -106,28 +106,28 @@ IntersectResult2D Object2D::intersect(const Ray2D &ray) const {
   ret.tLeave = -MAXFLOAT;
   ret.hit = false;
 
-	root->forEachConditional([&](shared_ptr<Tree> t){
-		IntersectResult2D boxResult = t->box->intersect(ray);
-		if(boxResult.hit){
-			//intersect shapes if any there
-  		for (auto &shape : t->shapes) {
-  		  IntersectResult2D shapeResult = shape->intersect(ray);
-  		  if (shapeResult.hit) {
-  		    ret.hit = true;
-  		    if (shapeResult.tEnter < ret.tEnter) {
-  		      ret.tEnter = shapeResult.tEnter;
-  		      ret.normalEnter = shapeResult.normalEnter;
-  		    }
-  		    if (shapeResult.tLeave > ret.tLeave) {
-  		      ret.tLeave = shapeResult.tLeave;
-  		      ret.normalLeave = shapeResult.normalLeave;
-  		    }
-  		  }
-  		}
-			return true;
-		}
-		return false;
-	});
+  root->forEachConditional([&](shared_ptr<Tree> t) {
+    IntersectResult2D boxResult = t->box->intersect(ray);
+    if (boxResult.hit) {
+      // intersect shapes if any there
+      for (auto &shape : t->shapes) {
+        IntersectResult2D shapeResult = shape->intersect(ray);
+        if (shapeResult.hit) {
+          ret.hit = true;
+          if (shapeResult.tEnter < ret.tEnter) {
+            ret.tEnter = shapeResult.tEnter;
+            ret.normalEnter = shapeResult.normalEnter;
+          }
+          if (shapeResult.tLeave > ret.tLeave) {
+            ret.tLeave = shapeResult.tLeave;
+            ret.normalLeave = shapeResult.normalLeave;
+          }
+        }
+      }
+      return true;
+    }
+    return false;
+  });
 
   return ret;
 }

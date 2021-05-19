@@ -1,5 +1,7 @@
 #include "scene.h"
 #include <cmath>
+#include <map>
+#include <iostream>
 
 void Scene2D::add(const shared_ptr<Object2D> &object) {
   objects.push_back(object);
@@ -9,7 +11,7 @@ void Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction,
                                 float maxAngle, unsigned int count,
                                 RNG::Sampler<float> &sampler) {
 
-	sampler.init(count);
+  sampler.init(count);
   for (unsigned int i = 0; i < count; ++i) {
     float angle = maxAngle * (2.0f * sampler.next() - 1.0f);
     vec2 dir = rotate(direction, angle);
@@ -29,33 +31,22 @@ vector<vector<Ray2D>> Scene2D::trace(unsigned int depth) {
 
     for (auto &ray : allrays[d - 1]) {
 
-      IntersectResult2D resultFinal;
-      resultFinal.tEnter = MAXFLOAT;
-      shared_ptr<Object2D> objectFinal;
+      map<float,
+          tuple<shared_ptr<Object2D>, IntersectResult2D>>
+          intersections;
 
       for (auto &object : objects) {
-        IntersectResult2D result = object->intersect(ray);
-        if (result.hit) {
-          if (object->getType() != PASS && result.tEnter < resultFinal.tEnter) {
-            objectFinal = object;
-            resultFinal = result;
-          }
-        }
+        const auto result = object->intersect(ray);
+        if (result.hit)
+          intersections.insert({result.tEnter, {object, result}});
       }
 
-      switch (objectFinal->getType()) {
-      case PASS:
-        break;
-      case ABSORB:
-        ray.hit = true;
-        ray.t = resultFinal.tEnter;
-        break;
-      case REFLECT:
-        ray.hit = true;
-        ray.t = resultFinal.tEnter;
-        reflections.push_back(
-            ray.reflect(resultFinal.tEnter, resultFinal.normalEnter));
-        break;
+      for (auto it = intersections.begin(); it != intersections.end(); it++) {
+				auto &pair = *it;
+				auto &[object, result] = pair.second;
+				object->executeAction(ray, result, reflections);
+				if(ray.hit)
+					break;
       }
     }
     allrays[d] = move(reflections);
