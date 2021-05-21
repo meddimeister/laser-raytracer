@@ -10,12 +10,12 @@ public:
   vec2 cornerMin, cornerMax;
   int maxX, maxY;
   float dx, dy;
-  vector<float> grid;
+  vector<float> data;
 
   Grid2D(const vec2 &_pos, const vec2 &_bmin, const vec2 &_bmax, int _maxX,
          int _maxY)
       : Object2D(build(_pos, _bmin, _bmax), 0, _pos), maxX(_maxX), maxY(_maxY),
-        grid(maxX * maxY) {
+        data(maxX * maxY, 0.0f) {
     cornerMin = root->box->aabb.bmin;
     cornerMax = root->box->aabb.bmax;
     dx = (cornerMax.x - cornerMin.x) / maxX;
@@ -32,11 +32,13 @@ public:
     int x = xf;
     int y = yf;
 
-    if (x == xf && ray.direction.x < 0.0f)
+    if (x == maxX && ray.direction.x < 0.0f){
       x = x - 1;
+		}
 
-    if (y == yf && ray.direction.y < 0.0f)
+    if (y == maxY && ray.direction.y < 0.0f){
       y = y - 1;
+		}
 
     int stepX = ray.direction.x >= 0.0f ? 1 : -1;
     int stepY = ray.direction.y >= 0.0f ? 1 : -1;
@@ -47,8 +49,8 @@ public:
     float tMaxX = (cornerMin.x + nextX * dx - ray.origin.x) / ray.direction.x;
     float tMaxY = (cornerMin.y + nextY * dy - ray.origin.y) / ray.direction.y;
 
-    float tDeltaX = dx / ray.direction.x;
-    float tDeltaY = dy / ray.direction.y;
+    float tDeltaX = dx / abs(ray.direction.x);
+    float tDeltaY = dy / abs(ray.direction.y);
 
     float tLast = result.tEnter;
 
@@ -68,7 +70,7 @@ public:
         y = y + stepY;
       }
       float distance = length(tTravel * ray.direction);
-      grid[yCurrent * maxX + xCurrent] += distance;
+      data[yCurrent * maxX + xCurrent] += distance;
     }
 
     ACTION_PRESETS::pass(ray, result, createdRays);
