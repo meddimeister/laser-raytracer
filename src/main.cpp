@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   auto mirror = make_shared<Mirror2D>(Mirror2D(
       {2.0f, 0.0f}, {-1.0f, 0.0f}, [](float x) { return 0.5f * x * x; }, 100));
 
-  auto crystal = make_shared<Grid2D>(Grid2D({1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}));
+  auto crystal = make_shared<Grid2D>(Grid2D({1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 5, 5));
 
   Scene2D scene;
 
@@ -22,11 +22,11 @@ int main(int argc, char *argv[]) {
   scene.add(crystal);
 
   RNG::StratifiedSampler1D sampler;
-  scene.generatePointRays({0.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 100, sampler);
+  scene.generatePointRays({0.0f, 0.0f}, {1.0f, 0.0f}, 0.0f, 1, sampler);
 
   vector<vector<Ray2D>> rays = scene.trace(3);
 
-  cout << crystal->hits << endl;
+	cout << *crystal << endl;
 
   VTKWriter vtkWriter("vtkOut");
   vtkWriter.add(mirror, "mirror");
