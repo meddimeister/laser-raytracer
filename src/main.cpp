@@ -1,23 +1,30 @@
 #include "grid.h"
+#include "log.h"
 #include "mirror.h"
 #include "random.h"
 #include "ray.h"
 #include "scene.h"
 #include "shape.h"
 #include "vtk.h"
-#include "log.h"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
 
-	LOG("Start");
+  LOG("Start");
 
   auto mirror = make_shared<Mirror2D>(Mirror2D(
       {2.0f, 0.0f}, {-1.0f, 0.0f}, [](float x) { return 0.5f * x * x; }, 100));
 
   auto crystal = make_shared<Grid2D>(
-      Grid2D({1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 100, 20));
+      Grid2D({1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 100, 20,
+				[](Ray2D &ray, float distance, float &cell) {
+					float alpha = 2.0f;
+					float remainingPower = ray.power * exp(-alpha * distance);
+					float absorbedPower = ray.power - remainingPower;
+					cell += absorbedPower;
+					ray.power = remainingPower;
+				}));
 
   Scene2D scene;
 
@@ -25,13 +32,13 @@ int main(int argc, char *argv[]) {
   scene.add(crystal);
 
   RNG::StratifiedSampler1D sampler;
-  scene.generatePointRays({0.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 10000, sampler);
+  scene.generatePointRays({0.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 1000.0f, 10000, sampler);
 
-	LOG("Preprocessing");
+  LOG("Preprocessing");
 
   vector<vector<Ray2D>> rays = scene.trace(3);
 
-	LOG("Tracing");
+  LOG("Tracing");
 
   VTKWriter vtkWriter("vtkOut");
   vtkWriter.add(mirror, "mirror");
@@ -42,5 +49,7 @@ int main(int argc, char *argv[]) {
   vtkWriter.addAsComposition(rays, "rays_composition", 100);
   vtkWriter.write();
 
-	LOG("Output");
+  LOG("Output");
+
+	cout << "Absorbed Power: " << crystal->sum() << " W" << endl;
 }

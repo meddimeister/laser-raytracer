@@ -27,16 +27,17 @@ struct Ray3D {
 struct Ray2D {
   vec2 origin;
   vec2 direction;
+	float power;
   bool terminated = false;
   float terminatedAt;
 
-  Ray2D(const vec2 &_origin, const vec2 &_direction)
-      : origin(_origin), direction(_direction) {}
+  Ray2D(const vec2 &_origin, const vec2 &_direction, float _power)
+      : origin(_origin), direction(_direction), power(_power) {}
 
   Ray2D reflect(float t, const vec2 &normal) const {
     vec2 ori = origin + t * direction;
     vec2 dir = glm::reflect(direction, normal);
-    return Ray2D(ori, dir);
+    return Ray2D(ori, dir, power);
   }
 
 	void terminate(float t){

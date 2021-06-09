@@ -8,7 +8,7 @@ void Scene2D::add(const shared_ptr<Object2D> &object) {
 }
 
 void Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction,
-                                float maxAngle, unsigned int count,
+                                float maxAngle, float totalPower, unsigned int count,
                                 RNG::Sampler<float> &sampler) {
 
   sampler.init(count);
@@ -17,7 +17,9 @@ void Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction,
     vec2 dir = rotate(direction, angle);
     dir = normalize(dir);
 
-    startrays.push_back(Ray2D(origin, dir));
+		float power = totalPower/count;
+
+    startrays.push_back(Ray2D(origin, dir, power));
   }
 }
 

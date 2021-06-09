@@ -11,7 +11,7 @@ public:
   void add(const shared_ptr<Object2D> &object);
 
   void generatePointRays(const vec2 &origin, const vec2 &direction,
-                         float maxAngle, unsigned int count,
+                         float maxAngle, float totalPower, unsigned int count,
                          RNG::Sampler<float> &sampler);
 
   vector<vector<Ray2D>> trace(unsigned int depth = 1);
