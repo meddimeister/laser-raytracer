@@ -122,7 +122,7 @@ IntersectResult2D Object2D::intersect(const Ray2D &ray) const {
   ret.hit = false;
 
   root->forEachConditional([&](shared_ptr<Tree> t) {
-    IntersectResult2D boxResult = t->box->intersect(ray);
+    IntersectResult2D boxResult = t->box->intersectCheck(ray);
     if (boxResult.hit) {
       // intersect shapes if any there
       for (auto &shape : t->shapes) {

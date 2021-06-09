@@ -6,6 +6,7 @@
 #include "scene.h"
 #include "shape.h"
 #include "vtk.h"
+#include "lens.h"
 
 using namespace std;
 
@@ -26,10 +27,13 @@ int main(int argc, char *argv[]) {
 					ray.power = remainingPower;
 				}));
 
+	auto lens = make_shared<Lens2D>(Lens2D({0.25f, 0.0f}, {0.0f, 0.0f}, 0.1f, {0.0f, 0.0f}));
+
   Scene2D scene;
 
   scene.add(mirror);
   scene.add(crystal);
+  scene.add(lens);
 
   RNG::StratifiedSampler1D sampler;
   scene.generatePointRays({0.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 1000.0f, 10000, sampler);
@@ -45,6 +49,8 @@ int main(int argc, char *argv[]) {
   vtkWriter.add(mirror->getAABBs(), "mirror.AABB");
   vtkWriter.add(crystal, "crystal");
   vtkWriter.add(crystal->getAABBs(), "crystal.AABB");
+  vtkWriter.add(lens, "lens");
+  vtkWriter.add(lens->getAABBs(), "lens.AABB");
   vtkWriter.addAsSequence(rays, "rays", 100);
   vtkWriter.addAsComposition(rays, "rays_composition", 100);
   vtkWriter.write();

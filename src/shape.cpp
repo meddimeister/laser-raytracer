@@ -160,6 +160,54 @@ IntersectResult2D BoundingBox2D::intersectCheck(const Ray2D &ray) const {
   return ret;
 }
 
+Sphere2D::Sphere2D(const vec2 &_center, float _radius)
+    : center(_center), radius(_radius) {
+  vector<vec2> points = {
+      {center.x - radius, center.y},
+      {center.x + radius, center.y},
+      {center.x, center.y - radius},
+      {center.x, center.y + radius},
+  };
+  aabb = AABB2D(points);
+}
+
+IntersectResult2D Sphere2D::intersect(const Ray2D &ray) const {
+  IntersectResult2D ret;
+
+  float a = dot(ray.direction, ray.direction);
+  float b = 2.0f * ray.direction.x * (ray.origin.x - center.x) +
+            2.0f * ray.direction.y * (ray.origin.y - center.y);
+  float c = dot(ray.origin - center, ray.origin - center) - radius * radius;
+
+  float discriminante = sqrt(b * b - 4.0f * a * c);
+  if (discriminante > 0.0f) {
+    float tEnter = (-b - discriminante) / (2.0f * a);
+    float tLeave = (-b + discriminante) / (2.0f * a);
+
+    if (tEnter >= 0.0f) {
+      ret.tEnter = tEnter;
+      ret.tLeave = tLeave;
+      ret.normalEnter = normalize(ray.origin + tEnter * ray.direction - center);
+      ret.normalLeave = normalize(ray.origin + tLeave * ray.direction - center);
+      ret.hit = true;
+    }
+  }
+  return ret;
+}
+
+vector<vec4> Sphere2D::lineRepresentation() const {
+  vector<vec4> lines;
+  float segmentAngle = 2.0f * M_PI / 100;
+  vec2 a = {radius, 0.0f};
+  for (int i = 0; i < 100; ++i) {
+    vec2 b = rotate(a, segmentAngle);
+    lines.push_back(
+        {a.x + center.x, a.y + center.y, b.x + center.x, b.y + center.y});
+    a = b;
+  }
+  return lines;
+}
+
 vector<vec4> BoundingBox2D::lineRepresentation() const {
   return {{aabb.bmin.x, aabb.bmin.y, aabb.bmin.x, aabb.bmax.y},
           {aabb.bmax.x, aabb.bmin.y, aabb.bmax.x, aabb.bmax.y},

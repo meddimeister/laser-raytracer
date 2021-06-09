@@ -65,6 +65,16 @@ public:
   vector<vec4> lineRepresentation() const;
 };
 
+class Sphere2D : public Shape2D{
+public:
+	vec2 center;
+	float radius;
+
+  Sphere2D(const vec2 &_center, float _radius);
+  IntersectResult2D intersect(const Ray2D &ray) const;
+  vector<vec4> lineRepresentation() const;
+};
+
 ostream &operator<<(ostream &stream, const IntersectResult2D &intersectResult);
 ostream &operator<<(ostream &stream, const IntersectResult2D &intersectResult);
 ostream &operator<<(ostream &stream, const Line2D &line);
