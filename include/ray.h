@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math.h"
+#include "physics.h"
 #include <functional>
 #include <ostream>
 #include <vector>
@@ -27,7 +28,7 @@ struct Ray3D {
 struct Ray2D {
   vec2 origin;
   vec2 direction;
-	float power;
+  float power;
   bool terminated = false;
   float terminatedAt;
 
@@ -40,10 +41,26 @@ struct Ray2D {
     return Ray2D(ori, dir, power);
   }
 
-	void terminate(float t){
-		terminated = true;
-		terminatedAt = t;
-	}
+  tuple<Ray2D, Ray2D> refract(float t, const vec2 &normal, float n_e,
+                              float n_t) const {
+    vec2 orientedNormal = -normal;
+    float theta_e = orientedAngle(direction, orientedNormal);
+    float theta_t = snellius(theta_e, n_e, n_t);
+    auto [r_perp, r_para, t_perp, t_para] = fresnel(abs(theta_e), abs(theta_t));
+    Ray2D ray_reflect = reflect(t, normal);
+    ray_reflect.power = (r_perp + r_para) / 2 * power;
+
+    vec2 transmit_dir = rotate(orientedNormal, -theta_t);
+    float transmit_power = (t_perp + t_para) / 2 * power;
+    Ray2D ray_transmit(origin + t * direction, transmit_dir, transmit_power);
+
+    return {ray_reflect, ray_transmit};
+  }
+
+  void terminate(float t) {
+    terminated = true;
+    terminatedAt = t;
+  }
 };
 
 ostream &operator<<(ostream &stream, const Ray3D &ray);

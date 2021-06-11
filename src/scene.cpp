@@ -29,9 +29,12 @@ vector<vector<Ray2D>> Scene2D::trace(unsigned int depth) {
   allrays[0] = startrays;
 
   for (unsigned int d = 1; d < depth; ++d) {
-    vector<Ray2D> reflections;
+    vector<Ray2D> createdRays;
 
     for (auto &ray : allrays[d - 1]) {
+			
+			if (ray.terminated)
+				continue;
 
       map<float,
           tuple<shared_ptr<Object2D>, IntersectResult2D>>
@@ -46,12 +49,12 @@ vector<vector<Ray2D>> Scene2D::trace(unsigned int depth) {
       for (auto it = intersections.begin(); it != intersections.end(); it++) {
 				auto &pair = *it;
 				auto &[object, result] = pair.second;
-				object->action(ray, result, reflections);
+				object->action(ray, result, createdRays);
 				if(ray.terminated)
 					break;
       }
     }
-    allrays[d] = move(reflections);
+    allrays[d] = move(createdRays);
   }
   return allrays;
 }

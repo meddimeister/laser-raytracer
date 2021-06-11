@@ -65,12 +65,15 @@ public:
   vector<vec4> lineRepresentation() const;
 };
 
-class Sphere2D : public Shape2D{
+class Sphere2D : public Shape2D {
 public:
-	vec2 center;
-	float radius;
+  vec2 center;
+  float radius;
+	vec2 facing;
+	float maxAngle;
 
-  Sphere2D(const vec2 &_center, float _radius);
+  Sphere2D(const vec2 &_center, float _radius, const vec2 &_facing = {0.0f, 1.0f},
+           float _maxAngle = 2.0f * M_PI);
   IntersectResult2D intersect(const Ray2D &ray) const;
   vector<vec4> lineRepresentation() const;
 };

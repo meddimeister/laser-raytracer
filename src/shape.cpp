@@ -160,14 +160,24 @@ IntersectResult2D BoundingBox2D::intersectCheck(const Ray2D &ray) const {
   return ret;
 }
 
-Sphere2D::Sphere2D(const vec2 &_center, float _radius)
-    : center(_center), radius(_radius) {
-  vector<vec2> points = {
-      {center.x - radius, center.y},
-      {center.x + radius, center.y},
-      {center.x, center.y - radius},
-      {center.x, center.y + radius},
-  };
+Sphere2D::Sphere2D(const vec2 &_center, float _radius, const vec2 &_facing,
+                   float _maxAngle)
+    : center(_center), radius(_radius), facing(normalize(_facing)),
+      maxAngle(_maxAngle) {
+  vector<vec2> points;
+
+  if (abs(angle({-radius, 0.0f}, facing) < maxAngle / 2.0f))
+    points.push_back({center.x - radius, center.y});
+  if (abs(angle({radius, 0.0f}, facing) < maxAngle / 2.0f))
+    points.push_back({center.x + radius, center.y});
+  if (abs(angle({0.0f, -radius}, facing) < maxAngle / 2.0f))
+    points.push_back({center.x, center.y - radius});
+  if (abs(angle({0.0f, radius}, facing) < maxAngle / 2.0f))
+    points.push_back({center.x, center.y + radius});
+
+  points.push_back(rotate(radius * facing, -maxAngle / 2.0f) + center);
+  points.push_back(rotate(radius * facing, maxAngle / 2.0f) + center);
+
   aabb = AABB2D(points);
 }
 
@@ -185,11 +195,32 @@ IntersectResult2D Sphere2D::intersect(const Ray2D &ray) const {
     float tLeave = (-b + discriminante) / (2.0f * a);
 
     if (tEnter >= 0.0f) {
-      ret.tEnter = tEnter;
-      ret.tLeave = tLeave;
-      ret.normalEnter = normalize(ray.origin + tEnter * ray.direction - center);
-      ret.normalLeave = normalize(ray.origin + tLeave * ray.direction - center);
-      ret.hit = true;
+      vec2 enter = ray.origin + tEnter * ray.direction;
+      vec2 leave = ray.origin + tLeave * ray.direction;
+      vec2 normalEnter = normalize(enter - center);
+      vec2 normalLeave = normalize(leave - center);
+      if (abs(angle(normalEnter, facing)) <= maxAngle / 2.0f) {
+        ret.tEnter = tEnter;
+        ret.normalEnter = normalize(enter - center);
+        ret.hit = true;
+        if (abs(angle(normalLeave, facing)) <= maxAngle / 2.0f) {
+          ret.tLeave = tLeave;
+          ret.normalLeave = normalize(leave - center);
+          return ret;
+        } else {
+          ret.tLeave = tEnter;
+          ret.normalLeave = -normalize(enter - center);
+          return ret;
+        }
+      }
+      if (abs(angle(normalLeave, facing)) <= maxAngle / 2.0f) {
+        ret.tEnter = tLeave;
+        ret.tLeave = tLeave;
+        ret.normalEnter = -normalize(leave - center);
+        ret.normalLeave = normalize(leave - center);
+        ret.hit = true;
+        return ret;
+      }
     }
   }
   return ret;
@@ -197,8 +228,8 @@ IntersectResult2D Sphere2D::intersect(const Ray2D &ray) const {
 
 vector<vec4> Sphere2D::lineRepresentation() const {
   vector<vec4> lines;
-  float segmentAngle = 2.0f * M_PI / 100;
-  vec2 a = {radius, 0.0f};
+  float segmentAngle = maxAngle / 100;
+  vec2 a = rotate(radius * facing, -maxAngle / 2.0f);
   for (int i = 0; i < 100; ++i) {
     vec2 b = rotate(a, segmentAngle);
     lines.push_back(

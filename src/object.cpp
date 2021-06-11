@@ -4,19 +4,19 @@
 #include <queue>
 
 namespace ACTION_PRESETS {
-  void pass(Ray2D &ray, const IntersectResult2D &result,
-            vector<Ray2D> &createdRays) {}
+void pass(Ray2D &ray, const IntersectResult2D &result,
+          vector<Ray2D> &createdRays) {}
 
-  void absorb(Ray2D &ray, const IntersectResult2D &result,
-              vector<Ray2D> &createdRays) {
-    ray.terminate(result.tEnter);
-  }
+void absorb(Ray2D &ray, const IntersectResult2D &result,
+            vector<Ray2D> &createdRays) {
+  ray.terminate(result.tEnter);
+}
 
-  void reflect(Ray2D &ray, const IntersectResult2D &result,
-               vector<Ray2D> &createdRays) {
-    ray.terminate(result.tEnter);
-    createdRays.push_back(ray.reflect(result.tEnter, result.normalEnter));
-  }
+void reflect(Ray2D &ray, const IntersectResult2D &result,
+             vector<Ray2D> &createdRays) {
+  ray.terminate(result.tEnter);
+  createdRays.push_back(ray.reflect(result.tEnter, result.normalEnter));
+}
 } // namespace ACTION_PRESETS
 
 void Object2D::Tree::forEach(function<void(shared_ptr<Tree>)> func) const {
@@ -107,10 +107,9 @@ void Object2D::buildTree(unsigned int subdivisions) {
   root->subdivide(subdivisions);
 }
 
-Object2D::Object2D(
-    const vector<shared_ptr<Shape2D>> &&_shapes,
-    unsigned int _subdivisions, const vec2 &_pos, const vec2 &_up,
-    const vec2 &_scale)
+Object2D::Object2D(const vector<shared_ptr<Shape2D>> &&_shapes,
+                   unsigned int _subdivisions, const vec2 &_pos,
+                   const vec2 &_up, const vec2 &_scale)
     : shapes(_shapes), pos(_pos), up(_up), scale(_scale) {
   buildTree(_subdivisions);
 }
