@@ -97,6 +97,12 @@ float Grid2D::sum() {
   return sum;
 }
 
+void Grid2D::reset(){
+  for(auto &cell : data){
+    cell = 0.f;
+  }
+}
+
 ostream &operator<<(ostream &stream, const Grid2D &grid) {
   cout << "Grid2D: {grid: [" << endl;
   for (int y = 0; y < grid.maxY; ++y) {

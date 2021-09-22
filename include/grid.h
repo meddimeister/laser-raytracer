@@ -30,6 +30,8 @@ public:
 
 	float sum();
 
+  void reset();
+
   friend ostream &operator<<(ostream &stream, const Grid2D &grid);
 };
 
