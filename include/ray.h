@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math.h"
+#include "allmath.h"
 #include "physics.h"
 #include <functional>
 #include <ostream>

@@ -1,12 +1,13 @@
 #include "shape.h"
+#include <limits>
 
 AABB2D::AABB2D(const vector<vec2> &points) {
   if (points.empty()) {
     bmin = {0.0f, 0.0f};
     bmax = {0.0f, 0.0f};
   } else {
-    float xMin = MAXFLOAT, yMin = MAXFLOAT;
-    float xMax = -MAXFLOAT, yMax = -MAXFLOAT;
+    float xMin = std::numeric_limits<float>::max(), yMin = xMin;
+    float xMax = -xMin, yMax = -xMin;
     for (const auto &p : points) {
       if (p.x < xMin)
         xMin = p.x;

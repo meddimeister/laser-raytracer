@@ -1,5 +1,5 @@
 #include "scene.h"
-#include <cmath>
+#include "allmath.h"
 #include <map>
 #include <iostream>
 

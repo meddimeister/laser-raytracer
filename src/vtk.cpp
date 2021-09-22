@@ -63,9 +63,11 @@ void VTKWriter::add(const shared_ptr<Grid2D> &grid, const string &name) {
 void VTKWriter::write() const {
 
   if (!filesystem::exists(outputDirectory + "/")) {
-    if (!filesystem::create_directories(outputDirectory + "/")) {
+    filesystem::create_directories(outputDirectory + "/");
+    
+    if (!filesystem::exists(outputDirectory + "/")) {
       cerr << "Could not create directory " << outputDirectory << endl;
-      return;
+      return; 
     }
   }
 

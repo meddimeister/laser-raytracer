@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math.h"
+#include "allmath.h"
 #include "shape.h"
 #include <iostream>
 #include <memory>

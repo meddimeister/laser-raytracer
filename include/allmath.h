@@ -1,9 +1,12 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "glm.hpp"
 #include "gtx/rotate_vector.hpp"
 #include "gtx/vector_angle.hpp"
-#include <math.h>
+
 
 using namespace std;
 using namespace glm;

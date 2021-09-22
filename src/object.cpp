@@ -2,6 +2,7 @@
 #include "shape.h"
 #include <algorithm>
 #include <queue>
+#include <limits>
 
 namespace ACTION_PRESETS {
 void pass(Ray2D &ray, const IntersectResult2D &result,
@@ -116,8 +117,8 @@ Object2D::Object2D(const vector<shared_ptr<Shape2D>> &&_shapes,
 
 IntersectResult2D Object2D::intersect(const Ray2D &ray) const {
   IntersectResult2D ret;
-  ret.tEnter = MAXFLOAT;
-  ret.tLeave = -MAXFLOAT;
+  ret.tEnter = std::numeric_limits<float>::max();
+  ret.tLeave = -std::numeric_limits<float>::max();
   ret.hit = false;
 
   root->forEachConditional([&](shared_ptr<Tree> t) {

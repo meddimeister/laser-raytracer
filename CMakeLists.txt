@@ -7,7 +7,8 @@ project (${PROG_NAME})
 
 ############# COMPILER FLAGS ###############
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall")
+
 
 ############# SOURCE ###############
 
@@ -19,3 +20,4 @@ FILE(GLOB_RECURSE PROG_HEADER  include/*.h)
 
 add_executable(${PROG_NAME} ${PROG_SRC} ${PROG_HEADER})
 target_link_libraries(${PROG_NAME} ${LIBS} )
+target_compile_features(${PROG_NAME} PUBLIC cxx_std_17)
