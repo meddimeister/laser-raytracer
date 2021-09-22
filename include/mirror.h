@@ -14,11 +14,12 @@ vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_opticalAxis,
                                   const function<float(float)> _shapeFunction,
                                   int _segments);
 
-class Mirror2D : public Object2D {
+class Mirror2D : public Object2D
+{
 private:
   function<float(float)> shapeFunction;
   int segments;
-  
+
 public:
   Mirror2D(const vec2 &_pos, const vec2 &_opticalAxis,
            function<float(float)> _shapeFunction, int _segments)
@@ -26,11 +27,13 @@ public:
         shapeFunction(_shapeFunction), segments(_segments){};
 
   void action(Ray2D &ray, const IntersectResult2D &result,
-                      vector<Ray2D> &createdRays) {
-		ACTION_PRESETS::reflect(ray, result, createdRays);
+              vector<Ray2D> &createdRays)
+  {
+    ACTION_PRESETS::reflect(ray, result, createdRays);
   }
 
-  void rebuild(){
+  void rebuild()
+  {
     shapes = build(pos, up, shapeFunction, segments);
     buildTree(subdivisions);
   }

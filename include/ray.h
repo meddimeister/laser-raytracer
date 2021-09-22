@@ -9,7 +9,8 @@
 using namespace std;
 using namespace glm;
 
-struct Ray3D {
+struct Ray3D
+{
   vec3 origin;
   vec3 direction;
   bool hit = false;
@@ -18,14 +19,16 @@ struct Ray3D {
   Ray3D(const vec3 &_origin, const vec3 &_direction)
       : origin(_origin), direction(_direction) {}
 
-  Ray3D reflect(float t, const vec3 &normal) const {
+  Ray3D reflect(float t, const vec3 &normal) const
+  {
     vec3 ori = origin + t * direction;
     vec3 dir = glm::reflect(direction, normal);
     return Ray3D(ori, dir);
   }
 };
 
-struct Ray2D {
+struct Ray2D
+{
   vec2 origin;
   vec2 direction;
   float power;
@@ -35,14 +38,16 @@ struct Ray2D {
   Ray2D(const vec2 &_origin, const vec2 &_direction, float _power)
       : origin(_origin), direction(_direction), power(_power) {}
 
-  Ray2D reflect(float t, const vec2 &normal) const {
+  Ray2D reflect(float t, const vec2 &normal) const
+  {
     vec2 ori = origin + t * direction;
     vec2 dir = glm::reflect(direction, normal);
     return Ray2D(ori, dir, power);
   }
 
   tuple<Ray2D, Ray2D> refract(float t, const vec2 &normal, float n_e,
-                              float n_t) const {
+                              float n_t) const
+  {
     vec2 orientedNormal = -normal;
     float theta_e = orientedAngle(direction, orientedNormal);
     float theta_t = snellius(theta_e, n_e, n_t);
@@ -57,7 +62,8 @@ struct Ray2D {
     return {ray_reflect, ray_transmit};
   }
 
-  void terminate(float t) {
+  void terminate(float t)
+  {
     terminated = true;
     terminatedAt = t;
   }

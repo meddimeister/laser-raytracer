@@ -13,7 +13,8 @@ using namespace glm;
 vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_opticalAxis,
                                   float _width, float _height, const vec2 &_radii);
 
-class Lens2D : public Object2D {
+class Lens2D : public Object2D
+{
 public:
   Lens2D(const vec2 &_pos, const vec2 &_opticalAxis, float _width, float _height,
          const vec2 &_radii)
@@ -21,7 +22,8 @@ public:
                  _pos, _opticalAxis){};
 
   void action(Ray2D &ray, const IntersectResult2D &result,
-              vector<Ray2D> &createdRays) {
+              vector<Ray2D> &createdRays)
+  {
     ACTION_PRESETS::reflect(ray, result, createdRays);
   }
 };

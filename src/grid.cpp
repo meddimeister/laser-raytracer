@@ -2,14 +2,16 @@
 #include <iostream>
 
 vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_bmin,
-                                  const vec2 &_bmax) {
+                                  const vec2 &_bmax)
+{
   vector<shared_ptr<Shape2D>> boxes;
   boxes.push_back(make_shared<BoundingBox2D>(_pos + _bmin, _pos + _bmax));
   return boxes;
 }
 
 void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
-                    vector<Ray2D> &createdRays) {
+                    vector<Ray2D> &createdRays)
+{
 
   ray.terminate(result.tEnter);
   auto [ray_reflect_in, ray_transmit_in] =
@@ -23,11 +25,13 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
   int x = xf;
   int y = yf;
 
-  if (x == maxX && ray_transmit_in.direction.x < 0.0f) {
+  if (x == maxX && ray_transmit_in.direction.x < 0.0f)
+  {
     x = x - 1;
   }
 
-  if (y == maxY && ray_transmit_in.direction.y < 0.0f) {
+  if (y == maxY && ray_transmit_in.direction.y < 0.0f)
+  {
     y = y - 1;
   }
 
@@ -48,16 +52,20 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
   float tLast = 0.0f;
   float tSum = 0.0f;
 
-  while (x >= 0 && x < maxX && y >= 0 && y < maxY) {
+  while (x >= 0 && x < maxX && y >= 0 && y < maxY)
+  {
     float tTravel;
     float xCurrent = x;
     float yCurrent = y;
-    if (tMaxX < tMaxY) {
+    if (tMaxX < tMaxY)
+    {
       tTravel = tMaxX - tLast;
       tLast = tMaxX;
       tMaxX = tMaxX + tDeltaX;
       x = x + stepX;
-    } else {
+    }
+    else
+    {
       tTravel = tMaxY - tLast;
       tLast = tMaxY;
       tMaxY = tMaxY + tDeltaY;
@@ -89,24 +97,31 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
   // createdRays.push_back(ray_transmit_out);
 }
 
-float Grid2D::sum() {
+float Grid2D::sum()
+{
   float sum = 0.0f;
-  for (const auto &cell : data) {
+  for (const auto &cell : data)
+  {
     sum += cell;
   }
   return sum;
 }
 
-void Grid2D::reset(){
-  for(auto &cell : data){
+void Grid2D::reset()
+{
+  for (auto &cell : data)
+  {
     cell = 0.f;
   }
 }
 
-ostream &operator<<(ostream &stream, const Grid2D &grid) {
+ostream &operator<<(ostream &stream, const Grid2D &grid)
+{
   cout << "Grid2D: {grid: [" << endl;
-  for (int y = 0; y < grid.maxY; ++y) {
-    for (int x = 0; x < grid.maxX; ++x) {
+  for (int y = 0; y < grid.maxY; ++y)
+  {
+    for (int x = 0; x < grid.maxX; ++x)
+    {
       cout << grid.data[y * grid.maxX + x] << "\t";
     }
     cout << endl;

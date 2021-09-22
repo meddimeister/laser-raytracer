@@ -3,7 +3,8 @@
 #include "object.h"
 #include "random.h"
 
-class Scene2D {
+class Scene2D
+{
 public:
   vector<shared_ptr<Object2D>> objects;
   vector<Ray2D> startrays;

@@ -9,7 +9,8 @@
 using namespace std;
 using namespace glm;
 
-namespace ACTION_PRESETS {
+namespace ACTION_PRESETS
+{
   void pass(Ray2D &ray, const IntersectResult2D &result,
             vector<Ray2D> &createdRays);
 
@@ -18,10 +19,12 @@ namespace ACTION_PRESETS {
 
   void reflect(Ray2D &ray, const IntersectResult2D &result,
                vector<Ray2D> &createdRays);
-}// namespace ACTION_PRESETS
+} // namespace ACTION_PRESETS
 
-class Object2D {
-  struct Tree {
+class Object2D
+{
+  struct Tree
+  {
     shared_ptr<BoundingBox2D> box;
     vector<shared_ptr<Shape2D>> shapes;
     vector<shared_ptr<Tree>> children;
@@ -38,7 +41,6 @@ protected:
   vec2 up;
   vec2 scale;
   shared_ptr<Tree> root;
-  
 
   void buildTree(unsigned int subdivisions);
 
@@ -53,9 +55,11 @@ public:
 
   const vector<shared_ptr<Shape2D>> &getShapes() const { return shapes; }
 
-  vector<shared_ptr<Shape2D>> getAABBs() const {
+  vector<shared_ptr<Shape2D>> getAABBs() const
+  {
     vector<shared_ptr<Shape2D>> boxes;
-    root->forEach([&](shared_ptr<Tree> t) { boxes.push_back(t->box); });
+    root->forEach([&](shared_ptr<Tree> t)
+                  { boxes.push_back(t->box); });
     return boxes;
   }
 
@@ -66,7 +70,8 @@ public:
   IntersectResult2D intersect(const Ray2D &ray) const;
 
   virtual void action(Ray2D &ray, const IntersectResult2D &result,
-                      vector<Ray2D> &createdRays) {
-		ACTION_PRESETS::pass(ray, result, createdRays);
+                      vector<Ray2D> &createdRays)
+  {
+    ACTION_PRESETS::pass(ray, result, createdRays);
   }
 };
