@@ -107,6 +107,27 @@ float Grid2D::sum()
   return sum;
 }
 
+float Grid2D::avg()
+{
+  return sum() / data.size();
+}
+
+float Grid2D::var()
+{
+  float var;
+  float avg = this->avg();
+  for (const auto &cell : data)
+  {
+    var += (cell - avg) * (cell - avg);
+  }
+  return var;
+}
+
+float Grid2D::stddev()
+{
+  return sqrt(var());
+}
+
 void Grid2D::reset()
 {
   for (auto &cell : data)

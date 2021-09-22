@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
   {
     rays = scene.trace(3);
     csvWriter.add(to_string(a) + " " + to_string(crystal->sum()), "absorbed_power");
+    csvWriter.add(to_string(a) + " " + to_string(crystal->var()), "variance");
 
     a += 1.0f / iterations;
     mirror->rebuild();

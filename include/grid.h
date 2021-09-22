@@ -32,6 +32,9 @@ public:
               vector<Ray2D> &createdRays);
 
   float sum();
+  float avg();
+  float var();
+  float stddev();
 
   void reset();
 
