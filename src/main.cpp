@@ -8,6 +8,7 @@
 #include "shape.h"
 #include "vtk.h"
 #include "csv.h"
+#include "optimization.h"
 
 using namespace std;
 
@@ -17,10 +18,11 @@ int main(int argc, char *argv[])
   LOG("Start");
 
   float a = 0.0f;
+  float b = 0.0f;
 
   auto mirror = make_shared<Mirror2D>(Mirror2D(
       {2.0f, 0.0f}, {-1.0f, 0.0f}, [&](float x)
-      { return a * x * x; },
+      { return a * x * x + b; },
       100));
 
   auto crystal = make_shared<Grid2D>(
@@ -56,19 +58,28 @@ int main(int argc, char *argv[])
   vector<vector<Ray2D>> rays;
 
   CSVWriter csvWriter("csvOut");
-  csvWriter.add("#a Abs.Power[W]", "absorbed_power");
+  csvWriter.add("#a b Abs.Power[W]", "absorbed_power");
 
-  int iterations = 1000;
-  for (int i = 0; i < iterations; ++i)
+  auto trace = [&](const vector<float> &params)
   {
-    rays = scene.trace(3);
-    csvWriter.add(to_string(a) + " " + to_string(crystal->sum()), "absorbed_power");
-    csvWriter.add(to_string(a) + " " + to_string(crystal->var()), "variance");
-
-    a += 1.0f / iterations;
+    a = params[0];
+    b = params[1];
     mirror->rebuild();
+    rays = scene.trace(3);
+    float functional = -crystal->sum();
     crystal->reset();
-  }
+    return functional;
+  };
+
+  auto update = [&](const vector<float> &params)
+  {
+    csvWriter.add(to_string(a) + " " + to_string(b) + " " + to_string(crystal->sum()), "absorbed_power");
+    csvWriter.add(to_string(a) + " " + to_string(b) + " " + to_string(crystal->var()), "variance");
+
+    cout << crystal->sum() << endl;
+  };
+
+  gradientDescent(trace, {a, b}, update);
 
   LOG("Tracing");
 
