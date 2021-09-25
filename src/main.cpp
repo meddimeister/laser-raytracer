@@ -22,7 +22,10 @@ int main(int argc, char *argv[])
 
   auto mirror = make_shared<Mirror2D>(Mirror2D(
       {2.0f, 0.0f}, {-1.0f, 0.0f}, [&](float x)
-      { return a * x * x + b; },
+      {
+        //cout << "lambda " << a << " " << b << endl;
+        return a * x * x + b;
+      },
       100));
 
   auto crystal = make_shared<Grid2D>(
@@ -71,15 +74,8 @@ int main(int argc, char *argv[])
     return functional;
   };
 
-  auto update = [&](const vector<float> &params)
-  {
-    csvWriter.add(to_string(a) + " " + to_string(b) + " " + to_string(crystal->sum()), "absorbed_power");
-    csvWriter.add(to_string(a) + " " + to_string(b) + " " + to_string(crystal->var()), "variance");
-
-    cout << crystal->sum() << endl;
-  };
-
-  gradientDescent(trace, {a, b}, update);
+  gridSearch(trace, {a, b}, {10, 10}, {0.1f, 0.1f});
+  //gradientDescent(trace, {a, b});
 
   LOG("Tracing");
 
