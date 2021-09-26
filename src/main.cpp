@@ -17,13 +17,12 @@ int main(int argc, char *argv[])
 
   LOG("Start");
 
-  float a = 0.0f;
-  float b = 0.0f;
+  float a = 0.f;
+  float b = 0.f;
 
   auto mirror = make_shared<Mirror2D>(Mirror2D(
       {2.0f, 0.0f}, {-1.0f, 0.0f}, [&](float x)
       {
-        //cout << "lambda " << a << " " << b << endl;
         return a * x * x + b;
       },
       100));
@@ -74,8 +73,18 @@ int main(int argc, char *argv[])
     return functional;
   };
 
-  gridSearch(trace, {a, b}, {10, 10}, {0.1f, 0.1f});
+  vector<float> xMin = gridSearch(trace, {0.0f, 0.0f}, {10, 10}, {0.1f, 0.1f});
   //gradientDescent(trace, {a, b});
+
+  float functionalMin = trace(xMin);
+
+  cout << "Mirror Optimizer: " << endl;
+  cout << "Minimum of functional: " << functionalMin << endl;
+  cout << "Minimizing parameters: ";
+  for(const auto &param : xMin){
+    cout << param << " ";
+  }
+  cout << endl;
 
   LOG("Tracing");
 
