@@ -73,7 +73,8 @@ int main(int argc, char *argv[])
     return functional;
   };
 
-  vector<float> xMin = gridSearch(trace, {0.0f, 0.0f}, {10, 10}, {0.1f, 0.1f});
+  //vector<float> xMin = gridSearch(trace, {0.0f, 0.0f}, {10, 10}, {0.1f, 0.1f});
+  vector<float> xMin = progressiveGridSearch(trace, {0.0f, 0.0f}, {10, 10}, {0.1f, 0.1f});
   //gradientDescent(trace, {a, b});
 
   float functionalMin = trace(xMin);
