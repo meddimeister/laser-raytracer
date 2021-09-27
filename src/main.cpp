@@ -22,9 +22,7 @@ int main(int argc, char *argv[])
 
   auto mirror = make_shared<Mirror2D>(Mirror2D(
       {2.0f, 0.0f}, {-1.0f, 0.0f}, [&](float x)
-      {
-        return a * x * x + b;
-      },
+      { return a * x * x + b; },
       100));
 
   auto crystal = make_shared<Grid2D>(
@@ -73,8 +71,9 @@ int main(int argc, char *argv[])
     return functional;
   };
 
-  //vector<float> xMin = gridSearch(trace, {0.0f, 0.0f}, {10, 10}, {0.1f, 0.1f});
-  vector<float> xMin = progressiveGridSearch(trace, {0.0f, 0.0f}, {10, 10}, {0.1f, 0.1f});
+  //vector<float> xMin = sequentialGridSearch(trace, {0.0f, 0.0f}, {10, 10}, {0.1f, 0.1f});
+  //vector<float> xMin = gridSearch(trace, {0.0f, 0.0f}, 2, {0.5f, 0.5f});
+  vector<float> xMin = starSearch(trace, {0.0f, 0.0f}, 2, {0.5f, 0.5f});
   //gradientDescent(trace, {a, b});
 
   float functionalMin = trace(xMin);
@@ -82,7 +81,8 @@ int main(int argc, char *argv[])
   cout << "Mirror Optimizer: " << endl;
   cout << "Minimum of functional: " << functionalMin << endl;
   cout << "Minimizing parameters: ";
-  for(const auto &param : xMin){
+  for (const auto &param : xMin)
+  {
     cout << param << " ";
   }
   cout << endl;

@@ -33,8 +33,8 @@ vector<float> gradientFirstOrder(function<float(const vector<float> &)> f, const
     return grad;
 }
 
-bool iterateGrid(vector<int> &idx, const vector<int> &steps,
-                 function<bool(const vector<int> &)> action, int dim = 0)
+bool iterateSequentialGrid(vector<int> &idx, const vector<int> &steps,
+                           function<bool(const vector<int> &)> action, int dim = 0)
 {
     if (dim >= idx.size())
     {
@@ -43,7 +43,7 @@ bool iterateGrid(vector<int> &idx, const vector<int> &steps,
     for (int i = 0; i < steps[dim]; ++i)
     {
         idx[dim] = i;
-        bool cont = iterateGrid(idx, steps, action, dim + 1);
+        bool cont = iterateSequentialGrid(idx, steps, action, dim + 1);
         if (!cont)
             return false;
     }
@@ -70,7 +70,7 @@ void getConfigurations(
     }
 }
 
-bool iterateProgressiveGrid(int dim, int radius, function<bool(const vector<int> &)> action,
+bool iterateGrid(int dim, int radius, function<bool(const vector<int> &)> action,
                  int rad = 0)
 {
     vector<int> allowed = {0};
@@ -99,36 +99,105 @@ bool iterateProgressiveGrid(int dim, int radius, function<bool(const vector<int>
         //permute configuration
         for (const auto &config : configs)
         {
-            cout << "[ ";
             vector<int> permutation;
             for (int elementIdx = 0; elementIdx < config.size(); ++elementIdx)
             {
-                cout << config[elementIdx] << " ";
-                for(int i = 0; i < config[elementIdx]; ++i){
+                for (int i = 0; i < config[elementIdx]; ++i)
+                {
                     permutation.push_back(allowed[elementIdx]);
                 }
             }
-            cout << "] " << endl;
             do
             {
-                for (const auto &idx : permutation)
-                {
-                    cout << idx << " ";
-                }
-                cout << endl;
+                if (!action(permutation))
+                    return false;
             } while (next_permutation(permutation.begin(), permutation.end()));
         }
     }
     return true;
 }
 
-vector<float> gridSearch(function<float(const vector<float> &)> f, const vector<float> &x,
-                         const vector<int> &xSteps, const vector<float> &xDeltas)
+bool iterateStar(int dim, int radius, function<bool(const vector<int> &)> action,
+                 int rad = 0)
 {
-    float min = numeric_limits<float>::max();
+
+    vector<int> idx(dim, 0);
+    if (!action(idx))
+        return false;
+    for (rad = 1; rad <= radius; ++rad)
+    {
+        for (int i = 0; i < dim; ++i)
+        {
+            idx[i] = rad;
+            if (!action(idx))
+                return false;
+            fill(idx.begin(), idx.end(), 0);
+            idx[i] = -rad;
+            if (!action(idx))
+                return false;
+            fill(idx.begin(), idx.end(), 0);
+        }
+        vector<int> allowed = {-rad, rad};
+        vector<vector<int>> configs;
+        vector<int> config(2, 0);
+        getConfigurations(dim, configs, config);
+
+        //permute configuration
+        for (const auto &config : configs)
+        {
+            vector<int> permutation;
+            for (int elementIdx = 0; elementIdx < config.size(); ++elementIdx)
+            {
+                for (int i = 0; i < config[elementIdx]; ++i)
+                {
+                    permutation.push_back(allowed[elementIdx]);
+                }
+            }
+            do
+            {
+                if (!action(permutation))
+                    return false;
+            } while (next_permutation(permutation.begin(), permutation.end()));
+        }
+    }
+
+    return true;
+}
+
+vector<float> sequentialGridSearch(function<float(const vector<float> &)> f, const vector<float> &x,
+                                   const vector<int> &xSteps, const vector<float> &xDeltas,
+                                   bool checkAllPoints)
+{
+    float min = f(x);
     vector<int> idx(x.size());
-    vector<float> xMin(x.size());
-    iterateGrid(idx, xSteps, [&](const vector<int> &idx)
+    vector<float> xMin = x;
+    iterateSequentialGrid(idx, xSteps, [&](const vector<int> &idx)
+                          {
+                              vector<float> xSearchpoint = x;
+                              for (int dim = 0; dim < x.size(); ++dim)
+                              {
+                                  xSearchpoint[dim] += idx[dim] * xDeltas[dim];
+                              }
+                              float f_search = f(xSearchpoint);
+                              if (f_search < min)
+                              {
+                                  min = f_search;
+                                  xMin = move(xSearchpoint);
+                                  if (!checkAllPoints)
+                                      return false;
+                              }
+                              return true;
+                          });
+    return xMin;
+}
+
+vector<float> gridSearch(function<float(const vector<float> &)> f, const vector<float> &x,
+                         int radius, const vector<float> &xDeltas, bool checkAllPoints,
+                         bool progressiveSteps)
+{
+    float min = f(x);
+    vector<float> xMin = x;
+    iterateGrid(x.size(), radius, [&](const vector<int> &idx)
                 {
                     vector<float> xSearchpoint = x;
                     for (int dim = 0; dim < x.size(); ++dim)
@@ -140,18 +209,38 @@ vector<float> gridSearch(function<float(const vector<float> &)> f, const vector<
                     {
                         min = f_search;
                         xMin = move(xSearchpoint);
+                        if (!checkAllPoints)
+                            return false;
                     }
                     return true;
                 });
     return xMin;
 }
 
-vector<float> progressiveGridSearch(function<float(const vector<float> &)> f, const vector<float> &x,
-                         const vector<int> &xSteps, const vector<float> &xDeltas)
+vector<float> starSearch(function<float(const vector<float> &)> f, const vector<float> &x,
+                         int radius, const vector<float> &xDeltas, bool checkAllPoints,
+                         bool progressiveSteps)
 {
-    iterateProgressiveGrid(2, 2, [&](const vector<int> &idx)
-                { return true; });
-    return {};
+    float min = f(x);
+    vector<float> xMin = x;
+    iterateStar(x.size(), radius, [&](const vector<int> &idx)
+                {
+                    vector<float> xSearchpoint = x;
+                    for (int dim = 0; dim < x.size(); ++dim)
+                    {
+                        xSearchpoint[dim] += idx[dim] * xDeltas[dim];
+                    }
+                    float f_search = f(xSearchpoint);
+                    if (f_search < min)
+                    {
+                        min = f_search;
+                        xMin = move(xSearchpoint);
+                        if (!checkAllPoints)
+                            return false;
+                    }
+                    return true;
+                });
+    return xMin;
 }
 
 vector<float> gradientDescent(function<float(const vector<float> &)> f, const vector<float> &xStart)
