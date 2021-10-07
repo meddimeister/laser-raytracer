@@ -23,7 +23,7 @@ static void getConfigurations(
     }
 }
 
-template<size_t N>
+template <size_t N>
 bool iterateSequentialGrid(vecn<int, N> &idx, const vecn<int, N> &steps,
                            function<bool(const vecn<int, N> &)> action, int dim = 0)
 {
@@ -41,12 +41,11 @@ bool iterateSequentialGrid(vecn<int, N> &idx, const vecn<int, N> &steps,
     return true;
 }
 
-template<size_t N>
+template <size_t N>
 bool iterateGrid(int dim, int radius, function<bool(const vecn<int, N> &)> action,
                  int rad = 0)
 {
     vector<int> allowed = {0};
-    vecn<int, N> configuration;
     for (rad = 0; rad <= radius; ++rad)
     {
         //add new allowed index counts
@@ -57,7 +56,7 @@ bool iterateGrid(int dim, int radius, function<bool(const vecn<int, N> &)> actio
         }
         //build configuration
         vector<vector<int>> configs;
-        vector<int> config(2, 0);
+        vector<int> config(allowed.size(), 0);
         getConfigurations(dim, configs, config, [&](const vector<int> &c)
                           {
                               if (rad > 0)
@@ -90,7 +89,7 @@ bool iterateGrid(int dim, int radius, function<bool(const vecn<int, N> &)> actio
     return true;
 }
 
-template<size_t N>
+template <size_t N>
 bool iterateStar(int dim, int radius, function<bool(const vecn<int, N> &)> action,
                  int rad = 0)
 {
@@ -112,10 +111,9 @@ bool iterateStar(int dim, int radius, function<bool(const vecn<int, N> &)> actio
                 return false;
             fill(idx.begin(), idx.end(), 0);
         }
-        vecn<int,2> allowed = {-rad, rad};
-        vector<vecn<int, 2>> configs;
-        vecn<int, 2> config;
-        config.fill(0);
+        vecn<int, 2> allowed = {-rad, rad};
+        vector<vector<int>> configs;
+        vector<int> config(2, 0);
         getConfigurations(dim, configs, config);
 
         //permute configuration

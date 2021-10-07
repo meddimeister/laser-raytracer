@@ -15,25 +15,21 @@ vecn<float, N> sequentialGridSearch(function<float(const vecn<float, N> &)> f, c
                                     bool checkAllPoints = true)
 {
     float min = f(x);
-    vector<int> idx(x.size());
-    vector<float> xMin = x;
+    vecn<int, N> idx;
+    vecn<float, N> xMin = x;
     iterateSequentialGrid<N>(idx, xSteps, [&](const vecn<int, N> &idx)
-                          {
-                              auto xSearchpoint = x;
-                              for (int dim = 0; dim < x.size(); ++dim)
-                              {
-                                  xSearchpoint[dim] += idx[dim] * xDeltas[dim];
-                              }
-                              float f_search = f(xSearchpoint);
-                              if (f_search < min)
-                              {
-                                  min = f_search;
-                                  xMin = move(xSearchpoint);
-                                  if (!checkAllPoints)
-                                      return false;
-                              }
-                              return true;
-                          });
+                             {
+                                 auto xSearchpoint = x + xDeltas * idx;
+                                 float f_search = f(xSearchpoint);
+                                 if (f_search < min)
+                                 {
+                                     min = f_search;
+                                     xMin = move(xSearchpoint);
+                                     if (!checkAllPoints)
+                                         return false;
+                                 }
+                                 return true;
+                             });
     return xMin;
 }
 
@@ -43,24 +39,20 @@ vecn<float, N> gridSearch(function<float(const vecn<float, N> &)> f, const vecn<
                           bool progressiveSteps = false)
 {
     float min = f(x);
-    auto xMin = x;
+    vecn<float, N> xMin = x;
     iterateGrid<N>(x.size(), radius, [&](const vecn<int, N> &idx)
-                {
-                    auto xSearchpoint = x;
-                    for (int dim = 0; dim < x.size(); ++dim)
-                    {
-                        xSearchpoint[dim] += idx[dim] * xDeltas[dim];
-                    }
-                    float f_search = f(xSearchpoint);
-                    if (f_search < min)
-                    {
-                        min = f_search;
-                        xMin = move(xSearchpoint);
-                        if (!checkAllPoints)
-                            return false;
-                    }
-                    return true;
-                });
+                   {
+                       auto xSearchpoint = x + xDeltas * idx;
+                       float f_search = f(xSearchpoint);
+                       if (f_search < min)
+                       {
+                           min = f_search;
+                           xMin = move(xSearchpoint);
+                           if (!checkAllPoints)
+                               return false;
+                       }
+                       return true;
+                   });
     return xMin;
 }
 
@@ -72,22 +64,18 @@ vecn<float, N> starSearch(function<float(const vecn<float, N> &)> f, const vecn<
     float min = f(x);
     auto xMin = x;
     iterateStar<N>(x.size(), radius, [&](const vecn<int, N> &idx)
-                {
-                    auto xSearchpoint = x;
-                    for (int dim = 0; dim < x.size(); ++dim)
-                    {
-                        xSearchpoint[dim] += idx[dim] * xDeltas[dim];
-                    }
-                    float f_search = f(xSearchpoint);
-                    if (f_search < min)
-                    {
-                        min = f_search;
-                        xMin = move(xSearchpoint);
-                        if (!checkAllPoints)
-                            return false;
-                    }
-                    return true;
-                });
+                   {
+                       auto xSearchpoint = x + xDeltas * idx;
+                       float f_search = f(xSearchpoint);
+                       if (f_search < min)
+                       {
+                           min = f_search;
+                           xMin = move(xSearchpoint);
+                           if (!checkAllPoints)
+                               return false;
+                       }
+                       return true;
+                   });
     return xMin;
 }
 

@@ -6,8 +6,8 @@ using namespace std;
 template <class T, size_t N>
 struct vecn : public array<T, N>
 {
-
-    vecn<T, N> operator+(const vecn<T, N> &other) const
+    template<class U>
+    vecn<T, N> operator+(const vecn<U, N> &other) const
     {
         vecn<T, N> result;
         for (size_t i = 0; i < this->size(); ++i)
@@ -17,7 +17,8 @@ struct vecn : public array<T, N>
         return result;
     }
 
-    vecn<T, N> operator-(const vecn<T, N> &other) const
+    template<class U>
+    vecn<T, N> operator-(const vecn<U, N> &other) const
     {
         vecn<T, N> result;
         for (size_t i = 0; i < this->size(); ++i)
@@ -27,7 +28,19 @@ struct vecn : public array<T, N>
         return result;
     }
 
-    vecn<T, N> operator*(const T &factor) const
+    template<class U>
+    vecn<T, N> operator*(const vecn<U, N> &other) const
+    {
+        vecn<T, N> result;
+        for (size_t i = 0; i < this->size(); ++i)
+        {
+            result[i] = this->operator[](i) * other[i];
+        }
+        return result;
+    }
+
+    template<class U>
+    vecn<T, N> operator*(const U &factor) const
     {
         vecn<T, N> result;
         for (size_t i = 0; i < this->size(); ++i)
@@ -37,7 +50,8 @@ struct vecn : public array<T, N>
         return result;
     }
 
-    vecn<T, N> operator/(const T &divisor) const
+    template<class U>
+    vecn<T, N> operator/(const U &divisor) const
     {
         vecn<T, N> result;
         for (size_t i = 0; i < this->size(); ++i)
