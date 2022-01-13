@@ -1,0 +1,47 @@
+\mode<presentation>
+
+
+\usepackage{calc}
+\usepackage{pgf}
+
+
+\newif\ifbeamer@image
+\beamer@imagefalse
+
+\newif\ifbeamer@plain
+\beamer@plainfalse
+
+\newif\ifbeamer@longtitle
+\beamer@longtitlefalse
+
+\DeclareOptionBeamer{image}[true]{%
+  \csname beamer@image#1\endcsname%
+}
+
+\DeclareOptionBeamer{plain}[true]{%
+  \csname beamer@plain#1\endcsname%
+}
+
+\DeclareOptionBeamer{longtitle}[true]{%
+  \csname beamer@longtitle#1\endcsname%
+}
+
+\ProcessOptionsBeamer
+
+
+% Set paths for RWFak FB Jura images
+\ifdefined\imagepath\else
+  \def\imagepath{rw/jura}
+\fi
+
+
+% Include RWFak FAU theme
+\usetheme[
+  image=\ifbeamer@image true\else false\fi,
+  plain=\ifbeamer@plain true\else false\fi,
+  longtitle=\ifbeamer@longtitle true\else false\fi
+]{fau-rw}
+
+
+\mode
+<all>

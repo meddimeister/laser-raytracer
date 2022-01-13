@@ -1,0 +1,59 @@
+\mode<presentation>
+
+
+\usepackage{calc}
+\usepackage{pgf}
+
+
+\newif\ifbeamer@image
+\beamer@imagefalse
+
+\newif\ifbeamer@plain
+\beamer@plainfalse
+
+\newif\ifbeamer@longtitle
+\beamer@longtitlefalse
+
+\DeclareOptionBeamer{image}[true]{%
+  \csname beamer@image#1\endcsname%
+}
+
+\DeclareOptionBeamer{plain}[true]{%
+  \csname beamer@plain#1\endcsname%
+}
+
+\DeclareOptionBeamer{longtitle}[true]{%
+  \csname beamer@longtitle#1\endcsname%
+}
+
+\ProcessOptionsBeamer
+
+
+% Set paths for MedFak images
+\ifdefined\imagepath\else
+  \def\imagepath{med}
+\fi
+\ifdefined\sealpath\else
+  \def\sealpath{med}
+\fi
+
+
+% Include FAU theme
+\usetheme[
+  image=\ifbeamer@image true\else false\fi,
+  plain=\ifbeamer@plain true\else false\fi,
+  longtitle=\ifbeamer@longtitle true\else false\fi
+]{fau}
+
+
+% Set colors for MedFak
+\colorlet{maincolor}{faucyan}
+\colorlet{boxcolor1}{faugray}
+\colorlet{boxcolor2}{faugray}
+\colorlet{boxcolor3}{faugray}
+\colorlet{boxcolor4}{faugray}
+\colorlet{boxcolor5}{faugray}
+
+
+\mode
+<all>
