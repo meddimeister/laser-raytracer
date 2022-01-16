@@ -85,9 +85,6 @@ vecn<float, N> gradientDescent(function<float(const vecn<float, N> &)> f, const 
 {
     auto x = xStart;
 
-    //TODO: choose adaptive slope parameter h depending on x and machine error --> error analysis explained in paper
-    float h = 0.0001f;
-
     //TODO: how to choose epsilon? Error analysis?
     float epsilon = 0.000001f;
     int iteration = 0;
@@ -97,13 +94,16 @@ vecn<float, N> gradientDescent(function<float(const vecn<float, N> &)> f, const 
     {
         if (iteration++ > 1000)
             break;
-        auto grad = gradientSecondOrder(f, x, h);
+        auto grad = gradientSecondOrder(f, x);
 
+        DEBUG("CALCULATE GRADIENT");
         DEBUG("grad f(x) = " + to_string(grad[0]) + " " + to_string(grad[1]) + " f(x) = " + to_string(lastf));
         float L2 = length(grad);
+        DEBUG("L2 = " + to_string(L2));
 
         if (L2 < epsilon)
         {
+            DEBUG("L2 IS SMALLER EPSILON. STOP.");
             break;
             //TODO: check if current x is minimum in ball neighborhood
             //if not take minimum of neighborhood as new searchpoint
@@ -112,6 +112,7 @@ vecn<float, N> gradientDescent(function<float(const vecn<float, N> &)> f, const 
 
         //TODO: find optimal t with lineSearch
         //temporary hack
+        DEBUG("FIND OPTIMAL STEPSIZE");
         auto x_t = x;
         float t_opt = 0.0001f;
         float lastf_t = lastf;
@@ -124,14 +125,15 @@ vecn<float, N> gradientDescent(function<float(const vecn<float, N> &)> f, const 
             float currentf_t = f(x_t);
             if (currentf_t > lastf_t)
             {
+                DEBUG("F GETTING BIGGER. STOP. f = " + to_string(currentf_t));
                 t_opt -= 0.0001f;
                 break;
             }
             else
             {
+                DEBUG("F GETTING SMALLER f = " + to_string(currentf_t));
                 t_opt += 0.0001f;
             }
-            DEBUG(to_string(currentf_t));
             lastf_t = currentf_t;
         }
 
