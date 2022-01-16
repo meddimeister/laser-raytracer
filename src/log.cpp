@@ -4,22 +4,22 @@
 #include <iomanip>
 
 Timer logtimer;
-
-void setCoutParams()
-{
-	cout.setf(ios::scientific | ios::left);
-}
-
-void resetCoutParams()
-{
-	cout.unsetf(ios::scientific | ios::left);
-}
+Timer debugtimer;
 
 void LOG(const string &s)
 {
-	setCoutParams();
+	cout.setf(ios::scientific | ios::left);
 	const auto [absolute, delta] = logtimer.get();
 	string timerPrompt = "[" + to_string(absolute) + "s" + ", " + to_string(delta) + "s" + "]";
 	cout << setw(25) << timerPrompt << " " << s << endl;
-	resetCoutParams();
+	cout.unsetf(ios::scientific | ios::left);
+}
+
+void DEBUG(const string &s)
+{
+	cout.setf(ios::scientific | ios::left);
+	const auto [absolute, delta] = logtimer.get();
+	string timerPrompt = "\033[31m[" + to_string(absolute) + "s" + ", " + to_string(delta) + "s" + "]\033[0m";
+	cout << setw(25) << timerPrompt << " " << s << endl;
+	cout.unsetf(ios::scientific | ios::left);
 }
