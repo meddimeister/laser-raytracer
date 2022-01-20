@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <sstream>
 
 using namespace std;
 
@@ -80,9 +81,14 @@ vecn<T, N> normalize(const vecn<T, N> &vec)
 template <class T, size_t N>
 ostream &operator<<(ostream &stream, const vecn<T, N> &vec)
 {
-    stream << "[ ";
     for (const auto &e : vec)
         stream << e << " ";
-    stream << "]";
     return stream;
+}
+
+template <class T, size_t N>
+string to_string(const vecn<T, N> &vec){
+    stringstream ss;
+    ss << vec;
+    return ss.str();
 }
