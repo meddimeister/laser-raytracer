@@ -4,6 +4,7 @@
 #include "gtc/random.hpp"
 #include <random>
 #include <chrono>
+#include "vecn.h"
 
 using namespace std;
 using namespace glm;
@@ -45,19 +46,35 @@ namespace RNG
 
 	class UniformSampler1D : public UniformSampler<float>
 	{
+	public:
 		float next()
 		{
-			float sample = this->uniformDistribution(generator);
+			float sample = this->uniformDistribution(this->generator);
 			return sample;
 		}
 	};
 
 	class StratifiedSampler1D : public UniformSampler<float>
 	{
+	public:
 		float next()
 		{
-			float sample = this->uniformDistribution(generator);
+			float sample = this->uniformDistribution(this->generator);
 			return (idx++ + sample) / count;
+		}
+	};
+	
+	template<size_t N> 
+	class UniformSamplerND : public UniformSampler<vecn<float, N>>
+	{
+	public:
+		vecn<float, N> next()
+		{
+			vecn<float, N> sampleVec;
+			for(size_t i = 0; i < N; ++i){
+				sampleVec[i] = this->uniformDistribution(this->generator);
+			}
+			return sampleVec;
 		}
 	};
 } // namespace RNG
