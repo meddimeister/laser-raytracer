@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <functional>
 #include <limits>
 #include "vecn.h"
@@ -36,7 +37,6 @@ vecn<float, N> gradientSecondOrder(function<float(const vecn<float, N> &)> f, co
         volatile float xph_i = x[i] + h;
         volatile float xmh_i = x[i] - h;
         float dx = xph_i - xmh_i;
-        DEBUG("dx = " + to_string(h));
         xph[i] = xph_i;
         xmh[i] = xmh_i;
         grad[i] = (f(xph) - f(xmh)) / dx;
