@@ -146,12 +146,23 @@ namespace RNG
 	template<size_t N>
 	class UniformBallSampler : public Sampler<vecn<float,N>>
 	{
+	protected:
+		NormalSamplerND<N> normalSampler;
+		UniformSampler1D uniformSampler;
+
 	public:
+		void init(unsigned int _count){
+			this->idx = 0;
+			this->count = _count;
+			normalSampler.init(_count);
+			uniformSampler.init(_count);
+		}
+
 		vecn<float, N> next()
 		{
-			vecn<float, N> u = UniformSamplerND<N>::next();
+			auto u = normalSampler.next();
 			float norm = length(u);
-			float r = pow(this->uniformDistribution(this->generator), 1.0f/N);
+			float r = pow(uniformSampler.next(), 1.0f/N);
 
 			return (u * r)/norm;
 		}
