@@ -1,12 +1,15 @@
 #pragma once
 
+#include <cstddef>
 #include <functional>
 #include <vector>
 #include <iostream>
+#include "csv.h"
 #include "log.h"
 #include "vecn.h"
 #include "iterateshapes.h"
 #include "funcan.h"
+#include "random.h"
 
 using namespace std;
 
@@ -81,12 +84,35 @@ vecn<float, N> starSearch(function<float(const vecn<float, N> &)> f, const vecn<
 }
 
 template <size_t N>
-vecn<float, N> gradientDescent(function<float(const vecn<float, N> &)> f, const vecn<float, N> &xStart)
+vecn<float, N> ballSearch(function<float(const vecn<float, N> &)> f, const vecn<float, N> &x,
+                          float radius, size_t count, bool checkAllPoints = true){
+    RNG::UniformBallSampler<N> sampler;
+    sampler.init(count);
+
+    float min = f(x);
+    auto xMin = x;
+
+    for(size_t i = 0; i < count; ++i){
+        auto sample = sampler.next();
+        auto xSearchpoint = x + sample * radius;
+        float f_search = f(xSearchpoint);
+        if (f_search < min)
+        {
+            min = f_search;
+            xMin = move(xSearchpoint);
+            if (!checkAllPoints)
+                return xMin;
+        }
+    }
+
+    return xMin;
+}
+
+template <size_t N>
+vecn<float, N> optimize(function<float(const vecn<float, N> &)> f, const vecn<float, N> &xStart)
 {
     auto x = xStart;
 
-    //TODO: how to choose epsilon? Error analysis?
-    float epsilon = 0.000001f;
     int iteration = 0;
 
     float lastf = f(x);
@@ -101,48 +127,53 @@ vecn<float, N> gradientDescent(function<float(const vecn<float, N> &)> f, const 
         float L2 = length(grad);
         DEBUG("L2 = " + to_string(L2));
 
-        if (L2 < epsilon)
-        {
-            DEBUG("L2 IS SMALLER EPSILON. STOP.");
-            break;
-            //TODO: check if current x is minimum in ball neighborhood
-            //if not take minimum of neighborhood as new searchpoint
-            //if yes assume we have local minimum --> return x
-        }
-
         //TODO: find optimal t with lineSearch
         //temporary hack
         DEBUG("FIND OPTIMAL STEPSIZE");
         auto x_t = x;
-        float t_opt = 0.0001f;
+        float t_step = numeric_limits<float>::epsilon();
+        int step = 1;
         float lastf_t = lastf;
         while (1)
         {
             for (int i = 0; i < x.size(); ++i)
             {
-                x_t[i] = x[i] - t_opt * grad[i];
+                x_t[i] = x[i] - step * t_step * grad[i];
             }
             float currentf_t = f(x_t);
             if (currentf_t > lastf_t)
             {
                 DEBUG("F GETTING BIGGER. STOP. f = " + to_string(currentf_t));
-                t_opt -= 0.0001f;
+                step--;
                 break;
             }
             else
             {
                 DEBUG("F GETTING SMALLER f = " + to_string(currentf_t));
-                t_opt += 0.0001f;
+                step++;
             }
             lastf_t = currentf_t;
         }
 
-        for (int i = 0; i < x.size(); ++i)
-        {
-            x[i] = x[i] - t_opt * grad[i];
+        if(step != 0){
+            for (int i = 0; i < x.size(); ++i)
+            {
+                x[i] = x[i] - step * t_step * grad[i];
+            }
+            lastf = f(x);
         }
-
-        lastf = f(x);
+        else{
+            DEBUG("NO CHANGE IN GRADIENT DIRECTION");
+            auto xMinBall = ballSearch<N>(f, x, 0.1f, 100);
+            if(f(xMinBall) >= lastf) {
+                DEBUG("MINIMUM FOUND");
+                break;
+            }
+            else {
+                DEBUG("SMALLER MINIMUM IN BALL");
+                x = xMinBall;
+            }
+        }
     }
 
     return x;

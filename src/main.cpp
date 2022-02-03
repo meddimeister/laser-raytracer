@@ -75,22 +75,16 @@ int main(int argc, char *argv[])
 
   cout << "Mirror Optimizer: " << endl;
 
-  cout << "Initial gridSearch: " << endl;
+  cout << "Initial search: " << endl;
   vecn<float, 2> xMin = gridSearch<2>(trace, {0.0f, 0.0f}, 10, {0.2f, 0.2f});
-  cout << "Minimum of initial gridSearch: " << trace(xMin) << endl;
+  cout << "Minimum of initial search: " << trace(xMin) << endl;
 
   LOG("Initial Search");
 
-  cout << "gradientDescent: " << endl;
-  xMin = gradientDescent<2>(trace, xMin);
-  cout << "Minimum of gradientDescent: " << trace(xMin) << endl;
-  cout << "Minimizing parameters: ";
-
-  for (const auto &param : xMin)
-  {
-    cout << param << " ";
-  }
-  cout << endl;
+  cout << "Optimization: " << endl;
+  xMin = optimize<2>(trace, xMin);
+  cout << "Minimum: " << trace(xMin) << endl;
+  cout << "Minimizing parameters: " << xMin << endl;
 
   LOG("Tracing");
 
