@@ -3,6 +3,7 @@
 #include "allmath.h"
 #include "physics.h"
 #include <functional>
+#include <limits>
 #include <ostream>
 #include <vector>
 
@@ -42,6 +43,7 @@ struct Ray2D
   {
     vec2 ori = origin + t * direction;
     vec2 dir = glm::reflect(direction, normal);
+    ori += numeric_limits<float>::epsilon() * dir;
     return Ray2D(ori, dir, power);
   }
 
