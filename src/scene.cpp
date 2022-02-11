@@ -1,5 +1,6 @@
 #include "scene.h"
 #include "allmath.h"
+#include "gtx/transform.hpp"
 #include <map>
 #include <iostream>
 
@@ -26,6 +27,20 @@ void Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction,
   }
 }
 
+void Scene2D::generateDirectionalRays(const vec2 &origin, float radius, const vec2 &direction,
+                                float totalPower, unsigned int count,
+                                RNG::Sampler<float> &sampler)
+{
+
+  sampler.init(count);
+  for (unsigned int i = 0; i < count; ++i)
+  {
+    float originRadius = radius * (2.0f * sampler.next() - 1.0f);
+    float power = totalPower / count;
+
+    startrays.push_back(Ray2D(origin + originRadius * rotate(direction ,0.5f * float(M_PI)), direction, power));
+  }
+}
 vector<vector<Ray2D>> Scene2D::trace(unsigned int depth)
 {
 

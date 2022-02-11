@@ -141,7 +141,7 @@ vecn<float, N> optimize(function<float(const vecn<float, N> &)> f, const vecn<fl
                 x_t[i] = x[i] - step * t_step * grad[i];
             }
             float currentf_t = f(x_t);
-            if (currentf_t > lastf_t)
+            if (currentf_t >= lastf_t)
             {
                 DEBUG("F GETTING BIGGER. STOP. f = " + to_string(currentf_t));
                 step--;
