@@ -1,10 +1,12 @@
 #include "lens.h"
+#include <cmath>
 
 vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_opticalAxis,
-								  float _width, float _height, const vec2 &_radii)
+								  float _radius)
 {
 	vector<shared_ptr<Shape2D>> shapes;
-	shapes.push_back(make_shared<Sphere2D>(Sphere2D(_pos, _radii.x, {1.0f, 0.0f}, M_PI / 4.0f)));
-	shapes.push_back(make_shared<Sphere2D>(Sphere2D(_pos, _radii.y, {-1.0f, 0.0f}, M_PI / 4.0f)));
+	vec2 a = _pos + _radius * normalize(rotate(_opticalAxis, 0.5f * float(M_PI)));
+	vec2 b = _pos + _radius * normalize(rotate(_opticalAxis, -0.5f * float(M_PI)));
+	shapes.push_back(make_shared<Line2D>(Line2D(a, b)));
 	return shapes;
 }

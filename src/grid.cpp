@@ -114,7 +114,7 @@ float Grid2D::avg()
 
 float Grid2D::var()
 {
-  float var;
+  float var = 0.0f;
   float avg = this->avg();
   for (const auto &cell : data)
   {

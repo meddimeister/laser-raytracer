@@ -29,10 +29,7 @@ int main(int argc, char *argv[])
       Grid2D({1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 100, 20,
              [](Ray2D &ray, float distance, float &cell)
              {
-               if (isnan(ray.power))
-               {
-                 cout << ray;
-               }
+               //Lambert law of absorption
                float alpha = 2.0f;
                float remainingPower = ray.power * exp(-alpha * distance);
                float absorbedPower = ray.power - remainingPower;
@@ -40,18 +37,17 @@ int main(int argc, char *argv[])
                ray.power = remainingPower;
              }));
 
-  // auto lens = make_shared<Lens2D>(Lens2D({0.25f, 0.0f}, {0.0f, 0.0f}, 0.1f,
-  // {0.0f, 0.0f}));
+  auto lens = make_shared<Lens2D>(Lens2D({0.25f, 0.0f}, {1.0f, 0.0f}, 0.1f, 0.2f));
 
   Scene2D scene;
 
   scene.add(mirror);
   scene.add(crystal);
-  // scene.add(lens);
+  scene.add(lens);
 
   RNG::StratifiedSampler1D sampler;
-  scene.generatePointRays({0.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 1000.0f, 10000,
-                          sampler);
+  //scene.generatePointRays({0.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 1000.0f, 10000, sampler);
+  scene.generateDirectionalRays({0.0f, 0.0f}, 0.1f, {1.0f, 0.0f}, 1000.0f, 10000, sampler);
 
   LOG("Preprocessing");
 
@@ -95,8 +91,8 @@ int main(int argc, char *argv[])
   vtkWriter.add(mirror->getAABBs(), "mirror.AABB");
   vtkWriter.add(crystal, "crystal");
   vtkWriter.add(crystal->getAABBs(), "crystal.AABB");
-  // vtkWriter.add(lens, "lens");
-  // vtkWriter.add(lens->getAABBs(), "lens.AABB");
+  vtkWriter.add(lens, "lens");
+  vtkWriter.add(lens->getAABBs(), "lens.AABB");
   vtkWriter.addAsSequence(rays, "rays", 100);
   vtkWriter.addAsComposition(rays, "rays_composition", 100);
   vtkWriter.write();
