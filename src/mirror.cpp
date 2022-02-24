@@ -1,13 +1,11 @@
 #include "mirror.h"
 
 vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_opticalAxis,
-                                  const function<float(float)> _shapeFunction, int _segments)
-{
+                                  const function<float(float)> _shapeFunction,
+                                  int _segments) {
   vector<shared_ptr<Shape2D>> lines;
-  for (int i = 0; i < _segments; ++i)
-  {
-    vec2 ap = {i * (1.0f / _segments),
-               _shapeFunction(i * (1.0f / _segments))};
+  for (int i = 0; i < _segments; ++i) {
+    vec2 ap = {i * (1.0f / _segments), _shapeFunction(i * (1.0f / _segments))};
     vec2 bp = {(i + 1) * (1.0f / _segments),
                _shapeFunction((i + 1) * (1.0f / _segments))};
 

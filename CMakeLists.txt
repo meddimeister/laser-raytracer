@@ -5,21 +5,22 @@ project (${PROG_NAME})
 
 ############# Required LIBRARIES ###############
 
-############# COMPILER FLAGS ###############
-
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall")
-
-
-############# SOURCE ###############
-
 include_directories(include)
 include_directories(lib/glm/glm)
+
+add_subdirectory(lib/nomad)
+include_directories(lib/nomad/src)
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib/nomad/src)
+
+############# COMPILER FLAGS ###############
+
+############# SOURCE ###############
 
 FILE(GLOB_RECURSE PROG_SRC  src/*.cpp)
 FILE(GLOB_RECURSE PROG_HEADER  include/*.h)
 
 add_executable(${PROG_NAME} ${PROG_SRC} ${PROG_HEADER})
-target_link_libraries(${PROG_NAME} ${LIBS} )
+target_link_libraries(${PROG_NAME} ${LIBS} nomadAlgos nomadEval nomadUtils)
 target_compile_features(${PROG_NAME} PUBLIC cxx_std_17)
 
 add_custom_command(

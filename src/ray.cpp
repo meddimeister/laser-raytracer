@@ -2,8 +2,7 @@
 #include "gtx/rotate_vector.hpp"
 #include <vector>
 
-ostream &operator<<(ostream &stream, const Ray3D &ray)
-{
+ostream &operator<<(ostream &stream, const Ray3D &ray) {
   return stream << "Ray3D: {"
                 << "origin: [" << ray.origin.x << "," << ray.origin.y << ","
                 << ray.origin.z << "]"
@@ -13,8 +12,7 @@ ostream &operator<<(ostream &stream, const Ray3D &ray)
                 << "}";
 }
 
-ostream &operator<<(ostream &stream, const Ray2D &ray)
-{
+ostream &operator<<(ostream &stream, const Ray2D &ray) {
   return stream << "Ray2D: {"
                 << "origin: [" << ray.origin.x << "," << ray.origin.y << "]"
                 << ", "

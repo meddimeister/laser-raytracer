@@ -5,8 +5,7 @@
 vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_bmin,
                                   const vec2 &_bmax);
 
-class Grid2D : public Object2D
-{
+class Grid2D : public Object2D {
   friend class VTKWriter;
 
 private:
@@ -20,8 +19,7 @@ public:
   Grid2D(const vec2 &_pos, const vec2 &_bmin, const vec2 &_bmax, int _maxX,
          int _maxY, function<void(Ray2D &, float, float &)> _cellAction)
       : Object2D(build(_pos, _bmin, _bmax), 0, _pos), maxX(_maxX), maxY(_maxY),
-        data(maxX * maxY, 0.0f), cellAction(_cellAction)
-  {
+        data(maxX * maxY, 0.0f), cellAction(_cellAction) {
     cornerMin = root->box->aabb.bmin;
     cornerMax = root->box->aabb.bmax;
     dx = (cornerMax.x - cornerMin.x) / maxX;

@@ -12,8 +12,7 @@
 
 using namespace std;
 
-class VTKWriter
-{
+class VTKWriter {
 private:
   unordered_map<string, vector<shared_ptr<Shape2D>>> shapes2D;
   unordered_map<string, vector<Ray2D>> rays2D;

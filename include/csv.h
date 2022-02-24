@@ -7,8 +7,7 @@
 
 using namespace std;
 
-class CSVWriter
-{
+class CSVWriter {
 private:
   string outputDirectory;
   unordered_map<string, vector<string>> tables;
