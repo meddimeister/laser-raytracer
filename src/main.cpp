@@ -1,4 +1,5 @@
 #include "csv.h"
+#include "functionbuilder.h"
 #include "grid.h"
 #include "lens.h"
 #include "log.h"
@@ -17,11 +18,21 @@ using namespace std;
 int main(int argc, char *argv[]) {
   LOG("Read Data");
   CSVReader csvReader;
-  auto data = csvReader.read<float, float>("../data/ndyag_absorption_spectrum.csv");
-  for(const auto &t : data){
-    auto [wavelength, alpha] = t;
-    cout << wavelength << " " << alpha << endl;
+  auto absorptionData =
+      csvReader.read<float, float>("../data/ndyag_absorption_spectrum.csv");
+  auto emissionData =
+      csvReader.read<float, float>("../data/solar_spectrum.csv");
+  auto absorptionSpectrum = getFunction(absorptionData);
+  auto emissionSpectrum = getFunction(emissionData);
+
+  CSVWriter csvWriter("csvOut");
+  csvWriter.add("absorptionSpectrum", "#lambda", "alpha");
+  csvWriter.add("emissionSpectrum", "#lambda", "power");
+  for (float lambda = 300.0f; lambda < 1000.0f; lambda += 0.1f) {
+    csvWriter.add("absorptionSpectrum", lambda, absorptionSpectrum(lambda));
+    csvWriter.add("emissionSpectrum", lambda, emissionSpectrum(lambda));
   }
+  csvWriter.write();
 
   LOG("Start");
 
@@ -62,9 +73,6 @@ int main(int argc, char *argv[]) {
 
   vector<vector<Ray2D>> rays;
 
-  CSVWriter csvWriter("csvOut");
-  csvWriter.add("#a b Abs.Power[W]", "absorbed_power");
-
   auto trace = [&](const vecn<float, 2> &params) {
     a = params[0];
     b = params[1];
@@ -80,7 +88,7 @@ int main(int argc, char *argv[]) {
   cout << "Mirror Optimizer: " << endl;
 
   auto solutions = mads<2>(trace, {0.0f, 0.0f}, {0.0f, -5.0f}, {10.0f, 0.4f});
-  //auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
+  // auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
 
   auto xMin = solutions[0];
 
@@ -90,8 +98,6 @@ int main(int argc, char *argv[]) {
   b = xMin[1];
   mirror->rebuild();
   rays = scene.trace(4);
-
-  csvWriter.write();
 
   VTKWriter vtkWriter("vtkOut");
   vtkWriter.add(mirror, "mirror");

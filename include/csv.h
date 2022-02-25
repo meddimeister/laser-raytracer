@@ -1,5 +1,6 @@
 #pragma once
 
+#include "metaprog.h"
 #include <cstddef>
 #include <fstream>
 #include <functional>
@@ -8,7 +9,6 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-#include "metaprog.h"
 
 using namespace std;
 
@@ -21,7 +21,11 @@ public:
   CSVWriter(const string &_outputDirectory)
       : outputDirectory(_outputDirectory) {}
 
-  void add(const string &line, const string &name);
+  template <typename... Args> void add(const string &name, Args &&...args) {
+    stringstream ss;
+    constexpr_for([&](auto const &arg) { ss << arg << " "; }, args...);
+    tables[name].push_back(ss.str());
+  }
 
   void write() const;
 };

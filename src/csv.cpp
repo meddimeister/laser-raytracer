@@ -1,10 +1,6 @@
 #include "csv.h"
 #include <filesystem>
 
-void CSVWriter::add(const string &line, const string &name) {
-  tables[name].push_back(line);
-}
-
 void CSVWriter::write() const {
 
   if (!filesystem::exists(outputDirectory + "/")) {
