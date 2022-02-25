@@ -15,16 +15,13 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-  /*
-  LOG("NOMAD TEST");
-  auto testfunctional = [](const vecn<float, 2> &x){
-    return x[0] * x[0] + x[1] * x[1];
-  };
-  auto solutions = runNomad<2>(testfunctional, {1.0f, 1.0f}, {0.5f, 0.5f},
-  {1.0f, 1.0f}); cout << "SOLUTIONS:" << endl; for(auto &solution : solutions){
-    cout << solution << endl;
+  LOG("Read Data");
+  CSVReader csvReader;
+  auto data = csvReader.read<float, float>("../data/ndyag_absorption_spectrum.csv");
+  for(const auto &t : data){
+    auto [wavelength, alpha] = t;
+    cout << wavelength << " " << alpha << endl;
   }
-  */
 
   LOG("Start");
 
