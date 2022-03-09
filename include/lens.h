@@ -36,6 +36,6 @@ public:
     vec2 dir = rotate(up, beta);
     ori += numeric_limits<float>::epsilon() * dir;
     ray.terminate(result.tEnter);
-    createdRays.push_back(Ray2D(ori, dir, ray.power));
+    createdRays.push_back(Ray2D(ori, dir, ray.power, ray.wavelength));
   }
 };

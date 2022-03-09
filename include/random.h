@@ -5,7 +5,10 @@
 #include "vecn.h"
 #include <array>
 #include <chrono>
+#include <cstddef>
+#include <functional>
 #include <random>
+#include "functionutils.h"
 
 using namespace std;
 using namespace glm;
@@ -78,6 +81,57 @@ public:
   float next() {
     float sample = this->normalDistribution(this->generator);
     return sample;
+  }
+};
+
+class ImportanceSampler1D : public UniformSampler<float> {
+public:
+  function<float(float)> _f;
+  function<float(float)> _pdf;
+  float _xMin;
+  float _xMax;
+  size_t _N;
+  vector<float> _cdf;
+  ImportanceSampler1D(function<float(float)> f, float xMin, float xMax, size_t N = 10000) : _f(f),
+   _pdf(getPdfFunction(f, xMin, xMax)), _xMin(xMin), _xMax(xMax), _N(N){
+    float sum = 0.0f;
+    for(size_t i = 0; i < _N; ++i){
+      _cdf.push_back(sum);
+      float x = float(i)/_N;
+      sum += _pdf(x);
+    }
+    _cdf.push_back(sum);
+    for(size_t i = 0; i < _N + 1; ++i){
+      _cdf[i] /= sum;
+    }
+  }  
+
+  float next() {
+    float sample = this->uniformDistribution(this->generator);
+
+    float impSample = 0.f;
+    for (size_t i = 1; i < _cdf.size(); i++) {
+        if (sample < _cdf[i]) {
+            float min = _cdf[i - 1];
+            float max = _cdf[i];
+            float alpha = (sample - min) / (max - min);
+            impSample = (i - 1.f + alpha) / ((float) _N);
+            break;
+        }
+    }
+    return impSample;
+  }
+
+  float value(float sample){
+    return _xMin + sample * (_xMax - _xMin);
+  }
+
+  float pdf(float sample){
+    return _pdf(sample);
+  }
+
+  float f(float sample){
+    return _f(value(sample));
   }
 };
 

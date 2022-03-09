@@ -12,12 +12,16 @@ public:
 
   void generatePointRays(const vec2 &origin, const vec2 &direction,
                          float maxAngle, float totalPower, unsigned int count,
-                         RNG::Sampler<float> &sampler);
+                         RNG::Sampler<float> &angleSampler,
+                         RNG::ImportanceSampler1D &wavelengthSampler,
+                         const function<float(float)> &spectrum);
 
   void generateDirectionalRays(const vec2 &origin, float radius,
                                const vec2 &direction, float totalPower,
                                unsigned int count,
-                               RNG::Sampler<float> &sampler);
+                               RNG::Sampler<float> &originSampler,
+                               RNG::ImportanceSampler1D &wavelengthSampler,
+                               const function<float(float)> &spectrum);
 
   vector<vector<Ray2D>> trace(unsigned int depth = 1);
 };

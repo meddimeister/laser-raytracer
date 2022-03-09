@@ -1,5 +1,6 @@
 #include "csv.h"
-#include "functionbuilder.h"
+#include "debugutils.h"
+#include "functionutils.h"
 #include "grid.h"
 #include "lens.h"
 #include "log.h"
@@ -12,6 +13,8 @@
 #include "shape.h"
 #include "vecn.h"
 #include "vtk.h"
+#include <cmath>
+#include <cstddef>
 
 using namespace std;
 
@@ -22,17 +25,46 @@ int main(int argc, char *argv[]) {
       csvReader.read<float, float>("../data/ndyag_absorption_spectrum.csv");
   auto emissionData =
       csvReader.read<float, float>("../data/solar_spectrum.csv");
+
   auto absorptionSpectrum = getFunction(absorptionData);
   auto emissionSpectrum = getFunction(emissionData);
 
   CSVWriter csvWriter("csvOut");
-  csvWriter.add("absorptionSpectrum", "#lambda", "alpha");
-  csvWriter.add("emissionSpectrum", "#lambda", "power");
-  for (float lambda = 300.0f; lambda < 1000.0f; lambda += 0.1f) {
-    csvWriter.add("absorptionSpectrum", lambda, absorptionSpectrum(lambda));
-    csvWriter.add("emissionSpectrum", lambda, emissionSpectrum(lambda));
-  }
-  csvWriter.write();
+
+  // LOG("Test");
+  // outputHistogramm(impSampler, "csvOut", "absorptionHistogramm");
+
+  // csvWriter.add("emissionSamples", "#sample", "power");
+  // vector<tuple<float, float>> values;
+  // for(size_t i = 0; i < 10000; ++i){
+  //   float impSample = absorptionImpSampler.next();
+  //   float impPdf = absorptionImpSampler.pdf(impSample);
+
+  //  float power = emissionPdf(impSample)/impPdf;
+  //  if(isinf(power)){
+  //    continue;
+  //  }
+  //  values.emplace_back(impSample, power);
+  //  csvWriter.add("emissionSamples", impSample, power);
+  //}
+
+  // auto emissionCdf = getCdfFunction(emissionPdf, 0.0f, 1.0f);
+  // auto emissionSampleFunction = getFunction(values);
+  // auto emissionSamplePdf = getPdfFunction(emissionSampleFunction,
+  // 0.0f, 1.0f); auto emissionSampleCdf = getCdfFunction(emissionSamplePdf,
+  // 0.0f, 1.0f, true);
+
+  // for(size_t i = 0; i < 10000; ++i){
+  //   csvWriter.add("emissionSampleFunction", float(i)/10000,
+  //   emissionSampleFunction(float(i)/10000));
+  //   csvWriter.add("emissionSampleCdf", float(i)/10000,
+  //   emissionSampleCdf(float(i)/10000)); csvWriter.add("emissionSamplePdf",
+  //   float(i)/10000, emissionSamplePdf(float(i)/10000));
+  //   csvWriter.add("emissionCdf", float(i)/10000,
+  //   emissionCdf(float(i)/10000));
+  // }
+
+  // csvWriter.write();
 
   LOG("Start");
 
@@ -45,9 +77,9 @@ int main(int argc, char *argv[]) {
 
   auto crystal = make_shared<Grid2D>(
       Grid2D({1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 100, 20,
-             [](Ray2D &ray, float distance, float &cell) {
+             [&](Ray2D &ray, float distance, float &cell) {
                // Lambert law of absorption
-               float alpha = 2.0f;
+               float alpha = absorptionSpectrum(ray.wavelength);
                float remainingPower = ray.power * exp(-alpha * distance);
                float absorbedPower = ray.power - remainingPower;
                cell += absorbedPower;
@@ -63,11 +95,21 @@ int main(int argc, char *argv[]) {
   scene.add(crystal);
   scene.add(lens);
 
-  RNG::StratifiedSampler1D sampler;
-  // scene.generatePointRays({0.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 1000.0f, 10000,
-  // sampler);
+  RNG::StratifiedSampler1D originSampler;
+  RNG::ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0f,
+                                                1000.0f);
+
   scene.generateDirectionalRays({-5.0f, 0.0f}, 0.5f, {1.0f, 0.0f}, 1000.0f,
-                                10000, sampler);
+                                10000, originSampler, absorptionImpSampler,
+                                emissionSpectrum);
+
+  float generatedPower = 0.0f;
+  for (const auto &ray : scene.startrays) {
+    csvWriter.add("generatedSpectrum", ray.wavelength, ray.power);
+    generatedPower += ray.power;
+  }
+
+  csvWriter.write();
 
   LOG("Preprocessing");
 
