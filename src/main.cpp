@@ -2,6 +2,7 @@
 #include "debugutils.h"
 #include "functionutils.h"
 #include "grid.h"
+#include "gtx/spline.hpp"
 #include "lens.h"
 #include "log.h"
 #include "mirror.h"
@@ -68,12 +69,24 @@ int main(int argc, char *argv[]) {
 
   LOG("Start");
 
-  float a = 0.f;
-  float b = 0.f;
+  vecn<float, 2> params;
 
-  auto mirror = make_shared<Mirror2D>(Mirror2D(
-      {2.0f, 0.0f}, {-1.0f, 0.0f}, [&](float x) { return a * x * x + b; },
-      100));
+  auto mirrorShapeParabola = [&](float x) { 
+    vec2 point = {x, params[0] * x * x + params[1]};
+    return point;
+  };
+
+  auto mirrorShapeBezier = [&](float x) { 
+    vec2 start = {0.25f, 0.0f};
+    vec2 paramPoint1 = {0.4f, params[0]};
+    vec2 paramPoint2 = {0.6f, params[1]};
+    vec2 end = {0.75f, 2.0f};
+    vec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
+    return point;
+  };
+
+  auto mirror = make_shared<Mirror2D>(
+      Mirror2D({2.0f, 0.0f}, {-1.0f, 0.0f}, mirrorShapeBezier, 100));
 
   auto crystal = make_shared<Grid2D>(
       Grid2D({1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 100, 20,
@@ -115,9 +128,8 @@ int main(int argc, char *argv[]) {
 
   vector<vector<Ray2D>> rays;
 
-  auto trace = [&](const vecn<float, 2> &params) {
-    a = params[0];
-    b = params[1];
+  auto trace = [&](const vecn<float, 2> &currentParams) {
+    params = currentParams;
     mirror->rebuild();
     rays = scene.trace(4);
     float functional = -crystal->sum();
@@ -129,15 +141,14 @@ int main(int argc, char *argv[]) {
 
   cout << "Mirror Optimizer: " << endl;
 
-  auto solutions = mads<2>(trace, {0.0f, 0.0f}, {0.0f, -5.0f}, {10.0f, 0.4f});
+  auto solutions = mads<2>(trace, {0.0f, 0.0f}, {0.0f, 0.0f}, {2.0f, 2.0f});
   // auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
 
-  auto xMin = solutions[0];
+  auto minimizingParameters = solutions[0];
 
   LOG("Tracing");
 
-  a = xMin[0];
-  b = xMin[1];
+  params = minimizingParameters;
   mirror->rebuild();
   rays = scene.trace(4);
 

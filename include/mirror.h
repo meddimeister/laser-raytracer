@@ -11,17 +11,17 @@ using namespace std;
 using namespace glm;
 
 vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_opticalAxis,
-                                  const function<float(float)> _shapeFunction,
+                                  const function<vec2(float)> _shapeFunction,
                                   int _segments);
 
 class Mirror2D : public Object2D {
 private:
-  function<float(float)> shapeFunction;
+  function<vec2(float)> shapeFunction;
   int segments;
 
 public:
   Mirror2D(const vec2 &_pos, const vec2 &_opticalAxis,
-           function<float(float)> _shapeFunction, int _segments)
+           function<vec2(float)> _shapeFunction, int _segments)
       : Object2D(build(_pos, _opticalAxis, _shapeFunction, _segments), 4, _pos,
                  _opticalAxis),
         shapeFunction(_shapeFunction), segments(_segments){};
