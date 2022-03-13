@@ -9,13 +9,15 @@
 
 using namespace std;
 
-template <size_t N> class My_Evaluator : public NOMAD::Evaluator {
+template <size_t N> class My_Evaluator : public NOMAD::Multi_Obj_Evaluator {
 public:
-  function<float(const vecn<float, N>)> f;
+  function<float(const vecn<float, N>)> f1;
+  function<float(const vecn<float, N>)> f2;
 
-  My_Evaluator(function<float(const vecn<float, N> &)> functional,
+  My_Evaluator(function<float(const vecn<float, N> &)> functional1,
+               function<float(const vecn<float, N> &)> functional2,
                const NOMAD::Parameters &p)
-      : NOMAD::Evaluator(p), f(functional) {}
+      : NOMAD::Multi_Obj_Evaluator(p), f1(functional1), f2(functional2) {}
 
   ~My_Evaluator() {}
 
@@ -26,8 +28,10 @@ public:
     for (size_t i = 0; i < N; ++i) {
       x_curr[i] = float(x[i].value());
     }
-    float f_curr = f(x_curr);
-    x.set_bb_output(0, NOMAD::Double(f_curr)); // objective value
+    float f1_curr = f1(x_curr);
+    float f2_curr = f2(x_curr);
+    x.set_bb_output(0, NOMAD::Double(f1_curr));
+    x.set_bb_output(1, NOMAD::Double(f2_curr));
 
     count_eval = true; // count a black-box evaluation
     return true;       // the evaluation succeeded
@@ -35,7 +39,8 @@ public:
 };
 
 template <size_t N>
-vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f,
+vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f1,
+                                function<float(const vecn<float, N> &)> f2,
                                 const vecn<float, N> &xStart,
                                 const vecn<float, N> &lowerBounds,
                                 const vecn<float, N> &upperBounds) {
@@ -68,8 +73,9 @@ vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f,
     p.set_LOWER_BOUND(lb);
     p.set_UPPER_BOUND(ub);
 
-    vector<NOMAD::bb_output_type> bbot(1); // definition of
-    bbot[0] = NOMAD::OBJ;                  // output types
+    vector<NOMAD::bb_output_type> bbot(2); // definition of
+    bbot[0] = NOMAD::OBJ;
+    bbot[1] = NOMAD::OBJ;
     p.set_BB_OUTPUT_TYPE(bbot);
     p.set_DIRECTION_TYPE(NOMAD::ORTHO_2);
     p.set_DISPLAY_STATS("bbe ( sol ) obj");
@@ -80,18 +86,18 @@ vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f,
     p.check();
 
     // custom evaluator creation:
-    My_Evaluator<N> ev(f, p);
+    My_Evaluator<N> ev(f1, f2, p);
 
     // algorithm creation and execution:
     NOMAD::Mads mads(p, &ev);
-    mads.run();
+    mads.multi_run();
     auto evalPoint = mads.get_best_feasible();
     vecn<float, N> solution;
-    for(size_t i = 0; i < N; ++i){
+    for (size_t i = 0; i < N; ++i) {
       solution[i] = float(evalPoint->value(i));
     }
     bf_ret.push_back(solution);
-    
+
   } catch (exception &e) {
     cerr << "\nNOMAD has been interrupted (" << e.what() << ")\n\n";
   }

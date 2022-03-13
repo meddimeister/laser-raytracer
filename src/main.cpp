@@ -136,12 +136,21 @@ int main(int argc, char *argv[]) {
     crystal->reset();
     return functional;
   };
+  
+  auto traceVar = [&](const vecn<float, 2> &currentParams) {
+    params = currentParams;
+    mirror->rebuild();
+    rays = scene.trace(4);
+    float functional = crystal->var();
+    crystal->reset();
+    return functional;
+  };
 
   // Optimization Algorithm
 
   cout << "Mirror Optimizer: " << endl;
 
-  auto solutions = mads<2>(trace, {0.0f, 0.0f}, {0.0f, 0.0f}, {2.0f, 2.0f});
+  auto solutions = mads<2>(trace, traceVar, {0.0f, 0.0f}, {0.0f, 0.0f}, {2.0f, 2.0f});
   // auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
   if(solutions.empty()){
     DEBUG("Error: No solutions found");
