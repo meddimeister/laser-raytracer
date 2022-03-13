@@ -71,12 +71,12 @@ int main(int argc, char *argv[]) {
 
   vecn<float, 2> params;
 
-  auto mirrorShapeParabola = [&](float x) { 
+  auto mirrorShapeParabola = [&](float x) {
     vec2 point = {x, params[0] * x * x + params[1]};
     return point;
   };
 
-  auto mirrorShapeBezier = [&](float x) { 
+  auto mirrorShapeBezier = [&](float x) {
     vec2 start = {0.25f, 0.0f};
     vec2 paramPoint1 = {0.4f, params[0]};
     vec2 paramPoint2 = {0.6f, params[1]};
@@ -85,19 +85,29 @@ int main(int argc, char *argv[]) {
     return point;
   };
 
+  auto sellmeierNdYag = [](float wavelength) {
+    float wavelengthMu = wavelength/1000.f;
+    float wavelengthSqrd = wavelengthMu * wavelengthMu;
+    float nSqrd = (2.282f * wavelengthSqrd) / (wavelengthSqrd - 0.01185f) +
+                  (3.27644f * wavelengthSqrd) / (wavelengthSqrd - 282.734f) +
+                  1.0f;
+    return sqrt(nSqrd);
+  };
+
   auto mirror = make_shared<Mirror2D>(
       Mirror2D({2.0f, 0.0f}, {-1.0f, 0.0f}, mirrorShapeBezier, 100));
 
-  auto crystal = make_shared<Grid2D>(
-      Grid2D({1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 100, 20,
-             [&](Ray2D &ray, float distance, float &cell) {
-               // Lambert law of absorption
-               float alpha = absorptionSpectrum(ray.wavelength);
-               float remainingPower = ray.power * exp(-alpha * distance);
-               float absorbedPower = ray.power - remainingPower;
-               cell += absorbedPower;
-               ray.power = remainingPower;
-             }));
+  auto crystal = make_shared<Grid2D>(Grid2D(
+      {1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 100, 20,
+      [&](Ray2D &ray, float distance, float &cell) {
+        // Lambert law of absorption
+        float alpha = absorptionSpectrum(ray.wavelength);
+        float remainingPower = ray.power * exp(-alpha * distance);
+        float absorbedPower = ray.power - remainingPower;
+        cell += absorbedPower;
+        ray.power = remainingPower;
+      },
+      sellmeierNdYag));
 
   auto lens =
       make_shared<Lens2D>(Lens2D({-2.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 1.0f));
@@ -136,7 +146,7 @@ int main(int argc, char *argv[]) {
     crystal->reset();
     return functional;
   };
-  
+
   auto traceVar = [&](const vecn<float, 2> &currentParams) {
     params = currentParams;
     mirror->rebuild();
@@ -150,9 +160,10 @@ int main(int argc, char *argv[]) {
 
   cout << "Mirror Optimizer: " << endl;
 
-  auto solutions = mads<2>(trace, traceVar, {0.0f, 0.0f}, {0.0f, 0.0f}, {2.0f, 2.0f});
+  auto solutions =
+      mads<2>(trace, traceVar, {0.0f, 0.0f}, {0.0f, 0.0f}, {2.0f, 2.0f});
   // auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
-  if(solutions.empty()){
+  if (solutions.empty()) {
     DEBUG("Error: No solutions found");
     return -1;
   }

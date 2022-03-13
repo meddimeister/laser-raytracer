@@ -13,7 +13,7 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
 
   ray.terminate(result.tEnter);
   auto [ray_reflect_in, ray_transmit_in] =
-      ray.refract(result.tEnter, result.normalEnter, 1.0f, 5.0f);
+      ray.refract(result.tEnter, result.normalEnter, 1.0f, refractiveIndexFunction(ray.wavelength));
 
   vec2 enter = ray_transmit_in.origin + 0.0f * ray_transmit_in.direction;
 
