@@ -23,9 +23,10 @@ function<float(float)> getFunction(vector<tuple<float, float>> &points,
          return get<0>(a) < get<0>(b);
        });
   return [points](float x) {
-    auto it = find_if(
-        points.begin(), points.end(),
-        [&](const tuple<float, float> &point) { return x < get<0>(point); });
+    tuple<float, float> dummy(x, 0.0f);
+    auto it = lower_bound(
+        points.begin(), points.end(), dummy,
+        [&](const tuple<float, float> &a, const tuple<float, float> &b) { return get<0>(a) < get<0>(b);});
     if (it != points.end() && it != points.begin()) {
       auto [x_0, f_0] = *(it - 1);
       auto [x_1, f_1] = *(it);
