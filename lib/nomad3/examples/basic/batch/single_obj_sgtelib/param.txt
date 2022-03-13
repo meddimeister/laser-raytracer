@@ -1,0 +1,26 @@
+#########################
+#  Problem CRESCENT_10 #
+#########################
+
+DIMENSION 10
+x0 x0.txt
+
+BB_EXE          bb.exe
+BB_OUTPUT_TYPE  OBJ PEB PEB
+
+lower_bound * -9
+upper_bound *  11
+
+MAX_BB_EVAL    100
+
+DISPLAY_STATS BBE ( SOL ) OBJ
+DISPLAY_DEGREE 2 
+
+MODEL_SEARCH SGTELIB
+MODEL_EVAL_SORT SGTELIB
+
+SGTELIB_MODEL_DISPLAY OS
+
+DISPLAY_ALL_EVAL yes
+
+

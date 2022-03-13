@@ -8,9 +8,11 @@ project (${PROG_NAME})
 include_directories(include)
 include_directories(lib/glm/glm)
 
-add_subdirectory(lib/nomad)
-include_directories(lib/nomad/src)
-link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib/nomad/src)
+#add_subdirectory(lib/nomad)
+include_directories(lib/nomad3/src)
+include_directories(lib/nomad3/ext/sgtelib/src)
+#link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib/nomad/src)
+link_directories(lib/nomad3/lib)
 
 ############# COMPILER FLAGS ###############
 
@@ -20,5 +22,6 @@ FILE(GLOB_RECURSE PROG_SRC  src/*.cpp)
 FILE(GLOB_RECURSE PROG_HEADER  include/*.h)
 
 add_executable(${PROG_NAME} ${PROG_SRC} ${PROG_HEADER})
-target_link_libraries(${PROG_NAME} ${LIBS} nomadAlgos nomadEval nomadUtils)
+#target_link_libraries(${PROG_NAME} ${LIBS} nomadAlgos nomadEval nomadUtils)
+target_link_libraries(${PROG_NAME} ${LIBS} nomad)
 target_compile_features(${PROG_NAME} PUBLIC cxx_std_17)

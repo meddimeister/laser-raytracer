@@ -1,0 +1,118 @@
+COMPILER = g++
+COMPILER_MPI = mpic++
+
+ifndef NOMAD_HOME
+define ECHO_NOMAD
+	@echo Please set NOMAD_HOME environment variable.
+	@false
+endef
+endif
+
+EXE                 = truth.exe
+COMPILER_OPTIONS    = -ansi -Wall -O3
+LIBS                = -lc -lm
+INCLUDE             = -I.
+COMPILE             = $(COMPILER) $(COMPILER_OPTIONS) $(INCLUDE) -c
+OBJS                = bb.o chemical.o thermolib.o secant.o stream.o servor.o mix.o bissection.o pump.o heatx.o reactor.o pfr.o reaction.o RungeKutta.o flash.o column.o split.o burner.o combrx.o cashflow.o profitability.o
+
+$(EXE): $(OBJS)
+	$(ECHO_NOMAD)
+	$(COMPILER) -o $(EXE) $(OBJS) $(LIBS) $(COMPILER_OPTIONS)
+
+bb.o: bb.cpp servor.o profitability.o
+	$(ECHO_NOMAD)
+	$(COMPILE) bb.cpp
+
+profitability.o: profitability.cpp profitability.hpp cashflow.o secant.o
+	$(ECHO_NOMAD)
+	$(COMPILE) profitability.cpp
+
+cashflow.o: cashflow.cpp cashflow.hpp defines.hpp
+	$(ECHO_NOMAD)
+	$(COMPILE) cashflow.cpp
+
+servor.o: servor.cpp servor.hpp mix.o pump.o reactor.o column.o split.o burner.o
+	$(ECHO_NOMAD)
+	$(COMPILE) servor.cpp
+
+burner.o: burner.cpp burner.hpp combrx.o stream.o
+	$(ECHO_NOMAD)
+	$(COMPILE) burner.cpp
+
+combrx.o : combrx.cpp combrx.hpp chemical.o
+	$(ECHO_NOMAD)
+	$(COMPILE) combrx.cpp
+
+column.o: column.cpp column.hpp flash.o
+	$(ECHO_NOMAD)
+	$(COMPILE) column.cpp
+
+reactor.o: reactor.cpp reactor.hpp pfr.o
+	$(ECHO_NOMAD)
+	$(COMPILE) reactor.cpp
+
+pfr.o: pfr.cpp pfr.hpp RungeKutta.o stream.o
+	$(ECHO_NOMAD)
+	$(COMPILE) pfr.cpp
+
+reaction.o: reaction.cpp reaction.hpp chemical.o
+	$(ECHO_NOMAD)
+	$(COMPILE) reaction.cpp
+
+RungeKutta.o: RungeKutta.cpp RungeKutta.hpp defines.hpp
+	$(ECHO_NOMAD)
+	$(COMPILE) RungeKutta.cpp
+
+pump.o: pump.cpp pump.hpp stream.o
+	$(ECHO_NOMAD)
+	$(COMPILE) pump.cpp
+
+flash.o: flash.cpp flash.hpp stream.o bissection.o
+	$(ECHO_NOMAD)
+	$(COMPILE) flash.cpp
+
+split.o: split.cpp split.hpp stream.o
+	$(ECHO_NOMAD)
+	$(COMPILE) split.cpp
+
+mix.o: mix.cpp mix.hpp stream.o bissection.o
+	$(ECHO_NOMAD)
+	$(COMPILE) mix.cpp
+
+heatx.o: heatx.cpp heatx.hpp stream.o bissection.o
+	$(ECHO_NOMAD)
+	$(COMPILE) heatx.cpp
+
+bissection.o: bissection.cpp bissection.hpp defines.hpp
+	$(ECHO_NOMAD)
+	$(COMPILE) bissection.cpp
+
+stream.o: stream.cpp stream.hpp chemical.o
+	$(ECHO_NOMAD)
+	$(COMPILE) stream.cpp
+
+chemical.o: chemical.cpp chemical.hpp thermolib.o
+	$(ECHO_NOMAD)
+	$(COMPILE) chemical.cpp
+
+thermolib.o: thermolib.cpp thermolib.hpp secant.cpp secant.o
+	$(ECHO_NOMAD)
+	$(COMPILE) thermolib.cpp
+
+secant.o: secant.cpp secant.hpp
+	$(ECHO_NOMAD)
+	$(COMPILE) secant.cpp
+
+clean:
+	@echo "cleaning obj files"
+	@rm -f $(OBJS)
+	@echo "cleaning trash files"
+	@\rm -f core *~
+
+del:
+	@echo "cleaning trash files"
+	@\rm -f core *~
+	@echo "cleaning obj files"
+	@\rm -f $(OBJS)
+	@echo "cleaning exe file"
+	@\rm -f $(EXE)

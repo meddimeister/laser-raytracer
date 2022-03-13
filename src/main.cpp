@@ -6,7 +6,7 @@
 #include "lens.h"
 #include "log.h"
 #include "mirror.h"
-#include "nomadbinding.h"
+#include "nomadbinding3.h"
 #include "optimization.h"
 #include "random.h"
 #include "ray.h"
@@ -143,6 +143,10 @@ int main(int argc, char *argv[]) {
 
   auto solutions = mads<2>(trace, {0.0f, 0.0f}, {0.0f, 0.0f}, {2.0f, 2.0f});
   // auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
+  if(solutions.empty()){
+    DEBUG("Error: No solutions found");
+    return -1;
+  }
 
   auto minimizingParameters = solutions[0];
 
