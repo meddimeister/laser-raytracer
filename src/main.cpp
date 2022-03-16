@@ -2,6 +2,7 @@
 #include "debugutils.h"
 #include "functionutils.h"
 #include "grid.h"
+#include "gtc/random.hpp"
 #include "gtx/spline.hpp"
 #include "lens.h"
 #include "log.h"
@@ -20,7 +21,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-  LOG("Read Data");
+  LOG("Start");
   CSVReader csvReader;
   auto absorptionData =
       csvReader.read<float, float>("../data/ndyag_absorption_spectrum.csv");
@@ -30,46 +31,13 @@ int main(int argc, char *argv[]) {
   auto absorptionSpectrum = getFunction(absorptionData);
   auto emissionSpectrum = getFunction(emissionData);
 
-  CSVWriter csvWriter("csvOut");
-
-  // LOG("Test");
-  // outputHistogramm(impSampler, "csvOut", "absorptionHistogramm");
-
-  // csvWriter.add("emissionSamples", "#sample", "power");
-  // vector<tuple<float, float>> values;
-  // for(size_t i = 0; i < 10000; ++i){
-  //   float impSample = absorptionImpSampler.next();
-  //   float impPdf = absorptionImpSampler.pdf(impSample);
-
-  //  float power = emissionPdf(impSample)/impPdf;
-  //  if(isinf(power)){
-  //    continue;
-  //  }
-  //  values.emplace_back(impSample, power);
-  //  csvWriter.add("emissionSamples", impSample, power);
-  //}
-
-  // auto emissionCdf = getCdfFunction(emissionPdf, 0.0f, 1.0f);
-  // auto emissionSampleFunction = getFunction(values);
-  // auto emissionSamplePdf = getPdfFunction(emissionSampleFunction,
-  // 0.0f, 1.0f); auto emissionSampleCdf = getCdfFunction(emissionSamplePdf,
-  // 0.0f, 1.0f, true);
-
-  // for(size_t i = 0; i < 10000; ++i){
-  //   csvWriter.add("emissionSampleFunction", float(i)/10000,
-  //   emissionSampleFunction(float(i)/10000));
-  //   csvWriter.add("emissionSampleCdf", float(i)/10000,
-  //   emissionSampleCdf(float(i)/10000)); csvWriter.add("emissionSamplePdf",
-  //   float(i)/10000, emissionSamplePdf(float(i)/10000));
-  //   csvWriter.add("emissionCdf", float(i)/10000,
-  //   emissionCdf(float(i)/10000));
-  // }
-
-  // csvWriter.write();
-
-  LOG("Start");
+  LOG("Read Data");
+  float solarConstant = 1361.0f; // W*m^-2
+  float emittorRadius = 0.6f;    // m
+  float solarPower = solarConstant * M_PI * emittorRadius * emittorRadius;
 
   vecn<float, 2> params;
+  float irradianceCrystal = 0.0f;
 
   auto mirrorShapeParabola = [&](float x) {
     vec2 point = {x, params[0] * x * x + params[1]};
@@ -77,16 +45,16 @@ int main(int argc, char *argv[]) {
   };
 
   auto mirrorShapeBezier = [&](float x) {
-    vec2 start = {0.25f, 0.0f};
-    vec2 paramPoint1 = {0.4f, params[0]};
-    vec2 paramPoint2 = {0.6f, params[1]};
-    vec2 end = {0.75f, 2.0f};
+    vec2 start = {0.006f, 0.0f};
+    vec2 paramPoint1 = {0.05f, params[0]};
+    vec2 paramPoint2 = {0.1f, params[1]};
+    vec2 end = {0.15f, 0.3f};
     vec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
     return point;
   };
 
   auto sellmeierNdYag = [](float wavelength) {
-    float wavelengthMu = wavelength/1000.f;
+    float wavelengthMu = wavelength / 1000.f;
     float wavelengthSqrd = wavelengthMu * wavelengthMu;
     float nSqrd = (2.282f * wavelengthSqrd) / (wavelengthSqrd - 0.01185f) +
                   (3.27644f * wavelengthSqrd) / (wavelengthSqrd - 282.734f) +
@@ -95,22 +63,25 @@ int main(int argc, char *argv[]) {
   };
 
   auto mirror = make_shared<Mirror2D>(
-      Mirror2D({2.0f, 0.0f}, {-1.0f, 0.0f}, mirrorShapeBezier, 100));
+      Mirror2D({1.800f, 0.0f}, {-1.0f, 0.0f}, mirrorShapeBezier, 100));
 
   auto crystal = make_shared<Grid2D>(Grid2D(
-      {1.0f, 0.0f}, {-0.5f, -0.1f}, {0.5f, 0.1f}, 100, 20,
+      {1.7425f, 0.0f}, {-0.0475f, -0.003f}, {0.0475f, 0.003f}, 158, 10,
       [&](Ray2D &ray, float distance, float &cell) {
         // Lambert law of absorption
         float alpha = absorptionSpectrum(ray.wavelength);
-        float remainingPower = ray.power * exp(-alpha * distance);
+        float remainingPower = ray.power * exp(-alpha * distance * 100.0f);
         float absorbedPower = ray.power - remainingPower;
         cell += absorbedPower;
         ray.power = remainingPower;
       },
-      sellmeierNdYag));
+      [&](Ray2D &ray, const IntersectResult2D &result){
+        irradianceCrystal += ray.power;
+      }
+      ,sellmeierNdYag));
 
   auto lens =
-      make_shared<Lens2D>(Lens2D({-2.0f, 0.0f}, {1.0f, 0.0f}, 0.5f, 1.0f));
+      make_shared<Lens2D>(Lens2D({0.0f, 0.0f}, {1.0f, 0.0f}, 0.6f, 1.2f));
 
   Scene2D scene;
 
@@ -122,17 +93,9 @@ int main(int argc, char *argv[]) {
   RNG::ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0f,
                                                 1000.0f);
 
-  scene.generateDirectionalRays({-5.0f, 0.0f}, 0.5f, {1.0f, 0.0f}, 1000.0f,
-                                10000, originSampler, absorptionImpSampler,
-                                emissionSpectrum);
-
-  float generatedPower = 0.0f;
-  for (const auto &ray : scene.startrays) {
-    csvWriter.add("generatedSpectrum", ray.wavelength, ray.power);
-    generatedPower += ray.power;
-  }
-
-  csvWriter.write();
+  scene.generateDirectionalRays({-2.0f, 0.0f}, emittorRadius, {1.0f, 0.0f},
+                                solarPower, 10000, originSampler,
+                                absorptionImpSampler, emissionSpectrum);
 
   LOG("Preprocessing");
 
@@ -144,6 +107,7 @@ int main(int argc, char *argv[]) {
     rays = scene.trace(4);
     float functional = -crystal->sum();
     crystal->reset();
+    irradianceCrystal = 0.0f;
     return functional;
   };
 
@@ -153,6 +117,7 @@ int main(int argc, char *argv[]) {
     rays = scene.trace(4);
     float functional = crystal->var();
     crystal->reset();
+    irradianceCrystal = 0.0f;
     return functional;
   };
 
@@ -161,7 +126,7 @@ int main(int argc, char *argv[]) {
   cout << "Mirror Optimizer: " << endl;
 
   auto solutions =
-      mads<2>(trace, traceVar, {0.0f, 0.0f}, {0.0f, 0.0f}, {2.0f, 2.0f});
+      mads<2>(trace, traceVar, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.3f, 0.3f});
   // auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
   if (solutions.empty()) {
     DEBUG("Error: No solutions found");
@@ -170,11 +135,25 @@ int main(int argc, char *argv[]) {
 
   auto minimizingParameters = solutions[0];
 
-  LOG("Tracing");
-
   params = minimizingParameters;
   mirror->rebuild();
   rays = scene.trace(4);
+  float irradiationEfficiency = irradianceCrystal/solarPower; 
+  float absorbedPower = crystal->sum();
+  float absorbedPowerVar = crystal->var();
+  float absorptionEfficiencyTotal = absorbedPower/solarPower;
+  float absorptionEfficiencyIrradiated = absorbedPower/irradianceCrystal;
+
+  LOG("Tracing");
+
+  cout << "Minimizing parameters: " << minimizingParameters << endl;
+  cout << "Solar power: " << solarPower << endl;
+  cout << "Irradiance crystal: " << irradianceCrystal << endl;
+  cout << "Irradiation efficiency: " << irradiationEfficiency << endl;
+  cout << "Absorbed power: " << absorbedPower << endl;
+  cout << "Absorbed power (var): " << absorbedPowerVar << endl;
+  cout << "Absorption efficiency (total): " << absorptionEfficiencyTotal << endl;
+  cout << "Absorption efficiency (irradiated): " << absorptionEfficiencyIrradiated << endl;
 
   VTKWriter vtkWriter("vtkOut");
   vtkWriter.add(mirror, "mirror");

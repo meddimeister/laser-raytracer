@@ -10,7 +10,8 @@ vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_bmin,
 
 void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
                     vector<Ray2D> &createdRays) {
-
+  
+  hitAction(ray, result);
   ray.terminate(result.tEnter);
   auto [ray_reflect_in, ray_transmit_in] =
       ray.refract(result.tEnter, result.normalEnter, 1.0f, refractiveIndexFunction(ray.wavelength));
