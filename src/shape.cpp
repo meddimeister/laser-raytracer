@@ -152,10 +152,16 @@ IntersectResult2D BoundingBox2D::intersectCheck(const Ray2D &ray) const {
   tmin = glm::max(tmin, glm::min(ty1, ty2));
   tmax = glm::min(tmax, glm::max(ty1, ty2));
 
-  if (tmin >= 0 && tmax >= tmin) {
-    ret.hit = true;
-    ret.tEnter = tmin;
-    ret.tLeave = tmax;
+  if (tmax >= tmin) {
+    if (tmin >= 0.0f) {
+      ret.hit = true;
+      ret.tEnter = tmin;
+      ret.tLeave = tmax;
+    } else if (aabb.isInside(ray.origin)) {
+      ret.hit = true;
+      ret.tEnter = 0.0f;
+      ret.tLeave = tmax;
+    }
   }
 
   return ret;

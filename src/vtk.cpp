@@ -138,8 +138,8 @@ void VTKWriter::write() const {
         fs << r.origin.x + r.terminatedAt * r.direction.x << " "
            << r.origin.y + r.terminatedAt * r.direction.y << " 0.0" << endl;
       } else {
-        fs << r.origin.x + 1000.0f * r.direction.x << " "
-           << r.origin.y + 1000.0f * r.direction.y << " 0.0" << endl;
+        fs << r.origin.x + 10.0f * r.direction.x << " "
+           << r.origin.y + 10.0f * r.direction.y << " 0.0" << endl;
       }
     }
     fs << "LINES " << rays.size() << " " << 3 * rays.size() << endl;

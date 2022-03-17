@@ -34,13 +34,15 @@ struct Ray2D {
   bool terminated = false;
   float terminatedAt;
 
-  Ray2D(const vec2 &_origin, const vec2 &_direction, float _power, float _wavelength)
-      : origin(_origin), direction(_direction), power(_power), wavelength(_wavelength) {}
+  Ray2D(const vec2 &_origin, const vec2 &_direction, float _power,
+        float _wavelength)
+      : origin(_origin), direction(_direction), power(_power),
+        wavelength(_wavelength) {}
 
   Ray2D reflect(float t, const vec2 &normal) const {
     vec2 ori = origin + t * direction;
     vec2 dir = glm::reflect(direction, normal);
-    ori += numeric_limits<float>::epsilon() * dir;
+    ori += numeric_limits<float>::epsilon() * 2.0f * length(ori) * dir;
     return Ray2D(ori, dir, power, wavelength);
   }
 
@@ -55,7 +57,8 @@ struct Ray2D {
 
     vec2 transmit_dir = rotate(orientedNormal, -theta_t);
     float transmit_power = (t_perp + t_para) / 2 * power;
-    Ray2D ray_transmit(origin + t * direction, transmit_dir, transmit_power, wavelength);
+    Ray2D ray_transmit(origin + t * direction, transmit_dir, transmit_power,
+                       wavelength);
 
     return {ray_reflect, ray_transmit};
   }

@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   float emittorRadius = 0.6f;    // m
   float solarPower = solarConstant * M_PI * emittorRadius * emittorRadius;
 
-  vecn<float, 2> params;
+  vecn<float, 4> params;
   float irradianceCrystal = 0.0f;
 
   auto mirrorShapeParabola = [&](float x) {
@@ -46,8 +46,8 @@ int main(int argc, char *argv[]) {
 
   auto mirrorShapeBezier = [&](float x) {
     vec2 start = {0.006f, 0.0f};
-    vec2 paramPoint1 = {0.05f, params[0]};
-    vec2 paramPoint2 = {0.1f, params[1]};
+    vec2 paramPoint1 = {params[0], params[1]};
+    vec2 paramPoint2 = {params[2], params[3]};
     vec2 end = {0.15f, 0.3f};
     vec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
     return point;
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
   vector<vector<Ray2D>> rays;
 
-  auto trace = [&](const vecn<float, 2> &currentParams) {
+  auto trace = [&](const vecn<float, 4> &currentParams) {
     params = currentParams;
     mirror->rebuild();
     rays = scene.trace(4);
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
     return functional;
   };
 
-  auto traceVar = [&](const vecn<float, 2> &currentParams) {
+  auto traceVar = [&](const vecn<float, 4> &currentParams) {
     params = currentParams;
     mirror->rebuild();
     rays = scene.trace(4);
@@ -122,11 +122,11 @@ int main(int argc, char *argv[]) {
   };
 
   // Optimization Algorithm
-
+  /*
   cout << "Mirror Optimizer: " << endl;
 
   auto solutions =
-      mads<2>(trace, traceVar, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.3f, 0.3f});
+      mads<4>(trace, traceVar, {0.0f, 0.0f, 0.075f, 0.0f}, {0.0f, 0.0f, 0.075f, 0.0f}, {0.075f, 0.3f, 0.15f, 0.3f});
   // auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
   if (solutions.empty()) {
     DEBUG("Error: No solutions found");
@@ -134,8 +134,13 @@ int main(int argc, char *argv[]) {
   }
 
   auto minimizingParameters = solutions[0];
-
   params = minimizingParameters;
+  */
+  params[0] = 0.07281232625f;
+  params[1] = 0.002341829939f;
+  params[2] = 0.07726241648f;
+  params[3] = 0.02685499005f;
+  
   mirror->rebuild();
   rays = scene.trace(4);
   float irradiationEfficiency = irradianceCrystal/solarPower; 
@@ -146,7 +151,7 @@ int main(int argc, char *argv[]) {
 
   LOG("Tracing");
 
-  cout << "Minimizing parameters: " << minimizingParameters << endl;
+  cout << "Minimizing parameters: " << params << endl;
   cout << "Solar power: " << solarPower << endl;
   cout << "Irradiance crystal: " << irradianceCrystal << endl;
   cout << "Irradiation efficiency: " << irradiationEfficiency << endl;
