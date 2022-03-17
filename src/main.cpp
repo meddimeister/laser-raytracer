@@ -21,12 +21,19 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-  bool noopt = false;
-
-  ArgParser args("-noopt", argc, argv);
-  args.getFlag("-noopt", noopt);
-
   LOG("Start");
+  bool noopt = false;
+  size_t numrays = 10000;
+
+  ArgParser args("-noopt --numrays", argc, argv);
+  args.getFlag("-noopt", noopt);
+  args.getArg("--numrays", numrays);
+
+  cout << "noopt: " << noopt << endl;
+  cout << "numrays: " << numrays << endl;
+  
+  LOG("Parse Arguments");
+
   CSVReader csvReader;
   auto absorptionData =
       csvReader.read<float, float>("../data/ndyag_absorption_spectrum.csv");
@@ -99,7 +106,7 @@ int main(int argc, char *argv[]) {
                                                 1000.0f);
 
   scene.generateDirectionalRays({-2.0f, 0.0f}, emittorRadius, {1.0f, 0.0f},
-                                solarPower, 10000, originSampler,
+                                solarPower, numrays, originSampler,
                                 absorptionImpSampler, emissionSpectrum);
 
   LOG("Preprocessing");

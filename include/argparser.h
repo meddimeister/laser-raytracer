@@ -32,9 +32,9 @@ public:
     stringstream ss(argsString);
     string token;
     while (getline(ss, token, ' ')) {
-      if (regex_match(token, regex("-.*")))
+      if (regex_match(token, regex("-\\w.*")))
         _flagTokens.push_back(token);
-      else if (regex_match(token, regex("--.*")))
+      else if (regex_match(token, regex("--\\w.*")))
         _argsTokens.push_back(token);
       else
         throw invalid_argument("Invalid argsString at: " + token);
@@ -50,7 +50,7 @@ public:
   void checkArgs() {
     for (auto it = _tokens.begin(); it != _tokens.end();) {
       string token = *it;
-      if (regex_match(token, regex("-.*"))) {
+      if (regex_match(token, regex("-\\w.*"))) {
         auto findit = find(_flagTokens.begin(), _flagTokens.end(), token);
         if (findit != _flagTokens.end()) {
           _flags[token] = true;
@@ -58,7 +58,7 @@ public:
           throw invalid_argument("Unknown argument: " + token);
         }
         it++;
-      } else if (regex_match(token, regex("--.*"))) {
+      } else if (regex_match(token, regex("--\\w.*"))) {
         auto findit = find(_argsTokens.begin(), _argsTokens.end(), token);
         if (findit != _argsTokens.end()) {
           if ((it + 1) != _tokens.end()) {
