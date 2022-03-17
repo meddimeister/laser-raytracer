@@ -1,9 +1,8 @@
+#include "argparser.h"
 #include "csv.h"
 #include "debugutils.h"
 #include "functionutils.h"
 #include "grid.h"
-#include "gtc/random.hpp"
-#include "gtx/spline.hpp"
 #include "lens.h"
 #include "log.h"
 #include "mirror.h"
@@ -21,6 +20,12 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
+
+  bool noopt = false;
+
+  ArgParser args("-noopt", argc, argv);
+  args.getFlag("-noopt", noopt);
+
   LOG("Start");
   CSVReader csvReader;
   auto absorptionData =
@@ -75,10 +80,10 @@ int main(int argc, char *argv[]) {
         cell += absorbedPower;
         ray.power = remainingPower;
       },
-      [&](Ray2D &ray, const IntersectResult2D &result){
+      [&](Ray2D &ray, const IntersectResult2D &result) {
         irradianceCrystal += ray.power;
-      }
-      ,sellmeierNdYag));
+      },
+      sellmeierNdYag));
 
   auto lens =
       make_shared<Lens2D>(Lens2D({0.0f, 0.0f}, {1.0f, 0.0f}, 0.6f, 1.2f));
@@ -121,37 +126,38 @@ int main(int argc, char *argv[]) {
     return functional;
   };
 
-  // Optimization Algorithm
-  /*
-  cout << "Mirror Optimizer: " << endl;
-
-  auto solutions =
-      mads<4>(trace, traceVar, {0.0f, 0.0f, 0.075f, 0.0f}, {0.0f, 0.0f, 0.075f, 0.0f}, {0.075f, 0.3f, 0.15f, 0.3f});
-  // auto solutions = gradientDescent<2>(trace, {0.0f, 2.0f}, 10, {0.2f, 0.2f});
-  if (solutions.empty()) {
-    DEBUG("Error: No solutions found");
-    return -1;
-  }
-
-  auto minimizingParameters = solutions[0];
-  params = minimizingParameters;
-  */
   params[0] = 0.07281232625f;
   params[1] = 0.002341829939f;
   params[2] = 0.07726241648f;
   params[3] = 0.02685499005f;
-  
+
+  // Optimization Algorithm
+  if (!noopt) {
+    cout << "Mirror Optimizer: " << endl;
+
+    auto solutions =
+        mads<4>(trace, traceVar, {0.0f, 0.0f, 0.075f, 0.0f},
+                {0.0f, 0.0f, 0.075f, 0.0f}, {0.075f, 0.3f, 0.15f, 0.3f});
+    if (solutions.empty()) {
+      DEBUG("Error: No solutions found");
+      return -1;
+    }
+
+    auto minimizingParameters = solutions[0];
+    params = minimizingParameters;
+  }
+
   mirror->rebuild();
   rays = scene.trace(4);
-  float irradiationEfficiency = irradianceCrystal/solarPower; 
+  float irradiationEfficiency = irradianceCrystal / solarPower;
   float absorbedPower = crystal->sum();
   float absorbedPowerVar = crystal->var();
-  float absorptionEfficiencyTotal = absorbedPower/solarPower;
-  float absorptionEfficiencyIrradiated = absorbedPower/irradianceCrystal;
+  float absorptionEfficiencyTotal = absorbedPower / solarPower;
+  float absorptionEfficiencyIrradiated = absorbedPower / irradianceCrystal;
 
   LOG("Tracing");
 
-  cout << "Minimizing parameters: " << params << endl;
+  cout << "Final parameters: " << params << endl;
   cout << "Solar power: " << solarPower << endl;
   cout << "Irradiance crystal: " << irradianceCrystal << endl;
   cout << "Irradiation efficiency: " << irradiationEfficiency << endl;
