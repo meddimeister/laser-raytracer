@@ -4,16 +4,16 @@
 #include <tuple>
 #include <vector>
 
-function<float(float)> getFunction(vector<tuple<float, float>> &points,
+function<double(double)> getFunction(vector<tuple<double, double>> &points,
                                    bool debug = false);
-float integrateFunction(const function<float(float)> &f, float xMin, float xMax,
+double integrateFunction(const function<double(double)> &f, double xMin, double xMax,
                         bool debug = false, size_t N = 10000);
-function<float(float)> normalizeFunction(const function<float(float)> &f,
-                                         float xMin, float xMax);
-function<float(float)> get01Function(const function<float(float)> &f,
-                                     float xMin, float xMax);
-function<float(float)> getPdfFunction(const function<float(float)> &f,
-                                      float xMin, float xMax);
-function<float(float)> getCdfFunction(const function<float(float)> &f,
-                                      float xMin, float xMax,
+function<double(double)> normalizeFunction(const function<double(double)> &f,
+                                         double xMin, double xMax);
+function<double(double)> get01Function(const function<double(double)> &f,
+                                     double xMin, double xMax);
+function<double(double)> getPdfFunction(const function<double(double)> &f,
+                                      double xMin, double xMax);
+function<double(double)> getCdfFunction(const function<double(double)> &f,
+                                      double xMin, double xMax,
                                       bool debug = false, size_t N = 10000);

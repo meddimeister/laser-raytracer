@@ -6,17 +6,17 @@
 #include <limits>
 
 template <size_t N>
-vecn<float, N> gradientFirstOrder(function<float(const vecn<float, N> &)> f,
-                                  const vecn<float, N> &x) {
-  vecn<float, N> grad;
-  float f_x = f(x);
+vecn<double, N> gradientFirstOrder(function<double(const vecn<double, N> &)> f,
+                                  const vecn<double, N> &x) {
+  vecn<double, N> grad;
+  double f_x = f(x);
 
-  vecn<float, N> xph = x;
+  vecn<double, N> xph = x;
   for (int i = 0; i < x.size(); ++i) {
-    float h = sqrt(numeric_limits<float>::epsilon()) *
-              (x[i] + numeric_limits<float>::epsilon());
-    volatile float xph_i = x[i] + h;
-    float dx = xph_i - x[i];
+    double h = sqrt(numeric_limits<double>::epsilon()) *
+              (x[i] + numeric_limits<double>::epsilon());
+    volatile double xph_i = x[i] + h;
+    double dx = xph_i - x[i];
     xph[i] = xph_i;
     grad[i] = (f(xph) - f_x) / dx;
     xph = x;
@@ -25,18 +25,18 @@ vecn<float, N> gradientFirstOrder(function<float(const vecn<float, N> &)> f,
 }
 
 template <size_t N>
-vecn<float, N> gradientSecondOrder(function<float(const vecn<float, N> &)> f,
-                                   const vecn<float, N> &x) {
-  vecn<float, N> grad;
+vecn<double, N> gradientSecondOrder(function<double(const vecn<double, N> &)> f,
+                                   const vecn<double, N> &x) {
+  vecn<double, N> grad;
 
-  vecn<float, N> xph = x;
-  vecn<float, N> xmh = x;
+  vecn<double, N> xph = x;
+  vecn<double, N> xmh = x;
   for (int i = 0; i < x.size(); ++i) {
-    float h = cbrt(numeric_limits<float>::epsilon()) *
-              (x[i] + numeric_limits<float>::epsilon());
-    volatile float xph_i = x[i] + h;
-    volatile float xmh_i = x[i] - h;
-    float dx = xph_i - xmh_i;
+    double h = cbrt(numeric_limits<double>::epsilon()) *
+              (x[i] + numeric_limits<double>::epsilon());
+    volatile double xph_i = x[i] + h;
+    volatile double xmh_i = x[i] - h;
+    double dx = xph_i - xmh_i;
     xph[i] = xph_i;
     xmh[i] = xmh_i;
     grad[i] = (f(xph) - f(xmh)) / dx;

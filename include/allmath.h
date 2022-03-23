@@ -11,22 +11,22 @@
 using namespace std;
 using namespace glm;
 
-inline float cross(const vec2 &a, const vec2 &b) {
+inline double cross(const dvec2 &a, const dvec2 &b) {
   return a.x * b.y - a.y * b.x;
 }
 
-inline vec2 lerp(vec2 x, vec2 y, float t) {
-  return x * (1.f - t) + y * t;
+inline dvec2 lerp(dvec2 x, dvec2 y, double t) {
+  return x * (1. - t) + y * t;
 }
 
-inline vec2 bezier(vec2 a, vec2 b, vec2 c, vec2 d, float t){
-  vec2 aa = lerp(a,b,t);
-  vec2 bb = lerp(b,c,t);
-  vec2 cc = lerp(c,d,t);
+inline dvec2 bezier(dvec2 a, dvec2 b, dvec2 c, dvec2 d, double t){
+  dvec2 aa = lerp(a,b,t);
+  dvec2 bb = lerp(b,c,t);
+  dvec2 cc = lerp(c,d,t);
 
-  vec2 aaa = lerp(aa, bb, t);
-  vec2 bbb = lerp(bb, cc, t);
+  dvec2 aaa = lerp(aa, bb, t);
+  dvec2 bbb = lerp(bb, cc, t);
 
-  vec2 point = lerp(aaa, bbb, t);
+  dvec2 point = lerp(aaa, bbb, t);
   return point;
 }

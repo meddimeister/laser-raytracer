@@ -3,6 +3,6 @@
 #include "allmath.h"
 #include <tuple>
 
-float snellius(float theta_e, float n_e, float n_t);
+double snellius(double theta_e, double n_e, double n_t);
 
-tuple<float, float, float, float> fresnel(float theta_e, float theta_t);
+tuple<double, double, double, double> fresnel(double theta_e, double theta_t);

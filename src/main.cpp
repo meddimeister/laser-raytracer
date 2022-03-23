@@ -23,67 +23,76 @@ int main(int argc, char *argv[]) {
 
   LOG("Start");
   bool noopt = false;
-  size_t numrays = 10000;
+  size_t optrays = 10000;
+  size_t optsegments = 100;
+  size_t rays = 100000;
+  size_t segments = 10000;
 
-  ArgParser args("-noopt --numrays", argc, argv);
+  ArgParser args("-noopt --optrays --optsegments --rays --segments", argc, argv);
   args.getFlag("-noopt", noopt);
-  args.getArg("--numrays", numrays);
+  args.getArg("--optrays", optrays);
+  args.getArg("--optsegments", optsegments);
+  args.getArg("--rays", rays);
+  args.getArg("--segments", segments);
 
   cout << "noopt: " << noopt << endl;
-  cout << "numrays: " << numrays << endl;
-  
+  cout << "optrays: " << optrays << endl;
+  cout << "optsegments: " << optsegments << endl;
+  cout << "rays: " << rays << endl;
+  cout << "segments: " << segments << endl;
+
   LOG("Parse Arguments");
 
   CSVReader csvReader;
   auto absorptionData =
-      csvReader.read<float, float>("../data/ndyag_absorption_spectrum.csv");
+      csvReader.read<double, double>("../data/ndyag_absorption_spectrum.csv");
   auto emissionData =
-      csvReader.read<float, float>("../data/solar_spectrum.csv");
+      csvReader.read<double, double>("../data/solar_spectrum.csv");
 
   auto absorptionSpectrum = getFunction(absorptionData);
   auto emissionSpectrum = getFunction(emissionData);
 
   LOG("Read Data");
-  float solarConstant = 1361.0f; // W*m^-2
-  float emittorRadius = 0.6f;    // m
-  float solarPower = solarConstant * M_PI * emittorRadius * emittorRadius;
+  double solarConstant = 1361.0; // W*m^-2
+  double emittorRadius = 0.6;    // m
+  double solarPower = solarConstant * M_PI * emittorRadius * emittorRadius;
 
-  vecn<float, 4> params;
-  float irradianceCrystal = 0.0f;
+  vecn<double, 4> params;
+  double irradianceCrystal = 0.0;
 
-  auto mirrorShapeParabola = [&](float x) {
-    vec2 point = {x, params[0] * x * x + params[1]};
+  auto mirrorShapeParabola = [&](double x) {
+    dvec2 point = {x, params[0] * x * x + params[1]};
     return point;
   };
 
-  auto mirrorShapeBezier = [&](float x) {
-    vec2 start = {0.006f, 0.0f};
-    vec2 paramPoint1 = {params[0], params[1]};
-    vec2 paramPoint2 = {params[2], params[3]};
-    vec2 end = {0.15f, 0.3f};
-    vec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
+  auto mirrorShapeBezier = [&](double x) {
+    dvec2 start = {0.006, 0.0};
+    dvec2 paramPoint1 = {params[0], params[1]};
+    dvec2 paramPoint2 = {params[2], params[3]};
+    dvec2 end = {0.15, 0.3};
+    dvec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
     return point;
   };
 
-  auto sellmeierNdYag = [](float wavelength) {
-    float wavelengthMu = wavelength / 1000.f;
-    float wavelengthSqrd = wavelengthMu * wavelengthMu;
-    float nSqrd = (2.282f * wavelengthSqrd) / (wavelengthSqrd - 0.01185f) +
-                  (3.27644f * wavelengthSqrd) / (wavelengthSqrd - 282.734f) +
-                  1.0f;
+  auto sellmeierNdYag = [](double wavelength) {
+    double wavelengthMu = wavelength / 1000.;
+    double wavelengthSqrd = wavelengthMu * wavelengthMu;
+    double nSqrd = (2.282 * wavelengthSqrd) / (wavelengthSqrd - 0.01185) +
+                  (3.27644 * wavelengthSqrd) / (wavelengthSqrd - 282.734) +
+                  1.0;
     return sqrt(nSqrd);
   };
 
-  auto mirror = make_shared<Mirror2D>(
-      Mirror2D({1.800f, 0.0f}, {-1.0f, 0.0f}, mirrorShapeBezier, 100));
+  auto optmirror = make_shared<Mirror2D>(
+      Mirror2D({1.800, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, optsegments));
 
-  auto crystal = make_shared<Grid2D>(Grid2D(
-      {1.7425f, 0.0f}, {-0.0475f, -0.003f}, {0.0475f, 0.003f}, 158, 10,
-      [&](Ray2D &ray, float distance, float &cell) {
+  auto optcrystal = make_shared<Grid2D>(Grid2D(
+      {1.7425, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
+      [&](Ray2D &ray, double distance, double &cell) {
         // Lambert law of absorption
-        float alpha = absorptionSpectrum(ray.wavelength);
-        float remainingPower = ray.power * exp(-alpha * distance * 100.0f);
-        float absorbedPower = ray.power - remainingPower;
+        double alpha = absorptionSpectrum(ray.wavelength);
+        double remainingPower = ray.power * exp(-alpha * distance * 100.0);
+        double absorbedPower = ray.power - remainingPower;
         cell += absorbedPower;
         ray.power = remainingPower;
       },
@@ -92,59 +101,59 @@ int main(int argc, char *argv[]) {
       },
       sellmeierNdYag));
 
-  auto lens =
-      make_shared<Lens2D>(Lens2D({0.0f, 0.0f}, {1.0f, 0.0f}, 0.6f, 1.2f));
+  auto optlens =
+      make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.6, 1.2));
 
-  Scene2D scene;
+  Scene2D optscene;
 
-  scene.add(mirror);
-  scene.add(crystal);
-  scene.add(lens);
+  optscene.add(optmirror);
+  optscene.add(optcrystal);
+  optscene.add(optlens);
 
   RNG::StratifiedSampler1D originSampler;
-  RNG::ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0f,
-                                                1000.0f);
+  RNG::ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0,
+                                                1000.0);
 
-  scene.generateDirectionalRays({-2.0f, 0.0f}, emittorRadius, {1.0f, 0.0f},
-                                solarPower, numrays, originSampler,
+  optscene.generateDirectionalRays({-2.0, 0.0}, emittorRadius, {1.0, 0.0},
+                                solarPower, optrays, originSampler,
                                 absorptionImpSampler, emissionSpectrum);
 
   LOG("Preprocessing");
 
-  vector<vector<Ray2D>> rays;
+  vector<vector<Ray2D>> optraysStorage;
 
-  auto trace = [&](const vecn<float, 4> &currentParams) {
+  auto trace = [&](const vecn<double, 4> &currentParams) {
     params = currentParams;
-    mirror->rebuild();
-    rays = scene.trace(4);
-    float functional = -crystal->sum();
-    crystal->reset();
-    irradianceCrystal = 0.0f;
+    optmirror->rebuild();
+    optraysStorage = optscene.trace(4);
+    double functional = -optcrystal->sum();
+    optcrystal->reset();
+    irradianceCrystal = 0.0;
     return functional;
   };
 
-  auto traceVar = [&](const vecn<float, 4> &currentParams) {
+  auto traceVar = [&](const vecn<double, 4> &currentParams) {
     params = currentParams;
-    mirror->rebuild();
-    rays = scene.trace(4);
-    float functional = crystal->var();
-    crystal->reset();
-    irradianceCrystal = 0.0f;
+    optmirror->rebuild();
+    optraysStorage = optscene.trace(4);
+    double functional = optcrystal->var();
+    optcrystal->reset();
+    irradianceCrystal = 0.0;
     return functional;
   };
 
-  params[0] = 0.07281232625f;
-  params[1] = 0.002341829939f;
-  params[2] = 0.07726241648f;
-  params[3] = 0.02685499005f;
+  params[0] = 0.07281232625;
+  params[1] = 0.002341829939;
+  params[2] = 0.07726241648;
+  params[3] = 0.02685499005;
 
   // Optimization Algorithm
   if (!noopt) {
     cout << "Mirror Optimizer: " << endl;
 
     auto solutions =
-        mads<4>(trace, traceVar, {0.0f, 0.0f, 0.075f, 0.0f},
-                {0.0f, 0.0f, 0.075f, 0.0f}, {0.075f, 0.3f, 0.15f, 0.3f});
+        mads<4>(trace, traceVar, {0.0, 0.0, 0.075, 0.0},
+                {0.0, 0.0, 0.075, 0.0}, {0.075, 0.3, 0.15, 0.3});
     if (solutions.empty()) {
       DEBUG("Error: No solutions found");
       return -1;
@@ -154,13 +163,46 @@ int main(int argc, char *argv[]) {
     params = minimizingParameters;
   }
 
+  auto mirror = make_shared<Mirror2D>(
+      Mirror2D({1.800, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, segments));
+
+  auto crystal = make_shared<Grid2D>(Grid2D(
+      {1.7425, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
+      [&](Ray2D &ray, double distance, double &cell) {
+        // Lambert law of absorption
+        double alpha = absorptionSpectrum(ray.wavelength);
+        double remainingPower = ray.power * exp(-alpha * distance * 100.0);
+        double absorbedPower = ray.power - remainingPower;
+        cell += absorbedPower;
+        ray.power = remainingPower;
+      },
+      [&](Ray2D &ray, const IntersectResult2D &result) {
+        irradianceCrystal += ray.power;
+      },
+      sellmeierNdYag));
+
+  auto lens =
+      make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.6, 1.2));
+
+  Scene2D scene;
+
+  scene.add(mirror);
+  scene.add(crystal);
+  scene.add(lens);
+
+  scene.generateDirectionalRays({-2.0, 0.0}, emittorRadius, {1.0, 0.0},
+                                solarPower, rays, originSampler,
+                                absorptionImpSampler, emissionSpectrum);
+  
+  vector<vector<Ray2D>> raysStorage;
   mirror->rebuild();
-  rays = scene.trace(4);
-  float irradiationEfficiency = irradianceCrystal / solarPower;
-  float absorbedPower = crystal->sum();
-  float absorbedPowerVar = crystal->var();
-  float absorptionEfficiencyTotal = absorbedPower / solarPower;
-  float absorptionEfficiencyIrradiated = absorbedPower / irradianceCrystal;
+  raysStorage = scene.trace(4);
+
+  double irradiationEfficiency = irradianceCrystal / solarPower;
+  double absorbedPower = crystal->sum();
+  double absorbedPowerVar = crystal->var();
+  double absorptionEfficiencyTotal = absorbedPower / solarPower;
+  double absorptionEfficiencyIrradiated = absorbedPower / irradianceCrystal;
 
   LOG("Tracing");
 
@@ -180,8 +222,8 @@ int main(int argc, char *argv[]) {
   vtkWriter.add(crystal->getAABBs(), "crystal.AABB");
   vtkWriter.add(lens, "lens");
   vtkWriter.add(lens->getAABBs(), "lens.AABB");
-  vtkWriter.addAsSequence(rays, "rays", 100);
-  vtkWriter.addAsComposition(rays, "rays_composition", 100);
+  vtkWriter.addAsSequence(raysStorage, "rays", 100);
+  vtkWriter.addAsComposition(raysStorage, "rays_composition", 100);
   vtkWriter.write();
 
   LOG("Output");

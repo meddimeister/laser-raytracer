@@ -34,21 +34,21 @@ class Object2D {
 protected:
   vector<shared_ptr<Shape2D>> shapes;
   unsigned int subdivisions;
-  vec2 pos;
-  vec2 up;
-  vec2 scale;
+  dvec2 pos;
+  dvec2 up;
+  dvec2 scale;
   shared_ptr<Tree> root;
 
   void buildTree(unsigned int subdivisions);
 
 public:
   Object2D(const vector<shared_ptr<Shape2D>> &&_shapes,
-           unsigned int _subdivisions = 0, const vec2 &_pos = {0.0f, 0.0f},
-           const vec2 &_up = {0.0f, 1.0f}, const vec2 &_scale = {1.0f, 1.0f});
+           unsigned int _subdivisions = 0, const dvec2 &_pos = {0.0, 0.0},
+           const dvec2 &_up = {0.0, 1.0}, const dvec2 &_scale = {1.0, 1.0});
 
-  void setPos(const vec2 &_pos) { pos = _pos; }
-  void setUp(const vec2 &_up) { up = _up; }
-  void setScale(const vec2 &_scale) { scale = _scale; }
+  void setPos(const dvec2 &_pos) { pos = _pos; }
+  void setUp(const dvec2 &_up) { up = _up; }
+  void setScale(const dvec2 &_scale) { scale = _scale; }
 
   const vector<shared_ptr<Shape2D>> &getShapes() const { return shapes; }
 
@@ -58,9 +58,9 @@ public:
     return boxes;
   }
 
-  vec2 getPos() const { return pos; }
-  vec2 getUp() const { return up; }
-  vec2 getScale() const { return scale; }
+  dvec2 getPos() const { return pos; }
+  dvec2 getUp() const { return up; }
+  dvec2 getScale() const { return scale; }
 
   IntersectResult2D intersect(const Ray2D &ray) const;
 

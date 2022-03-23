@@ -12,9 +12,9 @@ using namespace std;
 
 template <size_t N> class My_Evaluator : public NOMAD::Evaluator {
 public:
-  function<float(const vecn<float, N>)> f;
+  function<double(const vecn<double, N>)> f;
 
-  My_Evaluator(function<float(const vecn<float, N> &)> functional,
+  My_Evaluator(function<double(const vecn<double, N> &)> functional,
                const shared_ptr<NOMAD::EvalParameters> &evalParams)
       : NOMAD::Evaluator(evalParams, NOMAD::EvalType::BB), f(functional) {}
 
@@ -23,13 +23,13 @@ public:
   bool eval_x(NOMAD::EvalPoint &x, const NOMAD::Double &hMax,
               bool &countEval) const override {
     bool eval_ok = false;
-    vecn<float, N> x_curr;
+    vecn<double, N> x_curr;
     for (size_t i = 0; i < N; ++i) {
-      x_curr[i] = float(x[i].todouble());
+      x_curr[i] = double(x[i].todouble());
     }
 
     try {
-      float f_curr = f(x_curr);
+      double f_curr = f(x_curr);
       auto bbOutputType =
           _evalParams->getAttributeValue<NOMAD::BBOutputTypeList>(
               "BB_OUTPUT_TYPE");
@@ -50,10 +50,10 @@ public:
 };
 
 template <size_t N>
-vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f,
-                                const vecn<float, N> &xStart,
-                                const vecn<float, N> &lowerBounds,
-                                const vecn<float, N> &upperBounds) {
+vector<vecn<double, N>> runNomad(function<double(const vecn<double, N> &)> f,
+                                const vecn<double, N> &xStart,
+                                const vecn<double, N> &lowerBounds,
+                                const vecn<double, N> &upperBounds) {
   NOMAD::MainStep TheMainStep;
 
   auto allParams = make_shared<NOMAD::AllParameters>();
@@ -101,7 +101,7 @@ vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f,
       new My_Evaluator<N>(f, allParams->getEvalParams()));
   TheMainStep.setEvaluator(std::move(ev));
 
-  vector<vecn<float, N>> bf_ret;
+  vector<vecn<double, N>> bf_ret;
   try {
     TheMainStep.start();
     TheMainStep.run();
@@ -112,9 +112,9 @@ vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f,
         nullptr);
     for (const auto &point : bf) {
 
-      vecn<float, N> point_ret;
+      vecn<double, N> point_ret;
       for (size_t i = 0; i < N; ++i) {
-        point_ret[i] = float(point[i].todouble());
+        point_ret[i] = double(point[i].todouble());
       }
       bf_ret.push_back(point_ret);
     }

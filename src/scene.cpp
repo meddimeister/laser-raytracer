@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "allmath.h"
 #include "gtx/transform.hpp"
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -9,25 +10,25 @@ void Scene2D::add(const shared_ptr<Object2D> &object) {
   objects.push_back(object);
 }
 
-void Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction,
-                                float maxAngle, float totalPower,
+void Scene2D::generatePointRays(const dvec2 &origin, const dvec2 &direction,
+                                double maxAngle, double totalPower,
                                 unsigned int count,
-                                RNG::Sampler<float> &angleSampler,
+                                RNG::Sampler<double> &angleSampler,
                                 RNG::ImportanceSampler1D &wavelengthSampler,
-                                const function<float(float)> &spectrum) {
+                                const function<double(double)> &spectrum) {
 
   angleSampler.init(count);
   wavelengthSampler.init(count);
   vector<Ray2D> generatedRays;
-  float powerIntegral = 0.0f;
+  double powerIntegral = 0.0;
   for (unsigned int i = 0; i < count; ++i) {
-    float angle = maxAngle * (2.0f * angleSampler.next() - 1.0f);
-    vec2 dir = rotate(direction, angle);
+    double angle = maxAngle * (2.0 * angleSampler.next() - 1.0);
+    dvec2 dir = rotate(direction, angle);
     dir = normalize(dir);
 
-    float wavelengthSample = wavelengthSampler.next();
-    float wavelength = wavelengthSampler.value(wavelengthSample);
-    float power =
+    double wavelengthSample = wavelengthSampler.next();
+    double wavelength = wavelengthSampler.value(wavelengthSample);
+    double power =
         spectrum(wavelength) / wavelengthSampler.pdf(wavelengthSample);
     powerIntegral += power;
 
@@ -40,25 +41,27 @@ void Scene2D::generatePointRays(const vec2 &origin, const vec2 &direction,
 }
 
 void Scene2D::generateDirectionalRays(
-    const vec2 &origin, float radius, const vec2 &direction, float totalPower,
-    unsigned int count, RNG::Sampler<float> &originSampler,
+    const dvec2 &origin, double radius, const dvec2 &direction, double totalPower,
+    unsigned int count, RNG::Sampler<double> &originSampler,
     RNG::ImportanceSampler1D &wavelengthSampler,
-    const function<float(float)> &spectrum) {
+    const function<double(double)> &spectrum) {
 
   originSampler.init(count);
   wavelengthSampler.init(count);
   vector<Ray2D> generatedRays;
-  float powerIntegral = 0.0f;
+  double powerIntegral = 0.0;
   for (unsigned int i = 0; i < count; ++i) {
-    float originRadius = radius * (2.0f * originSampler.next() - 1.0f);
-    float wavelengthSample = wavelengthSampler.next();
-    float wavelength = wavelengthSampler.value(wavelengthSample);
-    float power =
+    double originRadius = radius * (2.0 * originSampler.next() - 1.0);
+    double wavelengthSample = wavelengthSampler.next();
+    double wavelength = wavelengthSampler.value(wavelengthSample);
+    double power =
         spectrum(wavelength) / wavelengthSampler.pdf(wavelengthSample);
+    if(isnan(power) || isinf(power))
+      continue;
     powerIntegral += power;
 
     generatedRays.push_back(
-        Ray2D(origin + originRadius * rotate(direction, 0.5f * float(M_PI)),
+        Ray2D(origin + originRadius * rotate(direction, 0.5 * double(M_PI)),
               direction, power, wavelength));
   }
   for (auto &ray : generatedRays) {
@@ -79,7 +82,7 @@ vector<vector<Ray2D>> Scene2D::trace(unsigned int depth) {
       if (ray.terminated)
         continue;
 
-      map<float, tuple<shared_ptr<Object2D>, IntersectResult2D>> intersections;
+      map<double, tuple<shared_ptr<Object2D>, IntersectResult2D>> intersections;
 
       for (auto &object : objects) {
         const auto result = object->intersect(ray);

@@ -15,6 +15,9 @@ include_directories(lib/nomad3/ext/sgtelib/src)
 link_directories(lib/nomad3/lib)
 
 ############# COMPILER FLAGS ###############
+#set(CMAKE_CXX_FLAGS -pg)
+#set(CMAKE_EXE_LINKER_FLAGS -pg)
+#set(CMAKE_SHARED_LINKER_FLAGS -pg)
 
 ############# SOURCE ###############
 

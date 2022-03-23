@@ -10,18 +10,18 @@ public:
 
   void add(const shared_ptr<Object2D> &object);
 
-  void generatePointRays(const vec2 &origin, const vec2 &direction,
-                         float maxAngle, float totalPower, unsigned int count,
-                         RNG::Sampler<float> &angleSampler,
+  void generatePointRays(const dvec2 &origin, const dvec2 &direction,
+                         double maxAngle, double totalPower, unsigned int count,
+                         RNG::Sampler<double> &angleSampler,
                          RNG::ImportanceSampler1D &wavelengthSampler,
-                         const function<float(float)> &spectrum);
+                         const function<double(double)> &spectrum);
 
-  void generateDirectionalRays(const vec2 &origin, float radius,
-                               const vec2 &direction, float totalPower,
+  void generateDirectionalRays(const dvec2 &origin, double radius,
+                               const dvec2 &direction, double totalPower,
                                unsigned int count,
-                               RNG::Sampler<float> &originSampler,
+                               RNG::Sampler<double> &originSampler,
                                RNG::ImportanceSampler1D &wavelengthSampler,
-                               const function<float(float)> &spectrum);
+                               const function<double(double)> &spectrum);
 
   vector<vector<Ray2D>> trace(unsigned int depth = 1);
 };

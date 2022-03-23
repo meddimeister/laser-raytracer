@@ -11,11 +11,11 @@ using namespace std;
 
 template <size_t N> class My_Evaluator : public NOMAD::Multi_Obj_Evaluator {
 public:
-  function<float(const vecn<float, N>)> f1;
-  function<float(const vecn<float, N>)> f2;
+  function<double(const vecn<double, N>)> f1;
+  function<double(const vecn<double, N>)> f2;
 
-  My_Evaluator(function<float(const vecn<float, N> &)> functional1,
-               function<float(const vecn<float, N> &)> functional2,
+  My_Evaluator(function<double(const vecn<double, N> &)> functional1,
+               function<double(const vecn<double, N> &)> functional2,
                const NOMAD::Parameters &p)
       : NOMAD::Multi_Obj_Evaluator(p), f1(functional1), f2(functional2) {}
 
@@ -24,12 +24,12 @@ public:
   bool eval_x(NOMAD::Eval_Point &x, const NOMAD::Double &h_max,
               bool &count_eval) const {
 
-    vecn<float, N> x_curr;
+    vecn<double, N> x_curr;
     for (size_t i = 0; i < N; ++i) {
-      x_curr[i] = float(x[i].value());
+      x_curr[i] = double(x[i].value());
     }
-    float f1_curr = f1(x_curr);
-    float f2_curr = f2(x_curr);
+    double f1_curr = f1(x_curr);
+    double f2_curr = f2(x_curr);
     x.set_bb_output(0, NOMAD::Double(f1_curr));
     x.set_bb_output(1, NOMAD::Double(f2_curr));
 
@@ -39,13 +39,13 @@ public:
 };
 
 template <size_t N>
-vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f1,
-                                function<float(const vecn<float, N> &)> f2,
-                                const vecn<float, N> &xStart,
-                                const vecn<float, N> &lowerBounds,
-                                const vecn<float, N> &upperBounds) {
+vector<vecn<double, N>> runNomad(function<double(const vecn<double, N> &)> f1,
+                                function<double(const vecn<double, N> &)> f2,
+                                const vecn<double, N> &xStart,
+                                const vecn<double, N> &lowerBounds,
+                                const vecn<double, N> &upperBounds) {
 
-  vector<vecn<float, N>> bf_ret;
+  vector<vecn<double, N>> bf_ret;
 
   NOMAD::Display out(std::cout);
   out.precision(NOMAD::DISPLAY_PRECISION_STD);
@@ -92,9 +92,9 @@ vector<vecn<float, N>> runNomad(function<float(const vecn<float, N> &)> f1,
     NOMAD::Mads mads(p, &ev);
     mads.multi_run();
     auto evalPoint = mads.get_best_feasible();
-    vecn<float, N> solution;
+    vecn<double, N> solution;
     for (size_t i = 0; i < N; ++i) {
-      solution[i] = float(evalPoint->value(i));
+      solution[i] = double(evalPoint->value(i));
     }
     bf_ret.push_back(solution);
 

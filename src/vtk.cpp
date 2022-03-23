@@ -93,7 +93,7 @@ void VTKWriter::write() const {
       nPoints += shape->lineRepresentation().size() * 2;
     }
 
-    fs << "POINTS " << nPoints << " float" << endl;
+    fs << "POINTS " << nPoints << " double" << endl;
     for (auto &shape : shapes) {
       vector<vec4> lines = shape->lineRepresentation();
       for (auto &line : lines) {
@@ -131,15 +131,15 @@ void VTKWriter::write() const {
 
     unsigned int nPoints = 2 * rays.size();
 
-    fs << "POINTS " << nPoints << " float" << endl;
+    fs << "POINTS " << nPoints << " double" << endl;
     for (auto &r : rays) {
       fs << r.origin.x << " " << r.origin.y << " 0.0" << endl;
       if (r.terminated) {
         fs << r.origin.x + r.terminatedAt * r.direction.x << " "
            << r.origin.y + r.terminatedAt * r.direction.y << " 0.0" << endl;
       } else {
-        fs << r.origin.x + 10.0f * r.direction.x << " "
-           << r.origin.y + 10.0f * r.direction.y << " 0.0" << endl;
+        fs << r.origin.x + 10.0 * r.direction.x << " "
+           << r.origin.y + 10.0 * r.direction.y << " 0.0" << endl;
       }
     }
     fs << "LINES " << rays.size() << " " << 3 * rays.size() << endl;
@@ -168,13 +168,13 @@ void VTKWriter::write() const {
     fs << "DATASET STRUCTURED_POINTS" << endl;
     fs << "DIMENSIONS " << grid->maxX << " " << grid->maxY << " " << 1 << endl;
     fs << "ORIGIN " << grid->cornerMin.x << " " << grid->cornerMin.y << " "
-       << 0.0f << endl;
+       << 0.0 << endl;
     fs << "SPACING "
        << (grid->cornerMax.x - grid->cornerMin.x) / (grid->maxX - 1) << " "
        << (grid->cornerMax.y - grid->cornerMin.y) / (grid->maxY - 1) << " "
-       << 0.0f << endl;
+       << 0.0 << endl;
     fs << "POINT_DATA " << grid->data.size() << endl;
-    fs << "SCALARS values float 1" << endl;
+    fs << "SCALARS values double 1" << endl;
     fs << "LOOKUP_TABLE default" << endl;
 
     for (auto it = grid->data.begin(); it != grid->data.end(); it++) {

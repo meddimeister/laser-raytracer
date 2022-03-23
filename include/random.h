@@ -28,7 +28,7 @@ template <typename T> class UniformSampler : public Sampler<T> {
 protected:
   unsigned int seed;
   default_random_engine generator;
-  uniform_real_distribution<float> uniformDistribution;
+  uniform_real_distribution<double> uniformDistribution;
 
 public:
   void init(unsigned int _count) {
@@ -36,7 +36,7 @@ public:
     this->idx = 0;
     seed = chrono::system_clock::now().time_since_epoch().count();
     generator.seed(seed);
-    uniformDistribution = uniform_real_distribution<float>(0.0f, 1.0f);
+    uniformDistribution = uniform_real_distribution<double>(0.0, 1.0);
   }
 
   virtual T next() = 0;
@@ -46,7 +46,7 @@ template <typename T> class NormalSampler : public Sampler<T> {
 protected:
   unsigned int seed;
   default_random_engine generator;
-  normal_distribution<float> normalDistribution;
+  normal_distribution<double> normalDistribution;
 
 public:
   void init(unsigned int _count) {
@@ -54,50 +54,50 @@ public:
     this->idx = 0;
     seed = chrono::system_clock::now().time_since_epoch().count();
     generator.seed(seed);
-    normalDistribution = normal_distribution<float>(0.0f, 1.0f);
+    normalDistribution = normal_distribution<double>(0.0, 1.0);
   }
 
   virtual T next() = 0;
 };
 
-class UniformSampler1D : public UniformSampler<float> {
+class UniformSampler1D : public UniformSampler<double> {
 public:
-  float next() {
-    float sample = this->uniformDistribution(this->generator);
+  double next() {
+    double sample = this->uniformDistribution(this->generator);
     return sample;
   }
 };
 
-class StratifiedSampler1D : public UniformSampler<float> {
+class StratifiedSampler1D : public UniformSampler<double> {
 public:
-  float next() {
-    float sample = this->uniformDistribution(this->generator);
+  double next() {
+    double sample = this->uniformDistribution(this->generator);
     return (idx++ + sample) / count;
   }
 };
 
-class NormalSampler1D : public NormalSampler<float> {
+class NormalSampler1D : public NormalSampler<double> {
 public:
-  float next() {
-    float sample = this->normalDistribution(this->generator);
+  double next() {
+    double sample = this->normalDistribution(this->generator);
     return sample;
   }
 };
 
-class ImportanceSampler1D : public UniformSampler<float> {
+class ImportanceSampler1D : public UniformSampler<double> {
 public:
-  function<float(float)> _f;
-  function<float(float)> _pdf;
-  float _xMin;
-  float _xMax;
+  function<double(double)> _f;
+  function<double(double)> _pdf;
+  double _xMin;
+  double _xMax;
   size_t _N;
-  vector<float> _cdf;
-  ImportanceSampler1D(function<float(float)> f, float xMin, float xMax, size_t N = 10000) : _f(f),
+  vector<double> _cdf;
+  ImportanceSampler1D(function<double(double)> f, double xMin, double xMax, size_t N = 10000) : _f(f),
    _pdf(getPdfFunction(f, xMin, xMax)), _xMin(xMin), _xMax(xMax), _N(N){
-    float sum = 0.0f;
+    double sum = 0.0;
     for(size_t i = 0; i < _N; ++i){
       _cdf.push_back(sum);
-      float x = float(i)/_N;
+      double x = double(i)/_N;
       sum += _pdf(x);
     }
     _cdf.push_back(sum);
@@ -106,36 +106,36 @@ public:
     }
   }  
 
-  float next() {
-    float sample = this->uniformDistribution(this->generator);
+  double next() {
+    double sample = this->uniformDistribution(this->generator);
 
-    float impSample = 0.f;
+    double impSample = 0.;
     for (size_t i = 1; i < _cdf.size(); i++) {
         if (sample < _cdf[i]) {
-            float min = _cdf[i - 1];
-            float max = _cdf[i];
-            float alpha = (sample - min) / (max - min);
-            impSample = (i - 1.f + alpha) / ((float) _N);
+            double min = _cdf[i - 1];
+            double max = _cdf[i];
+            double alpha = (sample - min) / (max - min);
+            impSample = (i - 1. + alpha) / ((double) _N);
             break;
         }
     }
     return impSample;
   }
 
-  float value(float sample){
+  double value(double sample){
     return _xMin + sample * (_xMax - _xMin);
   }
 
-  float pdf(float sample){
+  double pdf(double sample){
     return _pdf(sample);
   }
 
-  float f(float sample){
+  double f(double sample){
     return _f(value(sample));
   }
 };
 
-template <size_t N> class UniformSamplerND : public Sampler<vecn<float, N>> {
+template <size_t N> class UniformSamplerND : public Sampler<vecn<double, N>> {
 protected:
   array<UniformSampler1D, N> samplers;
 
@@ -148,8 +148,8 @@ public:
     }
   }
 
-  vecn<float, N> next() {
-    vecn<float, N> sampleVec;
+  vecn<double, N> next() {
+    vecn<double, N> sampleVec;
     for (size_t i = 0; i < N; ++i) {
       sampleVec[i] = samplers[i].next();
     }
@@ -157,7 +157,7 @@ public:
   }
 };
 
-template <size_t N> class NormalSamplerND : public Sampler<vecn<float, N>> {
+template <size_t N> class NormalSamplerND : public Sampler<vecn<double, N>> {
 protected:
   array<NormalSampler1D, N> samplers;
 
@@ -170,8 +170,8 @@ public:
     }
   }
 
-  vecn<float, N> next() {
-    vecn<float, N> sampleVec;
+  vecn<double, N> next() {
+    vecn<double, N> sampleVec;
     for (size_t i = 0; i < N; ++i) {
       sampleVec[i] = samplers[i].next();
     }
@@ -179,7 +179,7 @@ public:
   }
 };
 
-template <size_t N> class UniformBallSampler : public Sampler<vecn<float, N>> {
+template <size_t N> class UniformBallSampler : public Sampler<vecn<double, N>> {
 protected:
   NormalSamplerND<N> normalSampler;
   UniformSampler1D uniformSampler;
@@ -192,10 +192,10 @@ public:
     uniformSampler.init(_count);
   }
 
-  vecn<float, N> next() {
+  vecn<double, N> next() {
     auto u = normalSampler.next();
-    float norm = length(u);
-    float r = pow(uniformSampler.next(), 1.0f / N);
+    double norm = length(u);
+    double r = pow(uniformSampler.next(), 1.0 / N);
 
     return (u * r) / norm;
   }

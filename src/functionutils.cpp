@@ -9,7 +9,7 @@
 #include <tuple>
 #include <vector>
 
-function<float(float)> getFunction(vector<tuple<float, float>> &points,
+function<double(double)> getFunction(vector<tuple<double, double>> &points,
                                    bool debug) {
   if (debug) {
     CSVWriter csvWriter("csvOut");
@@ -19,30 +19,30 @@ function<float(float)> getFunction(vector<tuple<float, float>> &points,
     csvWriter.write();
   }
   sort(points.begin(), points.end(),
-       [](tuple<float, float> &a, tuple<float, float> &b) {
+       [](tuple<double, double> &a, tuple<double, double> &b) {
          return get<0>(a) < get<0>(b);
        });
-  return [points](float x) {
-    tuple<float, float> dummy(x, 0.0f);
+  return [points](double x) {
+    tuple<double, double> dummy(x, 0.0);
     auto it = lower_bound(
         points.begin(), points.end(), dummy,
-        [&](const tuple<float, float> &a, const tuple<float, float> &b) { return get<0>(a) < get<0>(b);});
+        [&](const tuple<double, double> &a, const tuple<double, double> &b) { return get<0>(a) < get<0>(b);});
     if (it != points.end() && it != points.begin()) {
       auto [x_0, f_0] = *(it - 1);
       auto [x_1, f_1] = *(it);
-      float alpha = (x - x_1) / (x_0 - x_1);
-      return (1.0f - alpha) * f_0 + alpha * f_1;
+      double alpha = (x - x_1) / (x_0 - x_1);
+      return (1.0 - alpha) * f_0 + alpha * f_1;
     };
-    return 0.0f;
+    return 0.0;
   };
 }
 
-float integrateFunction(const function<float(float)> &f, float xMin, float xMax,
+double integrateFunction(const function<double(double)> &f, double xMin, double xMax,
                         bool debug, size_t N) {
-  float sum = 0.0f;
-  float dx = (xMax - xMin) / N;
+  double sum = 0.0;
+  double dx = (xMax - xMin) / N;
   for (size_t i = 0; i < N; ++i) {
-    float x = xMin + i * dx;
+    double x = xMin + i * dx;
     if (debug) {
       if (!isinf(sum))
         cout << x << " " << f(x) << " " << sum << endl;
@@ -52,50 +52,50 @@ float integrateFunction(const function<float(float)> &f, float xMin, float xMax,
   return sum;
 }
 
-function<float(float)> normalizeFunction(const function<float(float)> &f,
-                                         float xMin, float xMax) {
-  float integral = integrateFunction(f, xMin, xMax);
-  return [f, xMin, xMax, integral](float x) {
+function<double(double)> normalizeFunction(const function<double(double)> &f,
+                                         double xMin, double xMax) {
+  double integral = integrateFunction(f, xMin, xMax);
+  return [f, xMin, xMax, integral](double x) {
     if (x < xMin || x > xMax) {
-      return 0.0f;
+      return 0.0;
     } else {
       return f(x) / integral;
     }
   };
 }
 
-function<float(float)> get01Function(const function<float(float)> &f,
-                                     float xMin, float xMax) {
-  return [f, xMin, xMax](float x) {
-    if (x < 0.0f || x > 1.0f) {
-      return 0.0f;
+function<double(double)> get01Function(const function<double(double)> &f,
+                                     double xMin, double xMax) {
+  return [f, xMin, xMax](double x) {
+    if (x < 0.0 || x > 1.0) {
+      return 0.0;
     } else {
       return f(xMin + x * (xMax - xMin));
     }
   };
 }
 
-function<float(float)> getPdfFunction(const function<float(float)> &f,
-                                      float xMin, float xMax) {
-  return normalizeFunction(get01Function(f, xMin, xMax), 0.0f, 1.0f);
+function<double(double)> getPdfFunction(const function<double(double)> &f,
+                                      double xMin, double xMax) {
+  return normalizeFunction(get01Function(f, xMin, xMax), 0.0, 1.0);
 }
 
-function<float(float)> getCdfFunction(const function<float(float)> &f,
-                                      float xMin, float xMax, bool debug,
+function<double(double)> getCdfFunction(const function<double(double)> &f,
+                                      double xMin, double xMax, bool debug,
                                       size_t N) {
   auto pdf = getPdfFunction(f, xMin, xMax);
-  vector<tuple<float, float>> cdf;
-  float sum = 0.0f;
+  vector<tuple<double, double>> cdf;
+  double sum = 0.0;
   for (size_t i = 0; i < N; ++i) {
-    cdf.push_back({float(i) / (N + 1), sum});
-    float x = float(i) / N;
+    cdf.push_back({double(i) / (N + 1), sum});
+    double x = double(i) / N;
     if (debug && isnan(pdf(x))) {
       cout << x << endl;
       continue;
     }
     sum += pdf(x);
   }
-  cdf.push_back({1.0f, sum});
+  cdf.push_back({1.0, sum});
   for (size_t i = 0; i < N + 1; ++i) {
     get<1>(cdf[i]) /= sum;
   }

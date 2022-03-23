@@ -10,7 +10,7 @@ void outputHistogramm(RNG::ImportanceSampler1D &sampler,
   vector<int> histogramm(resolution, 0);
 
   for (size_t i = 0; i < N; ++i) {
-    float sample = sampler.next();
+    double sample = sampler.next();
     int idx = int(sample * resolution);
     histogramm[idx]++;
   }
@@ -24,14 +24,14 @@ void outputHistogramm(RNG::ImportanceSampler1D &sampler,
   csvWriter.write();
 }
 
-void outputFunction(function<float(float)> f, float xMin, float xMax, const string &outputDir,
+void outputFunction(function<double(double)> f, double xMin, double xMax, const string &outputDir,
                     const string &name, size_t resolution) {
 
   CSVWriter csvWriter(outputDir);
   csvWriter.add(name, "#x", "f(x)");
 
   for (size_t i = 0; i < resolution; ++i) {
-    float x = xMin + (float(i)/resolution) * xMax;
+    double x = xMin + (double(i)/resolution) * xMax;
    csvWriter.add(name, x, f(x));
   }
 

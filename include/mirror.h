@@ -10,18 +10,18 @@
 using namespace std;
 using namespace glm;
 
-vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_opticalAxis,
-                                  const function<vec2(float)> _shapeFunction,
+vector<shared_ptr<Shape2D>> build(const dvec2 &_pos, const dvec2 &_opticalAxis,
+                                  const function<dvec2(double)> _shapeFunction,
                                   int _segments);
 
 class Mirror2D : public Object2D {
 private:
-  function<vec2(float)> shapeFunction;
+  function<dvec2(double)> shapeFunction;
   int segments;
 
 public:
-  Mirror2D(const vec2 &_pos, const vec2 &_opticalAxis,
-           function<vec2(float)> _shapeFunction, int _segments)
+  Mirror2D(const dvec2 &_pos, const dvec2 &_opticalAxis,
+           function<dvec2(double)> _shapeFunction, int _segments)
       : Object2D(build(_pos, _opticalAxis, _shapeFunction, _segments), 4, _pos,
                  _opticalAxis),
         shapeFunction(_shapeFunction), segments(_segments){};

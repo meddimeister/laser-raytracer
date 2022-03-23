@@ -51,8 +51,8 @@ void Object2D::Tree::forEachConditional(
 void Object2D::Tree::subdivide(unsigned int maxdepth, unsigned int currdepth) {
   if (currdepth < maxdepth) {
     AABB2D subs[4];
-    vec2 bmin = box->aabb.bmin;
-    vec2 bmax = box->aabb.bmax;
+    dvec2 bmin = box->aabb.bmin;
+    dvec2 bmax = box->aabb.bmax;
 
     subs[0] = AABB2D(
         {{bmin.x, bmin.y}, {(bmin.x + bmax.x) / 2, (bmin.y + bmax.y) / 2}});
@@ -67,7 +67,7 @@ void Object2D::Tree::subdivide(unsigned int maxdepth, unsigned int currdepth) {
 
     for (auto it = shapes.begin(); it != shapes.end();) {
       auto shape = *it;
-      vec2 midpoint = shape->aabb.getMidPoint();
+      dvec2 midpoint = shape->aabb.getMidPoint();
       bool erased = false;
       for (unsigned int i = 0; i < 4; ++i) {
         if (subs[i].isInside(midpoint)) {
@@ -109,8 +109,8 @@ void Object2D::buildTree(unsigned int subdivisions) {
 }
 
 Object2D::Object2D(const vector<shared_ptr<Shape2D>> &&_shapes,
-                   unsigned int _subdivisions, const vec2 &_pos,
-                   const vec2 &_up, const vec2 &_scale)
+                   unsigned int _subdivisions, const dvec2 &_pos,
+                   const dvec2 &_up, const dvec2 &_scale)
     : shapes(_shapes), subdivisions(_subdivisions), pos(_pos), up(_up),
       scale(_scale) {
   buildTree(_subdivisions);
@@ -118,8 +118,8 @@ Object2D::Object2D(const vector<shared_ptr<Shape2D>> &&_shapes,
 
 IntersectResult2D Object2D::intersect(const Ray2D &ray) const {
   IntersectResult2D ret;
-  ret.tEnter = std::numeric_limits<float>::max();
-  ret.tLeave = -std::numeric_limits<float>::max();
+  ret.tEnter = std::numeric_limits<double>::max();
+  ret.tLeave = -std::numeric_limits<double>::max();
   ret.hit = false;
 
   root->forEachConditional([&](shared_ptr<Tree> t) {

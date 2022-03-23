@@ -12,29 +12,29 @@
 using namespace std;
 using namespace glm;
 
-vector<shared_ptr<Shape2D>> build(const vec2 &_pos, const vec2 &_opticalAxis,
-                                  float _radius);
+vector<shared_ptr<Shape2D>> build(const dvec2 &_pos, const dvec2 &_opticalAxis,
+                                  double _radius);
 
 class Lens2D : public Object2D {
 public:
-  float radius;
-  float focalLength;
-  Lens2D(const vec2 &_pos, const vec2 &_opticalAxis, float _radius,
-         float _focalLength)
+  double radius;
+  double focalLength;
+  Lens2D(const dvec2 &_pos, const dvec2 &_opticalAxis, double _radius,
+         double _focalLength)
       : Object2D(build(_pos, _opticalAxis, _radius), 0, _pos, _opticalAxis),
         radius(_radius), focalLength(_focalLength){};
 
   void action(Ray2D &ray, const IntersectResult2D &result,
               vector<Ray2D> &createdRays) {
     // thin lens paper chapter single lens
-    float alpha = orientedAngle(ray.direction, up);
-    vec2 focalPoint = pos - focalLength * normalize(up);
-    vec2 hitPoint = ray.origin + result.tEnter * ray.direction;
-    float gamma = orientedAngle(up, normalize(hitPoint - focalPoint));
-    float beta = atan(tan(alpha) - tan(gamma));
-    vec2 ori = hitPoint;
-    vec2 dir = rotate(up, beta);
-    ori += numeric_limits<float>::epsilon() * dir;
+    double alpha = orientedAngle(ray.direction, up);
+    dvec2 focalPoint = pos - focalLength * normalize(up);
+    dvec2 hitPoint = ray.origin + result.tEnter * ray.direction;
+    double gamma = orientedAngle(up, normalize(hitPoint - focalPoint));
+    double beta = atan(tan(alpha) - tan(gamma));
+    dvec2 ori = hitPoint;
+    dvec2 dir = rotate(up, beta);
+    ori += numeric_limits<double>::epsilon() * dir;
     ray.terminate(result.tEnter);
     createdRays.push_back(Ray2D(ori, dir, ray.power, ray.wavelength));
   }
