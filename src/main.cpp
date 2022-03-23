@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
   double solarConstant = 1361.0; // W*m^-2
   double emittorRadius = 0.6;    // m
   double solarPower = solarConstant * M_PI * emittorRadius * emittorRadius;
+  double solarDivergence = 0.53338 * (2.0 * M_PI/360.0); //rad
 
   vecn<double, 4> params;
   double irradianceCrystal = 0.0;
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]) {
       sellmeierNdYag));
 
   auto optlens =
-      make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.6, 1.2));
+      make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D optscene;
 
@@ -111,11 +112,12 @@ int main(int argc, char *argv[]) {
   optscene.add(optlens);
 
   RNG::StratifiedSampler1D originSampler;
+  RNG::UniformSampler1D divergenceSampler;
   RNG::ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0,
                                                 1000.0);
 
-  optscene.generateDirectionalRays({-2.0, 0.0}, emittorRadius, {1.0, 0.0},
-                                solarPower, optrays, originSampler,
+  optscene.generateDirectionalRays({-0.1, 0.0}, emittorRadius, {1.0, 0.0}, solarDivergence,
+                                solarPower, optrays, originSampler, divergenceSampler,
                                 absorptionImpSampler, emissionSpectrum);
 
   LOG("Preprocessing");
@@ -182,7 +184,7 @@ int main(int argc, char *argv[]) {
       sellmeierNdYag));
 
   auto lens =
-      make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.6, 1.2));
+      make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D scene;
 
@@ -190,8 +192,8 @@ int main(int argc, char *argv[]) {
   scene.add(crystal);
   scene.add(lens);
 
-  scene.generateDirectionalRays({-2.0, 0.0}, emittorRadius, {1.0, 0.0},
-                                solarPower, rays, originSampler,
+  scene.generateDirectionalRays({-0.1, 0.0}, emittorRadius, {1.0, 0.0}, solarDivergence,
+                                solarPower, rays, originSampler, divergenceSampler,
                                 absorptionImpSampler, emissionSpectrum);
   
   vector<vector<Ray2D>> raysStorage;

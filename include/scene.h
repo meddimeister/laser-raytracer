@@ -17,9 +17,10 @@ public:
                          const function<double(double)> &spectrum);
 
   void generateDirectionalRays(const dvec2 &origin, double radius,
-                               const dvec2 &direction, double totalPower,
-                               unsigned int count,
+                               const dvec2 &direction, double divergenceAngle,
+                               double totalPower, unsigned int count,
                                RNG::Sampler<double> &originSampler,
+                               RNG::Sampler<double> &divergenceSampler,
                                RNG::ImportanceSampler1D &wavelengthSampler,
                                const function<double(double)> &spectrum);
 

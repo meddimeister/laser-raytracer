@@ -41,17 +41,19 @@ void Scene2D::generatePointRays(const dvec2 &origin, const dvec2 &direction,
 }
 
 void Scene2D::generateDirectionalRays(
-    const dvec2 &origin, double radius, const dvec2 &direction, double totalPower,
-    unsigned int count, RNG::Sampler<double> &originSampler,
+    const dvec2 &origin, double radius, const dvec2 &direction, double divergenceAngle, double totalPower,
+    unsigned int count, RNG::Sampler<double> &originSampler, RNG::Sampler<double> &divergenceSampler,
     RNG::ImportanceSampler1D &wavelengthSampler,
     const function<double(double)> &spectrum) {
 
   originSampler.init(count);
+  divergenceSampler.init(count);
   wavelengthSampler.init(count);
   vector<Ray2D> generatedRays;
   double powerIntegral = 0.0;
   for (unsigned int i = 0; i < count; ++i) {
     double originRadius = radius * (2.0 * originSampler.next() - 1.0);
+    double divergence = 0.5 * divergenceAngle * (2.0 * divergenceSampler.next() - 1.0);
     double wavelengthSample = wavelengthSampler.next();
     double wavelength = wavelengthSampler.value(wavelengthSample);
     double power =
@@ -62,7 +64,7 @@ void Scene2D::generateDirectionalRays(
 
     generatedRays.push_back(
         Ray2D(origin + originRadius * rotate(direction, 0.5 * double(M_PI)),
-              direction, power, wavelength));
+              rotate(direction, divergence), power, wavelength));
   }
   for (auto &ray : generatedRays) {
     ray.power = ray.power * (totalPower / powerIntegral);

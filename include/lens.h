@@ -33,8 +33,8 @@ public:
     double gamma = orientedAngle(up, normalize(hitPoint - focalPoint));
     double beta = atan(tan(alpha) - tan(gamma));
     dvec2 ori = hitPoint;
-    dvec2 dir = rotate(up, beta);
-    ori += numeric_limits<double>::epsilon() * dir;
+    dvec2 dir = normalize(rotate(up, beta));
+    ori += 20.0 * numeric_limits<double>::epsilon() * dir;
     ray.terminate(result.tEnter);
     createdRays.push_back(Ray2D(ori, dir, ray.power, ray.wavelength));
   }
