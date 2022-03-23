@@ -1,0 +1,105 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[english]{lsspub} % default is babel's ngerman
+\usepackage{pgf}
+\usepackage{physics}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage[parfill]{parskip}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{import}
+
+% SETUP OF LSSPUB
+\lsstitle{Optimization of Mirrorshapes in Optically Pumped Solar Lasers Using Ray Tracing Simulation Techniques}%
+\lssauthor{Matthias König}%
+\lsstype{Master's Thesis}%
+\lssabstract{
+\normalsize
+This work showcases the application of ray tracing techniques for the calculation of absorption profiles in
+optically pumped solar lasers.
+It aims at using a lightweight and fast physically based raytracer combined with a biobjective
+mesh adaptive direct search algorithm to optimize total power absorption and to minimize variance across the crystal.
+An exemplatory setup of a side pumped Nd:Yag solar laser was simulated, optimized and the resulting
+beam quality evaluated.
+}
+
+% CONDITIONALLY SET UP PDF-SPECIFIC STUFF (OPTIONAL)
+\usepackage{ifpdf}
+
+\ifpdf
+% look at documentation for non-pdflatex setup of hyperref
+\usepackage[pdftex]{hyperref}
+\usepackage{natbib}
+\hypersetup{colorlinks=true}
+\hypersetup{linkcolor=black}
+\hypersetup{citecolor=black}
+\hypersetup{pdfauthor=\lsstheauthor}
+\hypersetup{pdftitle=\lssthetitle}
+\hypersetup{pdfsubject={\lssthetype, Informatik 10, Universität Erlangen-Nürnberg}}
+\hypersetup{pdfkeywords={Solar Laser, Raytracing, MADS, Blackbox Optimization}}
+
+% if you want thumbnails for your pdf, you need an additional
+% call of thumbpdf and pdflatex after pdflatex converged 
+% (i.e. all references were resolved etc.)
+%
+%\usepackage{thumbpdf}
+%\hypersetup{pdfpagemode=UseThumbs}
+\fi
+
+% START LATEX DOCUMENT BODY
+
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand{\equref}[1]{Eq.~(\ref{#1})}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\algref}[1]{Algorithm~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+
+\begin{document}
+
+    % The following command creates the title page(s) and the text required
+    % by the Pruefungsamt, stays German even if english option enabled
+    % You can optionally provide a date for the signature line),
+    % otherwise \today is used.
+    \makelssthesis{Prof.~Dr.~C.~Pflaum}{1.11.2021 -- 2.5.2022}
+
+    % Now the acutal thesis can start
+
+    \tableofcontents
+
+    \newpage
+
+    \section{Introduction}
+
+    \newpage
+
+    \section{Methodology}
+
+    \section{Lasers}
+
+    \section{Raytracing}
+
+    \subsection{Modules}
+    \subsection{Scene}
+    \subsection{Rays}
+    \subsection{Lens}
+    \subsection{Mirror}
+    \subsection{Crystal}
+
+    \section{Optimization}
+    \subsection{Functional Analysis}
+    \subsection{MADS}
+    \subsection{BIMADS}
+    \subsection{Nomad Library}
+    \subsection{Integration}
+
+    \section{Examplatory Setup}
+    \subsection{Setup}
+    \subsection{ASLD}
+    \subsection{Beam Analysis}
+
+    \newpage
+
+    \bibliographystyle{plain}
+    \bibliography{bibliographies/references}
+
+\end{document}
