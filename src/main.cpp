@@ -28,12 +28,30 @@ int main(int argc, char *argv[]) {
   size_t rays = 100000;
   size_t segments = 10000;
 
-  ArgParser args("-noopt --optrays --optsegments --rays --segments", argc, argv);
+  double solarConstant = 1361.0; // W*m^-2
+  double emittorRadius = 0.6;    // m
+  double solarPower = solarConstant * M_PI * emittorRadius * emittorRadius;
+  double solarDivergence = 0.53338 * (2.0 * M_PI / 360.0); // rad
+
+  vecn<double, 4> params;
+  double irradianceCrystal = 0.0;
+
+  params[0] = 0.07281232625;
+  params[1] = 0.002341829939;
+  params[2] = 0.07726241648;
+  params[3] = 0.02685499005;
+
+  ArgParser args("-noopt --optrays --optsegments --rays --segments --param0 --param1 --param2 --param3", argc,
+                 argv);
   args.getFlag("-noopt", noopt);
   args.getArg("--optrays", optrays);
   args.getArg("--optsegments", optsegments);
   args.getArg("--rays", rays);
   args.getArg("--segments", segments);
+  args.getArg("--param0", params[0]);
+  args.getArg("--param1", params[1]);
+  args.getArg("--param2", params[2]);
+  args.getArg("--param3", params[3]);
 
   cout << "noopt: " << noopt << endl;
   cout << "optrays: " << optrays << endl;
@@ -48,18 +66,13 @@ int main(int argc, char *argv[]) {
       csvReader.read<double, double>("../data/ndyag_absorption_spectrum.csv");
   auto emissionData =
       csvReader.read<double, double>("../data/solar_spectrum.csv");
+  auto referenceReflector =
+      csvReader.read<double, double>("../data/reference_reflector.csv");
 
   auto absorptionSpectrum = getFunction(absorptionData);
   auto emissionSpectrum = getFunction(emissionData);
 
   LOG("Read Data");
-  double solarConstant = 1361.0; // W*m^-2
-  double emittorRadius = 0.6;    // m
-  double solarPower = solarConstant * M_PI * emittorRadius * emittorRadius;
-  double solarDivergence = 0.53338 * (2.0 * M_PI/360.0); //rad
-
-  vecn<double, 4> params;
-  double irradianceCrystal = 0.0;
 
   auto mirrorShapeParabola = [&](double x) {
     dvec2 point = {x, params[0] * x * x + params[1]};
@@ -79,8 +92,8 @@ int main(int argc, char *argv[]) {
     double wavelengthMu = wavelength / 1000.;
     double wavelengthSqrd = wavelengthMu * wavelengthMu;
     double nSqrd = (2.282 * wavelengthSqrd) / (wavelengthSqrd - 0.01185) +
-                  (3.27644 * wavelengthSqrd) / (wavelengthSqrd - 282.734) +
-                  1.0;
+                   (3.27644 * wavelengthSqrd) / (wavelengthSqrd - 282.734) +
+                   1.0;
     return sqrt(nSqrd);
   };
 
@@ -102,8 +115,7 @@ int main(int argc, char *argv[]) {
       },
       sellmeierNdYag));
 
-  auto optlens =
-      make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.7, 1.2));
+  auto optlens = make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D optscene;
 
@@ -116,9 +128,10 @@ int main(int argc, char *argv[]) {
   RNG::ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0,
                                                 1000.0);
 
-  optscene.generateDirectionalRays({-0.1, 0.0}, emittorRadius, {1.0, 0.0}, solarDivergence,
-                                solarPower, optrays, originSampler, divergenceSampler,
-                                absorptionImpSampler, emissionSpectrum);
+  optscene.generateDirectionalRays({-0.1, 0.0}, emittorRadius, {1.0, 0.0},
+                                   solarDivergence, solarPower, optrays,
+                                   originSampler, divergenceSampler,
+                                   absorptionImpSampler, emissionSpectrum);
 
   LOG("Preprocessing");
 
@@ -144,18 +157,12 @@ int main(int argc, char *argv[]) {
     return functional;
   };
 
-  params[0] = 0.07281232625;
-  params[1] = 0.002341829939;
-  params[2] = 0.07726241648;
-  params[3] = 0.02685499005;
-
   // Optimization Algorithm
   if (!noopt) {
     cout << "Mirror Optimizer: " << endl;
 
-    auto solutions =
-        mads<4>(trace, traceVar, {0.0, 0.0, 0.075, 0.0},
-                {0.0, 0.0, 0.075, 0.0}, {0.075, 0.3, 0.15, 0.3});
+    auto solutions = mads<4>(trace, traceVar, {0.0, 0.0, 0.075, 0.0},
+                             {0.0, 0.0, 0.075, 0.0}, {0.075, 0.3, 0.15, 0.3});
     if (solutions.empty()) {
       DEBUG("Error: No solutions found");
       return -1;
@@ -183,8 +190,7 @@ int main(int argc, char *argv[]) {
       },
       sellmeierNdYag));
 
-  auto lens =
-      make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.7, 1.2));
+  auto lens = make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D scene;
 
@@ -192,10 +198,10 @@ int main(int argc, char *argv[]) {
   scene.add(crystal);
   scene.add(lens);
 
-  scene.generateDirectionalRays({-0.1, 0.0}, emittorRadius, {1.0, 0.0}, solarDivergence,
-                                solarPower, rays, originSampler, divergenceSampler,
-                                absorptionImpSampler, emissionSpectrum);
-  
+  scene.generateDirectionalRays(
+      {-0.1, 0.0}, emittorRadius, {1.0, 0.0}, solarDivergence, solarPower, rays,
+      originSampler, divergenceSampler, absorptionImpSampler, emissionSpectrum);
+
   vector<vector<Ray2D>> raysStorage;
   mirror->rebuild();
   raysStorage = scene.trace(4);
@@ -214,8 +220,30 @@ int main(int argc, char *argv[]) {
   cout << "Irradiation efficiency: " << irradiationEfficiency << endl;
   cout << "Absorbed power: " << absorbedPower << endl;
   cout << "Absorbed power (var): " << absorbedPowerVar << endl;
-  cout << "Absorption efficiency (total): " << absorptionEfficiencyTotal << endl;
-  cout << "Absorption efficiency (irradiated): " << absorptionEfficiencyIrradiated << endl;
+  cout << "Absorption efficiency (total): " << absorptionEfficiencyTotal
+       << endl;
+  cout << "Absorption efficiency (irradiated): "
+       << absorptionEfficiencyIrradiated << endl;
+
+  vector<tuple<double, double>> points;
+  for (size_t i = 0; i <= segments; ++i) {
+    dvec2 point = mirrorShapeBezier(double(i) / segments);
+    points.push_back({-point.y + 0.3, point.x});
+  }
+  auto mirrorXYFunction = getFunction(points, true);
+  outputFunction(mirrorXYFunction, 0.0, 0.3, "csvOut", "test");
+
+  CSVWriter csvWriter("csvOut");
+  csvWriter.add("reflector", "#x", "y", "z");
+  for (const auto &point : referenceReflector) {
+    double x = get<0>(point);
+    double xIntervalReference = 524.2444204 - 300.2396507;
+    double xInterval = 0.3;
+    double xScaled = ((x - 300.2396507)/xIntervalReference) * xInterval;
+    double yScaled = xIntervalReference * mirrorXYFunction(xScaled) / xInterval;
+    csvWriter.add("reflector", x, yScaled, 0);
+  }
+  csvWriter.write();
 
   VTKWriter vtkWriter("vtkOut");
   vtkWriter.add(mirror, "mirror");

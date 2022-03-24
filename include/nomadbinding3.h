@@ -56,7 +56,7 @@ vector<vecn<double, N>> runNomad(function<double(const vecn<double, N> &)> f1,
     NOMAD::Parameters p(out);
 
     p.set_DIMENSION(N);
-    p.set_MAX_BB_EVAL(1000);
+    p.set_MAX_BB_EVAL(100);
     p.set_MAX_EVAL(1000);
 
     NOMAD::Point x_0(N, 0.0);
