@@ -80,10 +80,10 @@ int main(int argc, char *argv[]) {
   };
 
   auto mirrorShapeBezier = [&](double x) {
-    dvec2 start = {0.006, 0.0};
+    dvec2 start = {0.0042, 0.0};
     dvec2 paramPoint1 = {params[0], params[1]};
     dvec2 paramPoint2 = {params[2], params[3]};
-    dvec2 end = {0.15, 0.3};
+    dvec2 end = {0.15, 0.224};
     dvec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
     return point;
   };
@@ -98,10 +98,10 @@ int main(int argc, char *argv[]) {
   };
 
   auto optmirror = make_shared<Mirror2D>(
-      Mirror2D({1.800, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, optsegments));
+      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, optsegments));
 
   auto optcrystal = make_shared<Grid2D>(Grid2D(
-      {1.7425, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
+      {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
       [&](Ray2D &ray, double distance, double &cell) {
         // Lambert law of absorption
         double alpha = absorptionSpectrum(ray.wavelength);
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
       },
       sellmeierNdYag));
 
-  auto optlens = make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.7, 1.2));
+  auto optlens = make_shared<Lens2D>(Lens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D optscene;
 
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
   RNG::ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0,
                                                 1000.0);
 
-  optscene.generateDirectionalRays({-0.1, 0.0}, emittorRadius, {1.0, 0.0},
+  optscene.generateDirectionalRays({-1.590, 0.0}, emittorRadius, {1.0, 0.0},
                                    solarDivergence, solarPower, optrays,
                                    originSampler, divergenceSampler,
                                    absorptionImpSampler, emissionSpectrum);
@@ -173,16 +173,18 @@ int main(int argc, char *argv[]) {
   }
 
   auto mirror = make_shared<Mirror2D>(
-      Mirror2D({1.800, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, segments));
+      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, segments));
 
   auto crystal = make_shared<Grid2D>(Grid2D(
-      {1.7425, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
+      {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
       [&](Ray2D &ray, double distance, double &cell) {
         // Lambert law of absorption
         double alpha = absorptionSpectrum(ray.wavelength);
         double remainingPower = ray.power * exp(-alpha * distance * 100.0);
         double absorbedPower = ray.power - remainingPower;
         cell += absorbedPower;
+        if(absorbedPower < 0.0)
+          cout << ray << " " << distance << " " << alpha << endl;
         ray.power = remainingPower;
       },
       [&](Ray2D &ray, const IntersectResult2D &result) {
@@ -190,7 +192,7 @@ int main(int argc, char *argv[]) {
       },
       sellmeierNdYag));
 
-  auto lens = make_shared<Lens2D>(Lens2D({0.0, 0.0}, {1.0, 0.0}, 0.7, 1.2));
+  auto lens = make_shared<Lens2D>(Lens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D scene;
 
@@ -199,7 +201,7 @@ int main(int argc, char *argv[]) {
   scene.add(lens);
 
   scene.generateDirectionalRays(
-      {-0.1, 0.0}, emittorRadius, {1.0, 0.0}, solarDivergence, solarPower, rays,
+      {-1.590, 0.0}, emittorRadius, {1.0, 0.0}, solarDivergence, solarPower, rays,
       originSampler, divergenceSampler, absorptionImpSampler, emissionSpectrum);
 
   vector<vector<Ray2D>> raysStorage;
@@ -228,20 +230,18 @@ int main(int argc, char *argv[]) {
   vector<tuple<double, double>> points;
   for (size_t i = 0; i <= segments; ++i) {
     dvec2 point = mirrorShapeBezier(double(i) / segments);
-    points.push_back({-point.y + 0.3, point.x});
+    points.push_back({-point.y + 0.224, point.x});
   }
   auto mirrorXYFunction = getFunction(points, true);
-  outputFunction(mirrorXYFunction, 0.0, 0.3, "csvOut", "test");
+  outputFunction(mirrorXYFunction, 0.0, 0.224, "csvOut", "test");
 
   CSVWriter csvWriter("csvOut");
-  csvWriter.add("reflector", "#x", "y", "z");
+  csvWriter.add("reflector", "#x", "y");
   for (const auto &point : referenceReflector) {
     double x = get<0>(point);
-    double xIntervalReference = 524.2444204 - 300.2396507;
-    double xInterval = 0.3;
-    double xScaled = ((x - 300.2396507)/xIntervalReference) * xInterval;
-    double yScaled = xIntervalReference * mirrorXYFunction(xScaled) / xInterval;
-    csvWriter.add("reflector", x, yScaled, 0);
+    double xScaled = (x - 300.2396507)/1000.0;
+    double yScaled = mirrorXYFunction(xScaled) * 1000.0;
+    csvWriter.add("reflector", x, yScaled);
   }
   csvWriter.write();
 

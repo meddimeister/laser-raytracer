@@ -117,7 +117,7 @@ IntersectResult2D BoundingBox2D::intersect(const Ray2D &ray) const {
     if (tmin == tx1) {
       ret.normalEnter = {-1.0, 0.0};
     } else if (tmin == tx2) {
-      ret.normalEnter = {0.0, 1.0};
+      ret.normalEnter = {1.0, 0.0};
     } else if (tmin == ty1) {
       ret.normalEnter = {0.0, -1.0};
     } else if (tmin == ty2) {
@@ -126,7 +126,7 @@ IntersectResult2D BoundingBox2D::intersect(const Ray2D &ray) const {
     if (tmax == tx1) {
       ret.normalLeave = {-1.0, 0.0};
     } else if (tmax == tx2) {
-      ret.normalLeave = {0.0, 1.0};
+      ret.normalLeave = {1.0, 0.0};
     } else if (tmax == ty1) {
       ret.normalLeave = {0.0, -1.0};
     } else if (tmax == ty2) {

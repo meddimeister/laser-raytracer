@@ -5,6 +5,7 @@
 #include <functional>
 #include <limits>
 #include <ostream>
+#include <iostream>
 #include <vector>
 
 using namespace std;
@@ -26,7 +27,7 @@ struct Ray2D {
   Ray2D reflect(double t, const dvec2 &normal) const {
     dvec2 ori = origin + t * direction;
     dvec2 dir = glm::reflect(direction, normal);
-    ori += numeric_limits<double>::epsilon() * 2.0 * length(ori) * dir;
+    ori += numeric_limits<double>::epsilon() * 20.0 * length(ori) * dir;
     return Ray2D(ori, dir, power, wavelength);
   }
 

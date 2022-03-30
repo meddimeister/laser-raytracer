@@ -81,8 +81,8 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
 
   ray_transmit_in.terminate(tSum);
 
-  auto [ray_reflect_out, ray_transmit_out] =
-      ray_transmit_in.refract(tSum, normalLeave, 5.0, 1.0);
+  //auto [ray_reflect_out, ray_transmit_out] =
+  //    ray_transmit_in.refract(tSum, normalLeave, 5.0, 1.0);
 
   // createdRays.push_back(ray_reflect_in);
   createdRays.push_back(ray_transmit_in);
