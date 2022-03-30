@@ -3,10 +3,12 @@
 \usepackage{pgf}
 \usepackage{physics}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{float}
 \usepackage[parfill]{parskip}
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{import}
+\usepackage{todonotes}
 
 % SETUP OF LSSPUB
 \lsstitle{Optimization of Mirrorshapes in Optically Pumped Solar Lasers Using Ray Tracing Simulation Techniques}%
@@ -78,10 +80,237 @@ beam quality evaluated.
     \subsection{Solar Lasers}
 
     \section{Raytracing Framework}
+    With the advent of cheap processors and increasingly powerful 
+    consumer hardware, ray tracing has become more popular in
+    recent years.
+    For the purpose of global illumination in video games and image
+    processing, more advanced techniques have been continuously
+    developed and improved.
+    In optical design ray tracing is used to analyse the imaging 
+    quality of optical systems or as in this work other 
+    illumination properties can be simulated.
+    The need for fast refresh rates in video games and the requirement
+    of modelling more complex physical phenomena in optical design
+    have led to tracing and sampling techniques that reduce the
+    computational expense dramatically with minimal loss of accuracy. 
+    Focused on the specific problems of laser design, these
+    improvements make it possible to get physically accurate results
+    in an acceptable amount of computational time in an iterative
+    context.
+
+    As in optical design systems are mostly rotationally symmetrical,
+    the framework is meant to be used in a two dimensional setup
+    and calculated quantities, e.g. absorbed power in a medium 
+    converted to three dimensional values after a simulation step.
+    This significantly reduces the amount of rays needed to avoid
+    undersampling effects and to produce stable results across multiple
+    simulation runs.
+    Intersection tests also require less computation and objects in the
+    scene require less fundamental shapes to test a ray against.
+    The resulting performance gains makes it possible to run the 
+    simulation thousands of times in an iterative process to 
+    optimize some parameters in the optical setup even on consumer
+    grade hardware.
+    The objects in a scene are preproccessed to group fundamental shapes
+    into leaves of a quadtree to reduce the amount of shapes a ray has
+    to be tested against even further.
+    To achieve the satisfied accuracy and to reduce noise the appropiate
+    sampling strategies have to be used for a given problem.
+    The most important techniques are provided including 
+    uniform sampling, stratified and importance sampling.
+    
+    The framework was designed to provide a simple yet powerful
+    interface for the user and was implemented in C++17.
+    It provides the necessary data structures and algorithms for
+    a fast raytracing solution.
+    The sampling techniques are implemented in specialized classes
+    of abstract interfaces. 
+    They can also be used by the user to 
+    implement custom techniques.
+    The framework extensively relies on lambda functions to be
+    provided by the user and thus naturally is customizable,
+    although some preset functions are also provided.
+    Because the calculations in the framework are so similar to applications
+    in graphics software the OpenGL Mathematics header only library
+    GLM~\cite{glm} was used as an underlying maths library.
+    GLM is based on the OpenGL Shading Language (GLSL) and so in a 
+    potential later step the framework
+    could be ported to work on graphics cards providing that the
+    data structures are changed to be accessable from a GPU.
+    As in the specific problem in this work the tracing of each ray
+    has side effects on the scene and on itself,
+    i.e. the absorbed power of each ray has to be accumulated,
+    it was decided to focus more on single core performance first
+    and leave the execution on GPUs for a later point.
+    Furthermore IO utilities for simulations are provided for Comma 
+    Separated Values (CSV) files and structured output for the 
+    commonly used Visualization Toolkit (VTK)~\cite{vtk}.
+
+    In the following chapters the applied ray tracing techniques 
+    explained in detail and the structure of the developed framework is 
+    presented with code samples.
 
     \subsection{Raytracing Basics}  
-    \subsection{Sampling Techniques}
+
+    Rays are represented as a parametric line from a ray origin $o$ in
+    direction $d$.
+    The parameter $t$ goes is in the interval $[0, \infty)$ and represents
+    the closeness of the ray to the origin.
+    The mathematical representation therefore is given as
+
+    \begin{equation}
+        \label{equ:ray}
+        \vec{r}(t) = \vec{o} + t\vec{d}
+    \end{equation}
+
+    After the ray is generated it is tested against intersections with the
+    scene.
+    Here the smallest $t > 0$ of all the intersections with objects has to
+    be found.
+    The question if a ray intersects an object can usually only be answered
+    for simple fundamental shapes, e.g. lines, circles, axis aligned bounding
+    boxes (AABBs) in 2D or planes, triangles, spheres, etc. in 3D.
+    Therefore objects are normally comprised of a collection of fundamental
+    shapes and an intersection occurs if one of the fundamental shapes is
+    intersected.
+    Naturally, an object can be intersected multiple times by the same ray
+    and so the results have to be searched for the smallest $t$.
+    Each fundamental shape should be represented in a parametrised form 
+    so the intersection test can be represented as a system of equations.
+    The two fundamental shapes used in this work are 2D lines and axis
+    aligned bounding boxes (AABBs).
+
+    Lines are represented by two points $\vec{a}$ and $\vec{b}$.
+    So the intersection problem can be written as a ray-ray intersection
+    as follows:
+
+    Find $\alpha \in [0,1]$ and $t \in [0, \infty)]$ s.t. 
+
+    \begin{equation}
+        \label{equ:line_intersect}
+        \vec{a} + \alpha (\vec{b} - \vec{a}) = \vec{o} + t \vec{d}
+    \end{equation}
+
+    If such a combination of $\alpha$ and $t$ exists, we have an intersection.
+    As we are in 2D there are two equations for two unknowns and the
+    system always has a solution.
+    The solution can then be checked, s.t. the values are in the right
+    intervals.
+    A small mathematical trick is to define a 2D cross product which
+    is basically just the $z$ component of a 3D cross product if the
+    two input vectors $\vec{p}$ and $\vec{q}$ were parallel to the
+    $xy$ plane:
+    
+    \begin{equation}
+        \label{equ:2d_cross}
+        \vec{p} \cross \vec{q} = 
+        p_x \cdot q_y - p_y \cdot q_x \in \mathbb{R}
+    \end{equation}
+
+    Observe that same as the 3D cross product, the 2D version becomes 0
+    when you cross a vector with itself.
+    If one now crosses \equref{equ:line_intersect} with $\vec{d}$ on
+    both sides the intersection equation becomes:
+    
+    \begin{equation}
+        \label{equ:line_intersect_elim}
+        \vec{a} \cross \vec{d} + \alpha (\vec{b} - \vec{a}) \cross \vec{d} =
+        \vec{o} \cross \vec{d}
+    \end{equation}
+
+    So $t$ has been eliminated from the equation and we can solve 
+    \equref{equ:line_intersect_elim} for $\alpha$:
+
+    \begin{equation}
+        \label{equ:line_intersect_alpha}
+        \alpha = \frac{(\vec{a} - \vec{o}) \cross \vec{d}}
+                      {\vec{d} \cross (\vec{b} - \vec{a})}
+    \end{equation}
+
+    If $\alpha$ satisfies the condition, we continue analogously for
+    $t$ by crossing \equref{equ:line_intersect} with $\vec{b} - \vec{a}$.
+    The resulting $t$ is then checked against the condition and
+    a normal at the intersection point is calculated.
+    The intersected rays can be seen in in \figref{fig:line_intersect}.
+
+    \begin{center}
+        \begin{figure}[H]
+            \centering    
+            \missingfigure{Line intersect}
+            \caption{
+            }
+            \label{fig:line_intersect}
+        \end{figure}
+    \end{center}
+
+    Another important shape to intersect are AABBs.
+    They are rectangles aligned with the axis of the coordinate system
+    so they require minimal memory space and intersection tests are
+    as simple as possible.
+    They most often used to surround complex objects or parts of it
+    to reduce the amount of intersection tests.
+    First the AABB of the object is tested and only if there is an
+    intersection the actual fundamental shapes inside the AABB are tested.
+    A 2D AABB is defined by two points $\vec{b}_{min}$ and $\vec{b}_{max}$ which
+    represent the lower left and upper right corner of the rectangle.
+    The intersection test is done by comparing the values of $t$ at each
+    of the axis aligned lines defining the box.
+    The $t$ values for the $x$ axis aligned lines can be calculated with
+    the following equations:
+
+    $$
+        tx1 = \frac{{b_{min}}_x - o_x}{d_x}
+    $$
+    $$  
+        tx2 = \frac{{b_{max}}_x - o_x}{d_x}
+    $$
+    $$  
+        t_{min} = \min(tx1, tx2)
+    $$
+    $$  
+        t_{max} = \max(tx1, tx2)
+    $$
+    $$  
+        ty1 = \frac{{b_{min}}_y - o_y}{d_y}
+    $$
+    $$
+        ty2 = \frac{{b_{max}}_y - o_y}{d_y}
+    $$
+    $$
+        t_{min} = \max(t_{min}, \min(ty1, ty2))
+    $$
+    $$
+        t_{max} = \min(t_{max}, \max(tx1, tx2))
+    $$
+
+    If the conditions $t_{min} \leq t_{max}$ and $t_{min} \geq 0$ hold
+    there is an intersection.
+    This process is better understood visually and is illustrated in 
+    \figref{fig:aabb_intersect}.
+    If normals are needed they can be easily calculated since there are
+    only four possibilities depending on which side of the box is
+    intersected first. 
+
+    \begin{center}
+        \begin{figure}[H]
+            \centering    
+            \missingfigure{AABB intersect}
+            \caption{
+            }
+            \label{fig:aabb_intersect}
+        \end{figure}
+    \end{center}
+
+    The AABB intersection becomes really handy once one wants to use them
+    for ray tracing acceleration techniques, as they can easily be constructed
+    to surround a cloud of points and then be used as a spacial subdivider
+    in a tree structure.
+    Other shapes like circles or ellipses are intersected in a similar way
+    but as they are not used in the example below the intersection process
+    is not explained here.
+
     \subsection{Raytracing Acceleration}
+    \subsection{Sampling Techniques}
 
     \subsection{Framework Structure}
     \subsubsection{Rays}
