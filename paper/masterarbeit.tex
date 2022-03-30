@@ -236,8 +236,18 @@ beam quality evaluated.
     \begin{center}
         \begin{figure}[H]
             \centering    
-            \missingfigure{Line intersect}
+            \def\svgwidth{1.0\textwidth}
+            \import{images/}{line_intersect.pdf_tex}
             \caption{
+                Ray line intersection of two rays. The line is specified by
+                the points $\vec{a}$ and $\vec{b}$ and the rays are 
+                defined by
+                the origins $\vec{o}_i$ and directions $\vec{d}_i$.
+                Ray $(\vec{o}_1, \vec{d}_1)$ satisfies the conditions 
+                $t \geq 0$ and $0 \leq \alpha \leq 1$
+                and therefore causes an intersection, ray $(\vec{o}_2, \vec{d}_2)$
+                dissatisfies the $\alpha$ condition and ray $(\vec{o}_3, \vec{d}_3)$
+                does not satisfy the $t$ condition. 
             }
             \label{fig:line_intersect}
         \end{figure}
