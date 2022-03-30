@@ -266,33 +266,30 @@ beam quality evaluated.
     represent the lower left and upper right corner of the rectangle.
     The intersection test is done by comparing the values of $t$ at each
     of the axis aligned lines defining the box.
-    The $t$ values for the $x$ axis aligned lines can be calculated with
-    the following equations:
+    The $t$ values for the $x$ axis aligned lines can be calculated as
+    shown in \algref{alg:aabb_intersect}.
 
-    $$
-        {t_x}_1 = \frac{{b_{min}}_x - o_x}{d_x}
-    $$
-    $$  
-        {t_x}_2 = \frac{{b_{max}}_x - o_x}{d_x}
-    $$
-    $$  
-        t_{min} = \min({t_x}_1, {t_x}_2)
-    $$
-    $$  
-        t_{max} = \max({t_x}_1, {t_x}_2)
-    $$
-    $$  
-        {t_y}_1 = \frac{{b_{min}}_y - o_y}{d_y}
-    $$
-    $$
-        {t_y}_2 = \frac{{b_{max}}_y - o_y}{d_y}
-    $$
-    $$
-        t_{min} = \max(t_{min}, \min({t_y}_1, {t_y}_2))
-    $$
-    $$
-        t_{max} = \min(t_{max}, \max({t_x}_1, {t_x}_2))
-    $$
+    \begin{algorithm}[H]
+        \label{alg:aabb_intersect}
+        \SetAlgoLined
+
+        ${t_x}_1$ = $\frac{{b_{min}}_x - o_x}{d_x}$\;
+        ${t_x}_2$ = $\frac{{b_{max}}_x - o_x}{d_x}$\;
+        $t_{min}$ = $\min({t_x}_1, {t_x}_2)$\;
+        $t_{max}$ = $\max({t_x}_1, {t_x}_2)$\;
+        ${t_y}_1$ = $\frac{{b_{min}}_y - o_y}{d_y}$\;
+        ${t_y}_2$ = $\frac{{b_{max}}_y - o_y}{d_y}$\;
+        $t_{min}$ = $\max(t_{min}, \min({t_y}_1, {t_y}_2))$\;
+        $t_{max}$ = $\min(t_{max}, \max({t_x}_1, {t_x}_2))$\;
+
+        \If{$t_{min} \geq 0$ and $t_{min} \leq t_{max}$}{
+            AABB was hit!
+        }
+        \caption{
+        Intersection test for a AABB $(\vec{b}_{min}, \vec{b}_{max})$
+        with ray $(\vec{o}, \vec{d})$
+        }
+    \end{algorithm}
 
     If the conditions $t_{min} \leq t_{max}$ and $t_{min} \geq 0$ hold
     there is an intersection.
@@ -376,7 +373,8 @@ beam quality evaluated.
     fast and a large number of fundamental shape intersection tests
     are avoided.
     An illustration of subdivision of a mirror comprised of line segments
-    is given in \figref{fig:quadtree}.
+    is given in \figref{fig:quadtree} and a the intersecting algorithm
+    for a single object is givin in \algref{alg:object_intersect}.
 
     \begin{center}
         \begin{figure}[H]
@@ -391,6 +389,36 @@ beam quality evaluated.
             \label{fig:quadtree}
         \end{figure}
     \end{center}
+
+    \begin{algorithm}[H]
+        \label{alg:object_intersect}
+        \SetAlgoLined
+        IntersectionResult objectResult\;
+        objectResult.tEnter = MaxFloatingPoint\;
+        objectResult.tLeave = MinFloatingPoint\;
+
+        Queue treeQueue\;
+        treeQueue.push(object.root)\;
+
+        \While{!treeQueue.empty()}{
+
+            tree = treeQueue.front()\;
+            IntersectionResult aabbResult = tree.aabb.intersect(ray)\;
+            \If{aabbResult.hit}{
+                \For{shapes in tree.shapes}{
+                    IntersectionResult shapeResult = shape.intersect(ray)\;
+                    \If{shapeResult.hit}{
+                        set objectResult appropiately\;
+                    }
+                }
+                treeQueue.push(tree.children)\;
+            }
+            treeQueue.pop()\;
+        }
+
+        \caption{Intersection test for a single object subdivided by a quadtree}
+    \end{algorithm}
+
 
     \subsection{Sampling Techniques}
     \todo{Uniform Sampling}
