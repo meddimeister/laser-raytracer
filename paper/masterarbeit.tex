@@ -239,7 +239,7 @@ beam quality evaluated.
             \def\svgwidth{1.0\textwidth}
             \import{images/}{line_intersect.pdf_tex}
             \caption{
-                Ray line intersection of two rays. The line is specified by
+                Ray-line intersection of two rays. The line is specified by
                 the points $\vec{a}$ and $\vec{b}$ and the rays are 
                 defined by
                 the origins $\vec{o}_i$ and directions $\vec{d}_i$.
@@ -269,28 +269,28 @@ beam quality evaluated.
     the following equations:
 
     $$
-        tx1 = \frac{{b_{min}}_x - o_x}{d_x}
+        {t_x}_1 = \frac{{b_{min}}_x - o_x}{d_x}
     $$
     $$  
-        tx2 = \frac{{b_{max}}_x - o_x}{d_x}
+        {t_x}_2 = \frac{{b_{max}}_x - o_x}{d_x}
     $$
     $$  
-        t_{min} = \min(tx1, tx2)
+        t_{min} = \min({t_x}_1, {t_x}_2)
     $$
     $$  
-        t_{max} = \max(tx1, tx2)
+        t_{max} = \max({t_x}_1, {t_x}_2)
     $$
     $$  
-        ty1 = \frac{{b_{min}}_y - o_y}{d_y}
+        {t_y}_1 = \frac{{b_{min}}_y - o_y}{d_y}
     $$
     $$
-        ty2 = \frac{{b_{max}}_y - o_y}{d_y}
+        {t_y}_2 = \frac{{b_{max}}_y - o_y}{d_y}
     $$
     $$
-        t_{min} = \max(t_{min}, \min(ty1, ty2))
+        t_{min} = \max(t_{min}, \min({t_y}_1, {t_y}_2))
     $$
     $$
-        t_{max} = \min(t_{max}, \max(tx1, tx2))
+        t_{max} = \min(t_{max}, \max({t_x}_1, {t_x}_2))
     $$
 
     If the conditions $t_{min} \leq t_{max}$ and $t_{min} \geq 0$ hold
@@ -304,8 +304,22 @@ beam quality evaluated.
     \begin{center}
         \begin{figure}[H]
             \centering    
-            \missingfigure{AABB intersect}
+            \def\svgwidth{0.6\textwidth}
+            \import{images/}{aabb_intersect.pdf_tex}
             \caption{
+                Ray-AABB intersection, where first the intersection points with
+                the $x$ axis (marked in green) and $y$ axis (marked in blue) are
+                calculated.
+                Each of the values ${t_i}_1, {t_i}_2$ are then split into the minimum
+                and the maximum of the two.
+                Both maximums are then compared and the minimum is chosen as the final 
+                $t_{max}$.
+                Analogously the minimums are compared and the maximum is chosen as
+                $t_{min}$ (marked with red circles).
+                Thus there is an intersection with an entry point 
+                $\vec{o} + t_{min}\vec{d}$ and an exit point 
+                $\vec{o} + t_{max}\vec{d}$ and the normals can be calculated depending
+                on which sides the points reside.
             }
             \label{fig:aabb_intersect}
         \end{figure}
