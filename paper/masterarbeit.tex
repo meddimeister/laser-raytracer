@@ -141,7 +141,8 @@ beam quality evaluated.
     has side effects on the scene and on itself,
     i.e. the absorbed power of each ray has to be accumulated,
     it was decided to focus more on single core performance first
-    and leave the execution on GPUs for a later point.
+    and leave the parallel execution and execution on GPUs for a 
+    later point.
     Furthermore IO utilities for simulations are provided for Comma 
     Separated Values (CSV) files and structured output for the 
     commonly used Visualization Toolkit (VTK)~\cite{vtk}.
@@ -236,7 +237,7 @@ beam quality evaluated.
     \begin{center}
         \begin{figure}[H]
             \centering    
-            \def\svgwidth{1.0\textwidth}
+            \def\svgwidth{0.8\textwidth}
             \import{images/}{line_intersect.pdf_tex}
             \caption{
                 Ray-line intersection of two rays. The line is specified by
@@ -329,12 +330,72 @@ beam quality evaluated.
     for ray tracing acceleration techniques, as they can easily be constructed
     to surround a cloud of points and then be used as a spacial subdivider
     in a tree structure.
+    This is described in detail in the next chapter.
     Other shapes like circles or ellipses are intersected in a similar way
     but as they are not used in the example below the intersection process
     is not explained here.
 
+    \todo{Explain reflection}
+    \todo{Explain refraction with dispersion effects}
+
     \subsection{Raytracing Acceleration}
+
+    As the raytracer is later intended to be used in an iterative Optimization
+    algorithm, it is of vital importance that unnecessary computational cost 
+    is avoided.
+    For a raytracer this can be achieved in a number of ways.
+    The first and simplest way is to simply reorder the objects in a scene
+    by a heuristic that describes the likelihood of on object to be the
+    first object hit by the majority of the rays.
+    Of course, this only works well if rays are shot into a scene from
+    a dominant direction.
+    Another way would be to subdivide the entire 2D scene with quadtrees
+    and try to fill each branch of the tree with an equal amount of 
+    objects or shapes.
+    
+    Similarly one can also subdivide an object itself and sort the
+    fundamental shapes comprising that object into a quadtree.
+    This method was chosen in this work as there are a limited amount of
+    objects in the scene with the objects possibly being quite complex.
+    Once the fundamental shapes of an object are known, they can be
+    sorted into a quadtree of AABBs of a chosen depth.
+    The outermost AABB is the root of the tree with four children,
+    each encompassing the shapes inside their quarter of space
+    as tightly as possible.
+    This is recursively done until the desired depth is hit.
+    The intersection test of an object then can be done by hitting
+    the root AABB of the tree and then stepping through its children
+    via breadth first search.
+    Each AABB child the ray hits, is persued further and the ones
+    the ray doesn't intersect are ignored.
+    If a leaf has been hit all the shapes inside are then tested for
+    intersection.
+    Finally the $t$ values of all the intersections are compared and
+    the minimum and the maximum chosen as entry and exit points. 
+    The advantage of this is that AABB intersection tests are done really
+    fast and a large number of fundamental shape intersection tests
+    are avoided.
+    An illustration of subdivision of a mirror comprised of line segments
+    is given in \figref{fig:quadtree}.
+
+    \begin{center}
+        \begin{figure}[H]
+            \centering    
+            \includegraphics[width=0.8\textwidth]{images/mirror.png}
+            \caption{
+                A parabolic mirror comprised of line segments
+                subdivided by a quadtree of AABBs with depth 4.
+                Note that the AABBs are encompassing their contained line
+                segments as tightly as possible.
+            }
+            \label{fig:quadtree}
+        \end{figure}
+    \end{center}
+
     \subsection{Sampling Techniques}
+    \todo{Uniform Sampling}
+    \todo{Stratified Sampling}
+    \todo{Importance Sampling}
 
     \subsection{Framework Structure}
     \subsubsection{Rays}
