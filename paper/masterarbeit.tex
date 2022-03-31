@@ -148,8 +148,18 @@ beam quality evaluated.
     commonly used Visualization Toolkit (VTK)~\cite{vtk}.
 
     In the following chapters the applied ray tracing techniques 
-    explained in detail and the structure of the developed framework is 
-    presented with code samples.
+    explained in detail.
+    Firstly the basics of raytracing, i.e. intersection tests of
+    fundamental shapes and objects and reflection and refraction effects
+    are shown.
+    Then an applied method of subdivision for the performance optimization
+    of the raytracer is explained.
+    Lastly some methods of sampling are shown before the structure of the 
+    developed framework is presented with code samples.
+    Here the usage of classes is demonstrated and it is shown how specific
+    objects are defined.
+    In particular the objects which are relevant for the simulation
+    of laser cavities and which are used in the example setup are shown.
 
     \subsection{Raytracing Basics}  
 
@@ -332,12 +342,64 @@ beam quality evaluated.
     but as they are not used in the example below the intersection process
     is not explained here.
 
-    \todo{Explain reflection}
-    \todo{Explain refraction with dispersion effects}
+    Once an intersection takes place, the ray will be either reflected, terminated
+    or refraction occurs depending on the desired material of the object.
+    Total reflection is only dependent on the incident angle $\theta_i$ 
+    to the normal of the surface at the hitpoint.
+    Then the reflection angle $\theta_r$ is given by \equref{equ:reflection}.
+
+    \begin{equation}
+        \label{equ:reflection}
+        \theta_r = -\theta_i
+    \end{equation}
+
+    A new ray is then generated at the hitpoint pointing in the direction
+    given by $\theta_r$.
+    Due to limited floating point precision, it is required that the origin
+    of the new ray is shifted by a small $\epsilon$ towards the 
+    reflection direction in order to make sure the ray is originated at the
+    correct side of the material.
+    Since the reflection is total the entire amount of power of the incident
+    ray is transferred to the reflected ray.
+
+    When hitting a material that is transmissible for light the ray
+    will be refracted at the boundary between the two media.
+    The effects of matter on a light beam are described by Snell's law
+    and the Fresnel equations.
+    The ray is split into a reflected and a transmitted ray.
+    The direction of the transmitted ray is governed by Snell's law in \equref{equ:snell}
+    which depends on the indices of refraction of the two media $n_i$ and $n_t$.
+
+    \begin{equation}
+        \label{equ:snell}
+        n_i \sin(\theta_i) = n_t \sin(\theta_t)
+    \end{equation}
+
+    Naturally, the reflected ray is still reflected as given in
+    \equref{equ:reflection}.
+    The transmitted and reflected power can be calculated with the transmission- and
+    reflection rates given by Fresnel's equations.
+    These are dependent on the orientation of the polarization of the incident ray
+    (perpendicular or parallel) to the surface.
+
+    \begin{equation}
+        \label{equ:fresnel}
+		R_{\perp} = \frac{\sin^2(\theta_1 - \theta_2)}{\sin^2(\theta_1 + \theta_2)} \quad
+		R_{\parallel} = \frac{\tan^2(\theta_1 - \theta_2)}{\tan^2(\theta_1 + \theta_2)} \quad
+		T_{\perp} = 1 - R_{\perp} \quad
+		T_{\parallel} = 1 - R_{\parallel}
+    \end{equation}
+
+    For unpolarized light the total rates are just given by the average.
+    
+    \begin{equation}
+			R_{total} = \frac{R_{\perp} + R_{\parallel}}{2} \quad
+			T_{total} = \frac{T_{\perp} + T_{\parallel}}{2}
+    \end{equation}
 
     \subsection{Raytracing Acceleration}
 
-    As the raytracer is later intended to be used in an iterative Optimization
+    As the raytracer is later intended to be used in an iterative optimization
     algorithm, it is of vital importance that unnecessary computational cost 
     is avoided.
     For a raytracer this can be achieved in a number of ways.
@@ -421,9 +483,145 @@ beam quality evaluated.
 
 
     \subsection{Sampling Techniques}
-    \todo{Uniform Sampling}
-    \todo{Stratified Sampling}
-    \todo{Importance Sampling}
+
+    The accuracy and performance of ray tracing simulations are heavily dependent upon
+    using the correct sampling techniques.
+    One could sample values on a uniform grid or equally spaced intervals.
+    The problem with this is that there is no randomness or irregularity
+    causing structured aliasing errors in most applications. 
+    Random sampling however always relies on some sort of random number generation.
+    These are usually pseudo random numbers generated according to some
+    distribution with the generation engine initialized with a seed.
+    Usually when one samples according to some scheme only values in 
+    $[0,1]$ are allowed.
+    The returned sample is then later scaled to the desired range depending
+    on the usecase.
+    It is also to be noted that calls to a sampler must be ensured to
+    be as effiecient as possible as a large number of calls will be
+    made during the simulation.
+
+    The simplest sampling scheme is uniform sampling.
+    It returns values uniformly and can be implemented right on top of
+    the random number engine of the used system.
+    The advantage of uniform sampling is that it produces close to random
+    samples without the need for additional logic and therefore
+    performance losses.
+    The disadvantage is the irregular density of samples within the interval.
+    There can be areas with a lot of samples and large gaps between.
+    So in scenarios where there needs to be a more regular distribution
+    of samples uniform sampling is not optimal.
+
+    For this reason another sampling technique called stratified uniform
+    sampling exists.
+    Here the domain is split into $N$ equally spaced intervals and the
+    uniform sampling occurs within each interval.
+    This ensures that there is some amount of regularity while still
+    keeping the randomness of uniform sampling.
+    An application of stratified sampling would be the definition of
+    a light source in the simulation.
+    The direction or origin of the rays the light source emitts can be
+    sampled according to stratified sampling to ensure a smooth
+    illumination of the scene.
+    The difference between uniform and stratified uniform sampling can
+    be observed in \figref{fig:uniform_vs_stratified}.
+
+    \begin{center}
+        \begin{figure}[H]
+            \centering    
+            \includegraphics[width=0.25\textwidth]{images/stratified.png}
+            \caption{
+                Uniform sampling of a 1D interval (left) vs. stratified sampling (right).
+                Observe the large gap between samples on the left whereas
+                the samples on the right are spaced out more equally.
+            }
+            \label{fig:uniform_vs_stratified}
+        \end{figure}
+    \end{center}
+
+    A more advanced technique is to sample values where they are contributing
+    the most.
+    Suppose one wants to approximate some function $f$ over a domain
+    $[0,1]$.
+    The criterium that has to be met in order to calculate some quantity
+    $Q$ is given by any arbitrary integral in the domain.
+    With uniform sampling of $x \in [x_1,x_2]$ by the sequence 
+    $(x_i)$ and $i = 1...n$ the integral is approximated
+    by \equref{equ:impsampling_uniform}.
+
+    \begin{equation}
+        \label{equ:impsampling_uniform}
+        Q = \int_{x_1}^{x_2} f(x) dx \approx \frac{1}{n} \sum_{i = 1...n} f(x_i)
+    \end{equation}
+
+    Now it is also possible to sample according to some other distribution.
+    One just has to know the probability density function (pdf) $p$ to know
+    how likely it is that a sample $x_i$ is generated.
+    Probability density functions are nonnegative across the domain
+    and their integral over the domain is always 1.
+    This corresponds to the probability that a sampled value is in the
+    interval $[x_1, x_2]$ which is of course the case when all
+    possible values are within that interval. 
+    The more accurately the pdf $p$ matches $f$ the more $[x_1,x_2]$
+    is sampled at the points where the function $f$ has a large contribution to
+    the integral.
+    This can significantly reduce the amount of samples needed to get an
+    accurate approximation for the integral $Q$.
+    The integral is then approximated by \equref{equ:impsampling}.
+
+    \begin{equation}
+        \label{equ:impsampling}
+        Q = \int_{x_1}^{x_2} f(x) dx \approx \frac{1}{n} \sum_{i = 1...n} \frac{f(x_i)}{p(x_i)}
+    \end{equation}
+
+    Observe that now the values for $f$ are weighted by the likelihood $p$.
+    If it is likely that a sample $x_i$ is generated - larger $p$ - then
+    the contribution is worth less and vice versa.     
+    Of course this requires some preprocessing in order to generate the
+    distribution $P$ from a pdf $p$.
+    Usually one wants to generate $p$ from $f$ but there are also 
+    cases where one might choose another function to deduce the
+    pdf and subsequently the distribution.
+
+    One method of building such a distribution is to first integrate
+    $f$ in the domain $[x_1, x_2]$ and normalize the function so the
+    integral is guaranteed to be 1.
+    Then to sample according to the resulting pdf one discretizes the
+    pdf to a finite amount of equidistant intervals $p_i = [{x_1}_i, {x_2}_i]$.
+    For an interval $p_j$ the values $p({x_2}_i)$ for all $i < j$ are
+    then summed up progressively assigned to that interval.
+    These resulting rectangles are then stacked so that each rectangle
+    represents an interval in $x$ and the corresponding values of the
+    sum of the pdf.
+    Then a sample $\xi \in [0,1]$ is drawn from a uniform sampler and
+    the corresponding interval in which the value $\xi$ lies in is
+    searched in the list of intervals using binary search.
+    Once the interval is found we interpolate linearly between the
+    lower boundary ${x_1}_i$ and ${x_2}_i$ depending on $\xi$.
+    Then the resulting $x \in [{x_1}_i, {x_2}_i]$ is returned along
+    the value of the pdf $p(x)$ as a sample.
+    This process approximates the distribution $P$ and is called the
+    inversion method. It is better understood when visualized as in
+    \figref{fig:impsampling}. 
+    
+    \begin{center}
+        \begin{figure}[H]
+            \centering    
+            \begin{tabular}{c c}
+            \includegraphics[width=0.3\textwidth]{images/impsampling_rectangles.png} &
+            \includegraphics[width=0.7\textwidth]{images/inversion.png}
+            \end{tabular}
+            \caption{
+                Visualization of inversion method to sample according the
+                pdf on the left.
+                The intevals $p_i$ are summed up and stacked.
+                Then a $\xi \in [0,1]$ is uniformly sampled and the corresponding
+                interval is searched.
+                The returned value is interpolated linearly according to the value
+                of $/xi$ within the rectangle.
+            }
+            \label{fig:impsampling}
+        \end{figure}
+    \end{center}
 
     \subsection{Framework Structure}
     \subsubsection{Rays}

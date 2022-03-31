@@ -28,7 +28,9 @@ public:
     ss.precision(precision);
     ss << fixed;
     constexpr_for([&](auto const &arg) { ss << arg << " "; }, args...);
-    tables[name].push_back(ss.str());
+    string line = ss.str();
+    line = line.substr(0, line.size()-1);
+    tables[name].push_back(line);
   }
 
   void write() const;
