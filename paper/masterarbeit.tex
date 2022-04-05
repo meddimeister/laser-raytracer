@@ -609,7 +609,7 @@ beam quality evaluated.
         n^2(\lambda) = 1 + \sum_i \frac{B_i \lambda^2}{\lambda^2 - C_i}
     \end{equation}
 
-    \subsection{Raytracing Acceleration}
+    \subsection{Raytracing Acceleration} \label{sec:raytracing_acceleration}
 
     As the raytracer is later intended to be used in an iterative optimization
     algorithm, it is of vital importance that unnecessary computational cost 
@@ -918,16 +918,16 @@ beam quality evaluated.
     \centering
     \begin{tikzpicture}
     \umlclass[]{Ray2D}{
-      origin : vec2 \\
-      direction : vec2 \\
-      power : float \\
-      wavelength : float \\
-      terminated : bool \\
-      terminatedAt : float
+      + origin : vec2 \\
+      + direction : vec2 \\
+      + power : float \\
+      + wavelength : float \\
+      + terminated : bool \\
+      + terminatedAt : float
     }{
-      terminate(t : float) : void \\
-      reflect(t : float, normal : vec2) : Ray2D \\
-      refract(t : float, normal : vec2, n\_1 : float, n\_2 : float) : tuple<Ray2D, Ray2D> \\
+      + terminate(t : float) : void \\
+      + reflect(t : float, normal : vec2) : Ray2D \\
+      + refract(t : float, normal : vec2, n\_1 : float, n\_2 : float) : tuple<Ray2D, Ray2D> \\
     }    
     \end{tikzpicture}
     \caption{UML class diagram of the Ray2D class}
@@ -966,53 +966,53 @@ beam quality evaluated.
     \centering
     \begin{tikzpicture}
     \umlclass[x=-4, y=4]{IntersectResult2D}{
-        tEnter : float \\
-        tLeave : float \\
-        hit : bool = false \\
-        normalEnter : vec2 \\
-        normalLeave : vec2 \\
+        + tEnter : float \\
+        + tLeave : float \\
+        + hit : bool = false \\
+        + normalEnter : vec2 \\
+        + normalLeave : vec2 \\
     }{}
     \umlclass[x=4, y=4]{AABB2D}{
-        bmin : vec2 \\
-        bmax : vec2 \\
-        hit : bool = false \\
-        normalEnter : vec2 \\
-        normalLeave : vec2 \\
+        + bmin : vec2 \\
+        + bmax : vec2 \\
+        + hit : bool = false \\
+        + normalEnter : vec2 \\
+        + normalLeave : vec2 \\
     }{
-        getMidPoint() : float \\
-        isInside(vec2 point) : bool \\
+        + getMidPoint() : float \\
+        + isInside(vec2 point) : bool \\
     }
     \umlclass[type=interface]{Shape2D}{
     }{
-      \umlvirt{intersect(ray : Ray2D) : IntersectResult2D} \\
-      \umlvirt{lineRepresentation() : vector<vec4>}\\
+      \umlvirt{+ intersect(ray : Ray2D) : IntersectResult2D} \\
+      \umlvirt{+ lineRepresentation() : vector<vec4>}\\
     }
     \umlclass[x=-4, y=-5]{Line2D}{
-      a : vec2 \\
-      b : vec2 \\
+      + a : vec2 \\
+      + b : vec2 \\
     }{
-      Line2D(a : vec2, b : vec2) \\
-      intersect(ray : Ray2D) : IntersectResult2D \\
-      lineRepresentation() : vector<vec4>\\
+      + Line2D(a : vec2, b : vec2) \\
+      + intersect(ray : Ray2D) : IntersectResult2D \\
+      + lineRepresentation() : vector<vec4>\\
     }
     \umlclass[x=0, y=-10]{BoundingBox2D}{
     }{
-      BoundingBox2D(bmin : vec2, bmax : vec2) \\
-      BoundingBox2D(points : vector<vec2>) \\
-      BoundingBox2D(aabb : AABB2D) \\
-      BoundingBox2D(aabbs : vector<AABB2D>) \\
-      BoundingBox2D(aabbs : vector<BoundingBox2D>) \\
-      intersect(ray : Ray2D) : IntersectResult2D \\
-      intersectCheck(ray : Ray2D) : IntersectResult2D \\
-      lineRepresentation() : vector<vec4>\\
+      + BoundingBox2D(bmin : vec2, bmax : vec2) \\
+      + BoundingBox2D(points : vector<vec2>) \\
+      + BoundingBox2D(aabb : AABB2D) \\
+      + BoundingBox2D(aabbs : vector<AABB2D>) \\
+      + BoundingBox2D(aabbs : vector<BoundingBox2D>) \\
+      + intersect(ray : Ray2D) : IntersectResult2D \\
+      + intersectCheck(ray : Ray2D) : IntersectResult2D \\
+      + lineRepresentation() : vector<vec4>\\
     }  
     \umlclass[x=4, y=-5]{Sphere2D}{
-      center : vec2 \\
-      radius : vec2 \\
+      + center : vec2 \\
+      + radius : vec2 \\
     }{
-      Sphere2D(center : vec2, radius : vec2) \\
-      intersect(ray : Ray2D) : IntersectResult2D \\
-      lineRepresentation() : vector<vec4>\\
+      + Sphere2D(center : vec2, radius : vec2) \\
+      + intersect(ray : Ray2D) : IntersectResult2D \\
+      + lineRepresentation() : vector<vec4>\\
     }  
 
     \umlimpl[geometry=|-]{Line2D}{Shape2D}
@@ -1053,9 +1053,118 @@ beam quality evaluated.
     the shape is in.
 
     \subsubsection{Objects}
+
+    Objects are represented by the Object2D class and are essentially a collection of
+    Shape2D instances. 
+    Similarly to the Shape2D class the Object2D is just the base class
+    for the specific objects implemeted by the user or predefined by
+    the framework.
+    To initialize an object a list of shapes has to be provided.
+    The constructor of the Object2D class then builds the quadtree
+    of shapes from that list as described in 
+    \secref{sec:raytracing_acceleration}.
+    The intersection test for the object is then done as shown in
+    \algref{alg:object_intersect}.
+    Furthermore the object base class provides a virtual method 
+    for a user defined action to be executed once a ray hits the
+    object.
+    A few presets are already implemented namely pass, absorb and reflect.
+    Pass just ignores the object entirely, absorb terminates the ray at the
+    entry point of the intersection and reflect reflects the ray at the
+    hitpoint.
+    The user defined action provides the capability for the framework to
+    be extensible and customizable.
+    It provides the ray, the intersection result and a reference to a
+    list of newly created rays for the user.
+    For example, the ray could hit the surface and spawn multiple
+    new rays instead of just being reflected modelling
+    some sort of scattering effect.
+    This isn't implemented by the framework out of the box but
+    the user can easliy implement this functionality in a single
+    function.
+    The Object2D class therefore is intended to provide the bare bones
+    functionality for efficient tracing of an object, but the
+    actual physical modelling of the interaction of a light ray
+    with the object can be entirely customized by the user.
+
+    Objects that are arbitrarily complex can thus be efficiently
+    implemented with minimal programming.
+    Examples of how the usage of the Object2D class is intended can
+    be seen in \secref{sec:specific_objects}.
+    Here a thin lense approximation, a reflective mirror, and a grid
+    representing a laser crystal are implemented and can be used by
+    the user.
+
+    \begin{center}
+    \begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+    \umlsimpleclass[x=5, y=5]{Shape2D}
+    \umlclass[x=0, y=5]{Object2D :: Tree}{
+        + box : BoundingBox2D* \\
+        + children : vector<Tree*> children \\
+    }{
+        ...
+    }
+    \umlclass[x=0, y=0]{Object2D}{
+        \# subdivisions : uint \\
+        \# pos : vec2 \\
+        \# up : vec2 \\
+        \# scale : vec2 \\
+    }{
+        \# buildTree(subdivisions : uint) : void \\
+        + Object2D(shapes : vector<Shape2D*>, subdivisions : uint) \\
+        + intersect(ray : Ray2D) : IntersectResult2D \\
+        \umlvirt{+ action(ray : Ray2D, result : IntersectResult2D, createdRays : vector<Ray2D>*) : void} \\
+        ...
+    }
+    \umlclass[x=-4, y=-5]{Mirror2D}{
+        - shapeFunction : function<vec2(float)> \\
+        - segments : int \\
+        ...
+    }{
+        + action(...) : void \\
+        + rebuild() : void \\
+        ...
+    }
+    \umlclass[x=4, y=-5]{Lens2D}{
+        - radius : float \\
+        - focalLength : float \\
+    }{
+        + action(...) : void \\
+        ...
+    }
+    \umlclass[x=0, y=-11]{Grid2D}{
+        - bmin, bmax : vec2 \\
+        - maxX, maxY : int \\
+        - data : vector<float> \\
+        - cellAction : function<void(ray : Ray2D, distance : float, cell : float*)> \\
+        - hitAction : function<void(ray : Ray2D, result : IntersectionResult2D)> \\
+        - refractiveIndexLookup : function<float(wavelength : float)> \\      
+    }{
+        + action(...) : void \\
+        + sum() : float \\
+        + avg() : float \\
+        + var() : float \\
+        + stddev() : float \\
+        + reset() : void \\
+    }
+
+    \umluniassoc[arg=has, mult=1, geometry=--]{Object2D}{Object2D :: Tree}
+    \umlinherit{Mirror2D}{Object2D}
+    \umlinherit{Lens2D}{Object2D}
+    \umlinherit{Grid2D}{Object2D}
+    \umlunicompo{Object2D :: Tree}{Shape2D}
+
+    \end{tikzpicture}
+    \caption{UML class diagram of the Object2D and associated classes}
+    \label{fig:uml_shape2d}
+    \end{figure}
+    \end{center}     
+
+    \subsubsection{Sampler}
     \subsubsection{Scene}
     \subsubsection{Tracing Algorithm}
-    \subsubsection{Sampler}
     \subsubsection{IO Utilities}
     
     \begin{center}
@@ -1090,7 +1199,7 @@ beam quality evaluated.
     \end{tikzpicture}
     \end{center}
 
-    \subsection{Setup Specific Objects}
+    \subsection{Setup Specific Objects} \label{sec:specific_objects}
     \subsubsection{Lens}
     \subsubsection{Mirror}
     \subsubsection{Crystal}
