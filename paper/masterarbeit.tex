@@ -9,6 +9,7 @@
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{import}
 \usepackage{todonotes}
+\usepackage{tikz-uml}
 
 % SETUP OF LSSPUB
 \lsstitle{Optimization of Mirrorshapes in Optically Pumped Solar Lasers Using Ray Tracing Simulation Techniques}%
@@ -355,7 +356,7 @@ beam quality evaluated.
     In particular the objects which are relevant for the simulation
     of laser cavities and which are used in the example setup are shown.
 
-    \subsection{Raytracing Basics}  
+    \subsection{Raytracing Basics}  \label{sec:raytracing_basics}
 
     Rays are represented as a parametric line from a ray origin $o$ in
     direction $d$.
@@ -587,8 +588,25 @@ beam quality evaluated.
     For unpolarized light the total rates are just given by the average.
     
     \begin{equation}
-			R_{total} = \frac{R_{\perp} + R_{\parallel}}{2} \quad
-			T_{total} = \frac{T_{\perp} + T_{\parallel}}{2}
+        \label{equ:fresnel_unpolarized}
+		R_{total} = \frac{R_{\perp} + R_{\parallel}}{2} \quad
+		T_{total} = \frac{T_{\perp} + T_{\parallel}}{2}
+    \end{equation}
+    
+    An additional effect that can be significant espacially for broadband
+    applications is the dependency of the index of refraction of a medium
+    on the wavelength of the light passing through and the dispersion
+    of light resulting from this.
+    This is modelled by the Sellmeier equation, which is based on 
+    empirical measurements.
+    The relationship between the refractive index $n$ and the wavelength 
+    $\lambda$ in micrometers is described by a series of Sellmeier coefficients $B_i$ and
+    $C_i$ that have been determined by experiment.
+    The Sellmeier equation is thus given by \equref{equ:sellmeier}.
+
+    \begin{equation}
+        \label{equ:sellmeier}
+        n^2(\lambda) = 1 + \sum_i \frac{B_i \lambda^2}{\lambda^2 - C_i}
     \end{equation}
 
     \subsection{Raytracing Acceleration}
@@ -816,15 +834,261 @@ beam quality evaluated.
             \label{fig:impsampling}
         \end{figure}
     \end{center}
-
+    
     \subsection{Framework Structure}
+
+    The goal of the raytracing framework is to offer a free and lightweight
+    alternative to commercial raytracers in order to stay efficient
+    for the later usage in a black-box optimization context.
+    For the optimization, it is crucial that the raytracer can be executed thousands of times
+    even with a higher number of rays without significant overhead.
+    It is to be noted that the raytracer has been specifically designed in
+    order to be used in the optimization of geometrical parameters in paraxial
+    systems.
+    Therefore the decision was made to work in a 2D context rather than a 3D
+    one.
+    The additional computational cost of going from a 2D to a 3D context for
+    raytracing is significant and since the framework is to be used as
+    the optimization part of the design process the results can then be
+    taken and further analysed in a 3D raytracer.
+    Suppose a 2D raytracer needs $10000$ rays to reduce the noise to a
+    satisfactory level.
+    Then it can be assumed that a 3D raytracer needs about $10000 \cdot
+    10000$ rays to produce the same result.
+    The only difference is that transversal rays cannot be modelled in
+    2D but transveral rays which may occur by divergence of sunlight or
+    scattering effects in inpure media are statistically distributed
+    equally across the full rotation of a paraxial system and the impact
+    on the result is therefore negligable.
+    Additionally, the described objects in the scene require a significantly
+    higher amount of fundamental shapes, which compounds the performance
+    loss of needing more rays even further.
+    Furthermore the ray intersect equations shown above would become more
+    complex and would require more arithmetic and cases.
+    So for the relatively small benefit of being able to model transversal
+    rays it is infeasable in a paraxial system to simulate in a 3D environment.
+    Of course, if the system is not rotationally symmetrical then there
+    is no other choice than to trace the scene in 3D, but this is
+    not the norm in laser optical systems.
+    In the following chapter the most important parts of the raytracer
+    framework are presented.
+    The datastructures and algortihms are shown in an UML class diagram
+    and an example application of the datastructure or algorithm is given. 
+    It is to be noted that not all fields, methods or datatypes
+    are shown in the UML diagrams and the code should therefore
+    be seen as pseudocode instead of specific C++ code.
+    When the classes have already been explained and the fields
+    are not necessary to understand the relation between them
+    they are omitted from the diagram to keep the diagrams more
+    managable.
+    The \emph{float} datatype represents some floating point datatype
+    and not necessarily the C++ datatype.
+    The \emph{vec*} vector datatypes are either the GLM~\cite{glm} datatypes
+    for vectors - if the dimension is 4 or below - or a custom implementation
+    to mimic the vector arithmetic of GLM for higher dimensions.
+
     \subsubsection{Rays}
+
+    Rays are the most basic datastructure in the simulation.
+    They are described by an origin, a direction, a field for the
+    amount of power, wavelength and a bool field if a ray has
+    already been terminated.
+    The simplest action is to just terminate the ray at some $t$
+    in which case it will no longer be considered in the tracing
+    algorithm.
+    Rays can alse be reflected at a point $t$ with a certain normal, 
+    where the original ray is terminated and a new ray according to \equref{equ:reflection} with a small
+    $\epsilon$ shift for te origin in the reflected direction is returned.
+    Another action is to refract the ray between the boundary
+    of two media with refractive indices $n_1$ and $n_2$.
+    Here a tuple of new rays is returned and the original ray
+    is terminated.
+    The first element is the reflected ray and the second
+    element is the transmitted ray into the medium.
+    The direction of the transmitted ray is calculated using
+    \equref{equ:snell} and the power of the original ray
+    is split between the reflected and transmitted part according
+    to the Fresnel laws \equref{equ:fresnel} for unpolarized
+    light \equref{equ:fresnel_unpolarized}. 
+    The UML class diagram for the Ray2D class and other relevant
+    classes is shown in \figref{fig:uml_ray2d}.
+
+    \begin{center}
+    \begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+    \umlclass[]{Ray2D}{
+      origin : vec2 \\
+      direction : vec2 \\
+      power : float \\
+      wavelength : float \\
+      terminated : bool \\
+      terminatedAt : float
+    }{
+      terminate(t : float) : void \\
+      reflect(t : float, normal : vec2) : Ray2D \\
+      refract(t : float, normal : vec2, n\_1 : float, n\_2 : float) : tuple<Ray2D, Ray2D> \\
+    }    
+    \end{tikzpicture}
+    \caption{UML class diagram of the Ray2D class}
+    \label{fig:uml_ray2d}
+    \end{figure}
+    \end{center}
+
+    As the user rarely has to interact directly with ray class and
+    the implementation and usage of the methods are straight forward
+    an example is not necessary here.
+    
     \subsubsection{Shapes}
+
+    The Shape2D class represents all fundamental shapes in two dimensions
+    It is the baseclass for all specific 2D shapes like lines, AABBs or circles
+    etc.
+    The specific intersection tests with rays are implemented in those derived
+    classes.
+    Each shape additionally has an AABB that encompasses the represented
+    shape.
+    This AABB is then used to construct the quadtree for the object the shape
+    is part of.
+    When a shape is intersected an interection result is returned, which
+    contains the enter and leave $t$ value of the intersection and a boolean
+    that represents whether an intersection has even occurred.
+    Furthermore the normals at the enter and leave point are contained
+    in the intersection result.
+    Each shape also has a line representation in order to later output
+    the scene in the VTK format for visualization.
+    A UML class diagram of the Shape2D class is shown in 
+    \figref{fig:uml_shape2d}.
+
+
+    \begin{center}
+    \begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+    \umlclass[x=-4, y=4]{IntersectResult2D}{
+        tEnter : float \\
+        tLeave : float \\
+        hit : bool = false \\
+        normalEnter : vec2 \\
+        normalLeave : vec2 \\
+    }{}
+    \umlclass[x=4, y=4]{AABB2D}{
+        bmin : vec2 \\
+        bmax : vec2 \\
+        hit : bool = false \\
+        normalEnter : vec2 \\
+        normalLeave : vec2 \\
+    }{
+        getMidPoint() : float \\
+        isInside(vec2 point) : bool \\
+    }
+    \umlclass[type=interface]{Shape2D}{
+    }{
+      \umlvirt{intersect(ray : Ray2D) : IntersectResult2D} \\
+      \umlvirt{lineRepresentation() : vector<vec4>}\\
+    }
+    \umlclass[x=-4, y=-5]{Line2D}{
+      a : vec2 \\
+      b : vec2 \\
+    }{
+      Line2D(a : vec2, b : vec2) \\
+      intersect(ray : Ray2D) : IntersectResult2D \\
+      lineRepresentation() : vector<vec4>\\
+    }
+    \umlclass[x=0, y=-10]{BoundingBox2D}{
+    }{
+      BoundingBox2D(bmin : vec2, bmax : vec2) \\
+      BoundingBox2D(points : vector<vec2>) \\
+      BoundingBox2D(aabb : AABB2D) \\
+      BoundingBox2D(aabbs : vector<AABB2D>) \\
+      BoundingBox2D(aabbs : vector<BoundingBox2D>) \\
+      intersect(ray : Ray2D) : IntersectResult2D \\
+      intersectCheck(ray : Ray2D) : IntersectResult2D \\
+      lineRepresentation() : vector<vec4>\\
+    }  
+    \umlclass[x=4, y=-5]{Sphere2D}{
+      center : vec2 \\
+      radius : vec2 \\
+    }{
+      Sphere2D(center : vec2, radius : vec2) \\
+      intersect(ray : Ray2D) : IntersectResult2D \\
+      lineRepresentation() : vector<vec4>\\
+    }  
+
+    \umlimpl[geometry=|-]{Line2D}{Shape2D}
+    \umlimpl[geometry=--]{BoundingBox2D}{Shape2D}
+    \umlimpl[geometry=|-]{Sphere2D}{Shape2D}
+    \umluniassoc[anchor1=70,arg=has,mult=1, geometry=|-]{Shape2D}{AABB2D}
+    \umldep[anchor1=110, geometry=|-]{Shape2D}{IntersectResult2D}
+
+    \end{tikzpicture}
+    \caption{UML class diagram of the Shape2D and associated classes}
+    \label{fig:uml_shape2d}
+    \end{figure}
+    \end{center}
+
+    The shapes that are derived from the Shape2D class are the basic unit
+    for the intersection tests used in the tracing algorithm.
+    The implementation of those tests should therefore be computationally
+    efficient and should avoid unnecessary branches.
+    Ideally they should be branchless implementations where only the
+    final decision if an intersection has occurred requires a branch.
+    An example for a branchless intersection test has been shown
+    in \secref{sec:raytracing_basics} above, specifically the ray-AABB
+    and ray-line intersections.
+    For the ray-AABB intersection two versions of the test should exist.
+    One version that only checks for the intersection and one version,
+    which also calculates the normals.
+    The check-only variant should then be used in 
+    \algref{alg:object_intersect}
+    as no normals are needed to traverse the quadtree and
+    the AABB normal calculation is quite branch heavy.
+    This is what the \emph{intersectCheck} method of the BoundingBox2D
+    class is for.
+    Furthermore the BoundingBox2D class provides multiple ways of constructing
+    the represented AABB.
+    Either directly by giving $b_{min}$ and $b_{max}$ or by providing a point
+    cloud or by merging multiple AABBs together.
+    This is then later used in the construction of the quadtree of the object
+    the shape is in.
+
     \subsubsection{Objects}
     \subsubsection{Scene}
     \subsubsection{Tracing Algorithm}
     \subsubsection{Sampler}
     \subsubsection{IO Utilities}
+    
+    \begin{center}
+    \begin{tikzpicture}
+    \begin{umlpackage}{p}
+    \begin{umlpackage}{sp1}
+    \umlclass[template=T]{A}{
+      n : uint \\ t : float
+    }{}
+    \umlclass[y=-3]{B}{
+      d : double
+    }{
+      \umlvirt{setB(b : B) : void} \\ getB() : B}
+    \end{umlpackage}
+    \begin{umlpackage}[x=10,y=-6]{sp2}
+    \umlinterface{C}{
+      n : uint \\ s : string
+    }{}
+    \end{umlpackage}
+    \umlclass[x=2,y=-10]{D}{
+      n : uint
+      }{}
+    \end{umlpackage}
+
+    \umlassoc[geometry=-|-, arg1=tata, mult1=*, pos1=0.3, arg2=toto, mult2=1, pos2=2.9, align2=left]{C}{B}
+    \umlunicompo[geometry=-|, arg=titi, mult=*, pos=1.7, stereo=vector]{D}{C}
+    \umlimport[geometry=|-, anchors=90 and 50, name=import]{sp2}{sp1}
+    \umlaggreg[arg=tutu, mult=1, pos=0.8, angle1=30, angle2=60, loopsize=2cm]{D}{D}
+    \umlinherit[geometry=-|]{D}{B}
+    \umlnote[x=2.5,y=-6, width=3cm]{B}{Je suis une note qui concerne la classe B}
+    \umlnote[x=7.5,y=-2]{import-2}{Je suis une note qui concerne la relation d'import}
+    \end{tikzpicture}
+    \end{center}
 
     \subsection{Setup Specific Objects}
     \subsubsection{Lens}
