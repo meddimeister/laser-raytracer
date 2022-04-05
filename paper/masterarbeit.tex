@@ -72,12 +72,206 @@ beam quality evaluated.
 
     \section{Introduction}
 
+    In the light of the recent developements in global energy policy,
+    renewable energy has become one of the most important
+    problems humanity has to solve.
+    Ever new ways of exploiting the sun's vast amount of energy are
+    becoming relevant if nations across the world want to achieve
+    net zero carbon emissions.
+    One of those novel methods is the generation of hydrogen from
+    water using solar energy.
+    It can be achieved by common electrolysis or by reacting alkali
+    metals with water.
+    Researchers have been specifically looking at reacting magnesium
+    ($Mg$) with water ($H_2O$) to produce hydrogen ($H_2$) and magnesium oxide
+    ($MgO$)~\cite{solar_lasers_paper}.
+    This reaction is exotherm and therefore causes a large amount of heat
+    and produces hydrogen gas which could be stored in hydrogen fuel cells.
+    Now if one can reduce the magnesium oxide to pure magnesium using
+    the suns energy one would have a solution to store solar energy
+    using hydrogen.
+    To drive the reduction of magneisum oxide a laser can be used but
+    a considerable amount if energy is needed.
+    In order to reduce losses that are induced by using a conventional
+    solar panel that drives a diode to pump the laser, it could be
+    benefitial to pump the laser crystal directly using sunlight.
+    This is exactly what Shigeaki Uchida and his team in Japan have
+    been researching~\cite{solar_lasers_wiki}~\cite{solar_lasers_magnesium}.
+    
+    Another area of application that is becoming increasingly relevant is
+    the usage of solar lasers in space exploration.
+    Since there is no access to grid power in space and nuclear power
+    is coupled with significant costs solar power is the most used
+    source of power in space.
+    The low efficiency of solar panels and the reduced number of parts
+    of solar lasers make them an interesting prospect for usage in
+    space.
+    As mass is a high cost factor in space exploration the reduced weight
+    and lower number of potential points of failure solar lasers could
+    become a more relevant option in the future.
+    The tasks of a solar laser in space could range from deep space
+    communication, remote power transmission or tracking of objects.
+
+    Solar lasers require the collection of sunlight and focusing
+    onto a gain medium to surpass the lasing threshold thereof.
+    As it is the most simple and cost effective method, usually
+    a primary collector is used together with a secondary mirror in a 
+    two stage collector to focus the sunlight onto the gain medium
+    ~\cite{solar_lasers_magnesium}.
+    The primary collector can be another mirror or a fresnel lens
+    as a cheaper alternative.
+    The beam power and quality is significantly impacted by the
+    amount of power absorbed by the gain medium and the uniformity
+    of the absorption profile.
+    The natural divergence of sunlight and dispersion effects in the
+    fresnel lens make it important that the secondary mirror is shaped
+    in an optimal way.
+    Both absorbed power and the uniformity of absorption need to be
+    optimized.
+    For the optical design of the collection system it is benefitial
+    that the system is simulated accurately beforehand.
+    For both the simulation and optimization part of the design process
+    a free and open source framework was developed in this work in the
+    hope that parts or the entirety of code may prove useful to engineers
+    designing solar lasers.
+    The goals of the framework are to offer a simple yet powerful interface
+    for C++ applications.
+    It provides a fast 2D paraxial raytracer for the calculation of the
+    absorption profile in the gain medium which is then used by a
+    mesh adaptive direct search algorithm in a biobjective manner (BIMADS) 
+    to increase both absorbed power and uniformity of the absorption profile.
+    This is done via the open source library NOMAD version 3~\cite{nomad3},
+    which implements the MADS~\cite{mads_original} algorithm and a biobjective
+    variant of it. 
+    It offers the efficient derivative free optimization of a black-box
+    function with constraints.
+
+    The application of the framework is then demonstrated via an examplatory
+    setup of a Nd:YAG solar laser using a two stage concentrator consisting
+    of a fresnel lense and a secondary mirror.
+    In principle, any parameter of the setup can be optimized but for this
+    example in particular the mirrorshape is the interesting property. 
+    The result of the BIMADS algorithm is a pareto front of optimal points 
+    determined by the algortihm.
+    Depending on whether a more even distribution of power is desired or
+    the total amount of power absorbed is relevant to the application,
+    some points of the pareto front are then chosen and simulated with
+    the software ASLD~\cite{asld_website} to evaluate the resulting beam properties.
+
     \newpage
 
-    \section{Methodology}
-
     \section{Lasers}
-    \subsection{Solar Lasers}
+
+    Laser is an acronym which stands for \b{L}ight \b{A}mplification
+    by \b{S}timulated \b{E}mission of \b{R}adiation.
+    Lasers amplify coherent radiation at the infrared, visible, or
+    ultraviolet part of the electromagnetic spectrum~\cite{lasers_siegman}.
+    The principle was originally used in so called masers the 
+    amplification of \b{M}icrowave radiation or even radio frequencies.
+    The advantages of using a laser system as a lightsource are that
+    they produce a directional beam of coherent light which can be 
+    focused to a narrow spot~\cite{lasers_liverpool}.
+    Additionally the emitted light is usually of a very narrow spectrum
+    and thus reduces dispersion effects when shooting the beam through
+    different media.
+    Lasers are therefore used in a wide variety of applications which
+    range from manufacturing processes to measuring systems to 
+    optical communication.
+
+    A laser usually consists of a gain medium that is capable of amplifying
+    light that passes through by stimulated emission, a pumplight to
+    excite the atoms of the gain medium to higher quantum states and
+    an optical feedback mechanism - often called cavity or oscillator - 
+    which usually
+    consists of two mirrors that bounce the light back and forth through
+    the gain medium~\cite{lasers_siegman}.
+    One of those mirrors is only partially reflective and is transparent
+    so that a portion of the amplified light can escape.
+    Usually in more complex setups cooling is applied to the gain medium
+    and some other optical elements like
+    lenses or polarization filters may be present to ensure a better
+    output beam quality.
+    An ideal output beam is both temporally and spatially coherent,
+    meaning that the emitted light is a perfect sine wave with constant
+    amplitude und frequency and has a definite amplitude and phase pattern
+    across any transverse plane inside the laser~\cite{lasers_siegman}.
+
+    \subsection{Stimulated Emission}
+
+    There are three ways in which atoms exchange energy with a radiation
+    field~\cite{lasers_liverpool} identified by Albert Einstein.
+    There is absorption where an electron is excited by a photon to a higher
+    quantum energy state.
+    Hereby the photon must have the exact amount of energy (wavelength)
+    that the difference between energy state is.
+    Then there is spontaneous emission where the excited electron jumps
+    back to a lower energy state, emitting a photon in a random direction
+    with a random phase shift
+    but again with the same amount of energy as the difference between 
+    states of the electron.
+    This can occur spontaneously at any time as the name suggests. 
+    The main priciple why the gain medium amplifies light is the priciple
+    of stimulated emission.
+    Electrons in the gain medium are stimlated by photons to a higher
+    energy state.
+    If now a again photon with the same amount of energy and a certain
+    direction hits the atom the electron jumps back to the lower state
+    again emitting a photon of the same energy but crucially and contrary
+    to spontaneous emission in the exact same direction and the exact
+    amount of phase shift as the incoming photon.
+    Therefore amplifying the light by essentially "duplicating" the incoming
+    photon.
+
+    Now if one wants a coherent output beam one needs to make sure that
+    the photons are travelling only in one direction and with constant
+    phase.
+    This is the job of the resonator.
+    It uses the photons from spontaneous emission which at some point
+    will have the correct direction and bounce them between the mirrors.
+    Photons with other directions will be lost from the sides entirely
+    or will get absorbed again by the medium.
+    Due to this process a majority of photons will be travelling in the
+    desired direction after some time.
+
+    \subsection{Gain Medium and Population Inversion}
+
+    In order to be able to amplify the emitted light, more atoms in the
+    gain medium have to be in an already excited higher state than
+    in the lower state.
+    Otherwise "duplicated" photons will be reabsorbed by atoms in lower
+    state and will not be able to stimulate another emmission or make
+    it out of the laser cavity.
+    Hence the population of atoms needs to be inverted~\cite{lasers_liverpool}.
+    For this to happen an external source of energy needs to be supplied.
+    This is called pumping and is usually achieved by a pump flash light
+    or another laser.
+    As it is equally likely that a photon causes stimulated emission or
+    absorption there can not be only two states but at least three
+    states are needed in optically pumped lasers~\cite{lasers_rpphotonics}.
+    The electrons are then excited into the highest state by the pump
+    light from which they can decay into the middle state ready for
+    stimulated emission.
+    It is crucial for level three lasers that the pump light cannot
+    push the electrons in the middle state back to ground state.
+    This way it is possible to have more atoms in the middle state than
+    in ground state and therefore population inversion is achieved.
+    For this to happen the pump light intensity in level three lasers
+    needs to be sufficiently high enough for the photons to be "ignored"
+    by the electrons in the second state.
+    The threshold for the pump power to achieve population inversion
+    is called the \emph{lasing threshold} and due to the
+    energy levels in the atoms the choice of gain medium usually
+    implies the choice of pump light or vice versa.  
+
+    Materials that offer this property can be in gas, liquid or solid form.
+    Solid form lasers are usually some sort of ion doped crystals or
+    semiconductor diodes~\cite{lasers_liverpool}.
+    As an example for a three level gain medium ruby ($Cr^{3+}:Al_2O_3$)
+    can be used.
+    In practice mostly four level gain media are used as they offer a 
+    far lower lasing threshold for the pump power~\cite{lasers_rpphotonics}.
+    These are usually neodymium doped media like the most popular choice
+    neodymium doped yttrium aluminum garnets (Nd:YAG).
 
     \section{Raytracing Framework}
     With the advent of cheap processors and increasingly powerful 
