@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
   size_t optsegments = 100;
   size_t rays = 100000;
   size_t segments = 10000;
+  bool samplertest = false;
 
   double solarConstant = 1361.0; // W*m^-2
   double emittorRadius = 0.6;    // m
@@ -41,9 +42,12 @@ int main(int argc, char *argv[]) {
   params[2] = 0.07726241648;
   params[3] = 0.02685499005;
 
-  ArgParser args("-noopt --optrays --optsegments --rays --segments --param0 --param1 --param2 --param3", argc,
-                 argv);
+  ArgParser args(
+      "-noopt -samplertest --optrays --optsegments --rays --segments --param0 "
+      "--param1 --param2 --param3",
+      argc, argv);
   args.getFlag("-noopt", noopt);
+  args.getFlag("-samplertest", samplertest);
   args.getArg("--optrays", optrays);
   args.getArg("--optsegments", optsegments);
   args.getArg("--rays", rays);
@@ -54,6 +58,7 @@ int main(int argc, char *argv[]) {
   args.getArg("--param3", params[3]);
 
   cout << "noopt: " << noopt << endl;
+  cout << "samplertest: " << samplertest << endl;
   cout << "optrays: " << optrays << endl;
   cout << "optsegments: " << optsegments << endl;
   cout << "rays: " << rays << endl;
@@ -73,6 +78,31 @@ int main(int argc, char *argv[]) {
   auto emissionSpectrum = getFunction(emissionData);
 
   LOG("Read Data");
+
+  if (samplertest) {
+    RNG::UniformSamplerND<2> uniformSampler2D;
+    RNG::NormalSamplerND<2> normalSampler2D;
+    RNG::UniformBallSampler<3> uniformBallSampler;
+
+    uniformSampler2D.init(1000);
+    normalSampler2D.init(1000);
+    uniformBallSampler.init(1000);
+
+    CSVWriter csvWriter("csvOut/samplertest");
+
+    for(size_t i = 0; i < 1000; ++i){
+      auto uniformSample2D = uniformSampler2D.next();
+      auto normalSample2D = normalSampler2D.next();
+      auto uniformBallSample = uniformBallSampler.next();
+      csvWriter.add("uniformSampler2D", uniformSample2D[0], uniformSample2D[1]);      
+      csvWriter.add("normalSampler2D", normalSample2D[0], normalSample2D[1]);
+      csvWriter.add("uniformBallSampler", uniformBallSample[0], uniformBallSample[1], uniformBallSample[2]);
+    }
+    csvWriter.write();
+
+    LOG("Sampler Test");
+    return 0;
+  }
 
   auto mirrorShapeParabola = [&](double x) {
     dvec2 point = {x, params[0] * x * x + params[1]};
@@ -115,7 +145,8 @@ int main(int argc, char *argv[]) {
       },
       sellmeierNdYag));
 
-  auto optlens = make_shared<Lens2D>(Lens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
+  auto optlens =
+      make_shared<Lens2D>(Lens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D optscene;
 
@@ -183,7 +214,7 @@ int main(int argc, char *argv[]) {
         double remainingPower = ray.power * exp(-alpha * distance * 100.0);
         double absorbedPower = ray.power - remainingPower;
         cell += absorbedPower;
-        if(absorbedPower < 0.0)
+        if (absorbedPower < 0.0)
           cout << ray << " " << distance << " " << alpha << endl;
         ray.power = remainingPower;
       },
@@ -200,9 +231,10 @@ int main(int argc, char *argv[]) {
   scene.add(crystal);
   scene.add(lens);
 
-  scene.generateDirectionalRays(
-      {-1.590, 0.0}, emittorRadius, {1.0, 0.0}, solarDivergence, solarPower, rays,
-      originSampler, divergenceSampler, absorptionImpSampler, emissionSpectrum);
+  scene.generateDirectionalRays({-1.590, 0.0}, emittorRadius, {1.0, 0.0},
+                                solarDivergence, solarPower, rays,
+                                originSampler, divergenceSampler,
+                                absorptionImpSampler, emissionSpectrum);
 
   vector<vector<Ray2D>> raysStorage;
   mirror->rebuild();
@@ -239,7 +271,7 @@ int main(int argc, char *argv[]) {
   csvWriter.add("reflector", "#x", "y");
   for (const auto &point : referenceReflector) {
     double x = get<0>(point);
-    double xScaled = (x - 300.2396507)/1000.0;
+    double xScaled = (x - 300.2396507) / 1000.0;
     double yScaled = mirrorXYFunction(xScaled) * 1000.0;
     csvWriter.add("reflector", x, yScaled);
   }

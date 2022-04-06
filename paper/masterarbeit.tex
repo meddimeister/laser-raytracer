@@ -440,7 +440,7 @@ beam quality evaluated.
     The intersected rays can be seen in in \figref{fig:line_intersect}.
 
     \begin{center}
-        \begin{figure}[H]
+        \begin{figure}
             \centering    
             \def\svgwidth{0.8\textwidth}
             \import{images/}{line_intersect.pdf_tex}
@@ -474,7 +474,7 @@ beam quality evaluated.
     The $t$ values for the $x$ axis aligned lines can be calculated as
     shown in \algref{alg:aabb_intersect}.
 
-    \begin{algorithm}[H]
+    \begin{algorithm}
         \label{alg:aabb_intersect}
         \SetAlgoLined
 
@@ -505,7 +505,7 @@ beam quality evaluated.
     intersected first. 
 
     \begin{center}
-        \begin{figure}[H]
+        \begin{figure}
             \centering    
             \def\svgwidth{0.6\textwidth}
             \import{images/}{aabb_intersect.pdf_tex}
@@ -651,7 +651,7 @@ beam quality evaluated.
     for a single object is givin in \algref{alg:object_intersect}.
 
     \begin{center}
-        \begin{figure}[H]
+        \begin{figure}
             \centering    
             \includegraphics[width=0.8\textwidth]{images/mirror.png}
             \caption{
@@ -664,7 +664,7 @@ beam quality evaluated.
         \end{figure}
     \end{center}
 
-    \begin{algorithm}[H]
+    \begin{algorithm}
         \label{alg:object_intersect}
         \SetAlgoLined
         IntersectionResult objectResult\;
@@ -738,7 +738,7 @@ beam quality evaluated.
     be observed in \figref{fig:uniform_vs_stratified}.
 
     \begin{center}
-        \begin{figure}[H]
+        \begin{figure}
             \centering    
             \includegraphics[width=0.25\textwidth]{images/stratified.png}
             \caption{
@@ -816,7 +816,7 @@ beam quality evaluated.
     \figref{fig:impsampling}. 
     
     \begin{center}
-        \begin{figure}[H]
+        \begin{figure}
             \centering    
             \begin{tabular}{c c}
             \includegraphics[width=0.3\textwidth]{images/impsampling_rectangles.png} &
@@ -886,6 +886,13 @@ beam quality evaluated.
     The \emph{vec*} vector datatypes are either the GLM~\cite{glm} datatypes
     for vectors - if the dimension is 4 or below - or a custom implementation
     to mimic the vector arithmetic of GLM for higher dimensions.
+    Pointer datatypes in the UML diagrams are entirely reliant on
+    the STL smart pointers in C++.
+    Thus the user usually constructs instances of the objects or shapes
+    via smart pointers which implement reference counting
+    in order to manage heap allocated resources.
+    Therefore there is no need for the user to worry about 
+    memory management. 
 
     \subsubsection{Rays}
 
@@ -914,7 +921,7 @@ beam quality evaluated.
     classes is shown in \figref{fig:uml_ray2d}.
 
     \begin{center}
-    \begin{figure}[H]
+    \begin{figure}
     \centering
     \begin{tikzpicture}
     \umlclass[]{Ray2D}{
@@ -962,7 +969,7 @@ beam quality evaluated.
 
 
     \begin{center}
-    \begin{figure}[H]
+    \begin{figure}
     \centering
     \begin{tikzpicture}
     \umlclass[x=-4, y=4]{IntersectResult2D}{
@@ -1094,9 +1101,11 @@ beam quality evaluated.
     Here a thin lense approximation, a reflective mirror, and a grid
     representing a laser crystal are implemented and can be used by
     the user.
+    A UML class diagram of the Object2D class and associated
+    classes is given in \figref{fig:uml_object2d}.
 
     \begin{center}
-    \begin{figure}[H]
+    \begin{figure}
     \centering
     \begin{tikzpicture}
     \umlsimpleclass[x=5, y=5]{Shape2D}
@@ -1158,47 +1167,115 @@ beam quality evaluated.
 
     \end{tikzpicture}
     \caption{UML class diagram of the Object2D and associated classes}
-    \label{fig:uml_shape2d}
+    \label{fig:uml_object2d}
     \end{figure}
     \end{center}     
 
     \subsubsection{Sampler}
+
+    The sampling classes implement the sampling techniques discussed in
+    \secref{sec:sampling}.
+    The abstract interface for sampling is the Sampler class, which is can
+    sample any given datatype.
+    It describes how all other sampling classes are to be used.
+    After construction the sampler needs to be initialized to
+    have an idea about how many samples the user wants in total.
+    Then the user can retrieve samples via the \emph{next} method.
+    The Sampler class also provides an index fields that keeps track
+    of the current index of the sample, should a derived class need that
+    information.
+    One layer below the Sampler interface are interfaces which 
+    describe the type of distribution the implemented sampler
+    relies upon.
+    Here the random engines of the STL are usually constructed and
+    initialized with a unique seed.
+    Most specialized sampling techniques for specific datatypes then
+    inherit from those interfaces or use some sort of combination
+    of different random engines.
+    A UML class diagram of the sampler environment is given in 
+    \figref{fig:uml_sampler}.
+    Example outputs of predefined sampling techniques are shown in
+    \figref{fig:sampler_example}.
+
+    \begin{center}
+    \begin{figure}
+    \centering
+    \begin{tikzpicture}
+    \umlinterface[template=T]{Sampler}{
+        \# count : uint \\
+        \# idx : uint \\
+    }{
+        \umlvirt{+ init(count : uint) : void} \\
+        \umlvirt{+ next() : T} \\
+    }
+    \umlinterface[x=-5, y=-4, template=T]{UniformSampler}{
+        ...
+    }{
+        + init(count : uint) : void \\
+        \umlvirt{+ next() : T} \\
+    }
+    \umlinterface[x=5, y=-4, template=T]{NormalSampler}{
+        ...
+    }{
+        + init(count : uint) : void \\
+        \umlvirt{+ next() : T} \\
+    }
+    \umlsimpleclass[x=-5, y=-8]{UniformSampler1D}
+    \umlsimpleclass[x=-5, y=-9]{StratifiedSampler1D}
+    \umlclass[x=-5, y=-11.2]{ImportanceSampler1D}{
+        ...
+    }
+    {
+        + value(sample : float) : float \\
+        + pdf(sample : float) : float \\
+        + f(sample : float) : float \\
+        ...
+    }
+
+    \umlsimpleclass[x=5, y=-8]{NormalSampler1D}
+
+    \umlsimpleclass[x=0, y=-8, template=N]{UniformSamplerND}
+    \umlsimpleclass[x=0, y=-10, template=N]{NormalSamplerND}
+    \umlsimpleclass[x=0, y=-12, template=N]{UniformBallSampler}
+
+    \umlinherit{UniformSampler}{Sampler}
+    \umlinherit{NormalSampler}{Sampler}
+    \umlimpl[arg2=T$\to$float]{ImportanceSampler1D}{UniformSampler}
+    \umlimpl[arg2=T$\to$float]{NormalSampler1D}{NormalSampler}
+    \umlimpl[arg2=T$\to$vecn<float>]{UniformBallSampler}{Sampler}
+    \umlunicompo{UniformSamplerND}{UniformSampler1D}
+    \umlHVHunicompo{NormalSamplerND}{NormalSampler1D}
+    \umlHVHunicompo{UniformBallSampler}{NormalSampler1D}
+
+    \end{tikzpicture}
+    \caption{UML class diagram of the Sampler and associated classes}
+    \label{fig:uml_sampler}
+    \end{figure}
+    \end{center}     
+
+    \begin{figure}
+        \begin{tabular}{c c}
+            \includegraphics[width=0.5\textwidth]{images/sampling_uniform.pdf} &
+            \includegraphics[width=0.5\textwidth]{images/sampling_normal.pdf} \\
+            \includegraphics[width=0.5\textwidth]{images/sampling_uniform_ball.pdf} &
+            \includegraphics[width=0.5\textwidth]{images/sampling_importance.pdf}
+        \end{tabular}
+        \caption{
+        Different examples of sampler output.
+        Two dimensional samplers using the UniformSamplerND (left) and 
+        NormalSamplerND (right) classes.
+        A three dimensional uniform ball using the UniformBallSampler class
+        (bottom left) and a histogramm of an importance sampled distribution
+        showing the absorption coefficient for an Nd:YAG crystal (bottom right).
+        Higher value means that the respective index has been sampled more often.
+        }
+        \label{fig:sampler_example}
+    \end{figure}
+      
     \subsubsection{Scene}
     \subsubsection{Tracing Algorithm}
     \subsubsection{IO Utilities}
     
-    \begin{center}
-    \begin{tikzpicture}
-    \begin{umlpackage}{p}
-    \begin{umlpackage}{sp1}
-    \umlclass[template=T]{A}{
-      n : uint \\ t : float
-    }{}
-    \umlclass[y=-3]{B}{
-      d : double
-    }{
-      \umlvirt{setB(b : B) : void} \\ getB() : B}
-    \end{umlpackage}
-    \begin{umlpackage}[x=10,y=-6]{sp2}
-    \umlinterface{C}{
-      n : uint \\ s : string
-    }{}
-    \end{umlpackage}
-    \umlclass[x=2,y=-10]{D}{
-      n : uint
-      }{}
-    \end{umlpackage}
-
-    \umlassoc[geometry=-|-, arg1=tata, mult1=*, pos1=0.3, arg2=toto, mult2=1, pos2=2.9, align2=left]{C}{B}
-    \umlunicompo[geometry=-|, arg=titi, mult=*, pos=1.7, stereo=vector]{D}{C}
-    \umlimport[geometry=|-, anchors=90 and 50, name=import]{sp2}{sp1}
-    \umlaggreg[arg=tutu, mult=1, pos=0.8, angle1=30, angle2=60, loopsize=2cm]{D}{D}
-    \umlinherit[geometry=-|]{D}{B}
-    \umlnote[x=2.5,y=-6, width=3cm]{B}{Je suis une note qui concerne la classe B}
-    \umlnote[x=7.5,y=-2]{import-2}{Je suis une note qui concerne la relation d'import}
-    \end{tikzpicture}
-    \end{center}
-
     \subsection{Setup Specific Objects} \label{sec:specific_objects}
     \subsubsection{Lens}
     \subsubsection{Mirror}
