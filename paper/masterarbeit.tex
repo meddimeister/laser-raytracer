@@ -137,7 +137,7 @@ beam quality evaluated.
     designing solar lasers.
     The goals of the framework are to offer a simple yet powerful interface
     for C++ applications.
-    It provides a fast 2D paraxial raytracer for the calculation of the
+    It provides a fast 2D raytracer for the calculation of the
     absorption profile in the gain medium which is then used by a
     mesh adaptive direct search algorithm in a biobjective manner (BIMADS) 
     to increase both absorbed power and uniformity of the absorption profile.
@@ -694,7 +694,7 @@ beam quality evaluated.
     \end{algorithm}
 
 
-    \subsection{Sampling Techniques}
+    \subsection{Sampling Techniques} \label{sec:sampling}
 
     The accuracy and performance of ray tracing simulations are heavily dependent upon
     using the correct sampling techniques.
@@ -843,8 +843,8 @@ beam quality evaluated.
     For the optimization, it is crucial that the raytracer can be executed thousands of times
     even with a higher number of rays without significant overhead.
     It is to be noted that the raytracer has been specifically designed in
-    order to be used in the optimization of geometrical parameters in paraxial
-    systems.
+    order to be used in the optimization of geometrical parameters in
+    rotationally symmetrical systems.
     Therefore the decision was made to work in a 2D context rather than a 3D
     one.
     The additional computational cost of going from a 2D to a 3D context for
@@ -858,7 +858,7 @@ beam quality evaluated.
     The only difference is that transversal rays cannot be modelled in
     2D but transveral rays which may occur by divergence of sunlight or
     scattering effects in inpure media are statistically distributed
-    equally across the full rotation of a paraxial system and the impact
+    equally across the full rotation of a rotationally symmetrical system and the impact
     on the result is therefore negligable.
     Additionally, the described objects in the scene require a significantly
     higher amount of fundamental shapes, which compounds the performance
@@ -866,7 +866,7 @@ beam quality evaluated.
     Furthermore the ray intersect equations shown above would become more
     complex and would require more arithmetic and cases.
     So for the relatively small benefit of being able to model transversal
-    rays it is infeasable in a paraxial system to simulate in a 3D environment.
+    rays it is infeasable in a rotationally symmetrical system to simulate in a 3D environment.
     Of course, if the system is not rotationally symmetrical then there
     is no other choice than to trace the scene in 3D, but this is
     not the norm in laser optical systems.
@@ -1097,12 +1097,187 @@ beam quality evaluated.
     Objects that are arbitrarily complex can thus be efficiently
     implemented with minimal programming.
     Examples of how the usage of the Object2D class is intended can
-    be seen in \secref{sec:specific_objects}.
+    be seen in the paragraphs below.
     Here a thin lense approximation, a reflective mirror, and a grid
     representing a laser crystal are implemented and can be used by
     the user.
     A UML class diagram of the Object2D class and associated
     classes is given in \figref{fig:uml_object2d}.
+
+    \paragraph{Lens}
+
+    The accurate physical simulation of a lens follows the same laws
+    as the ray tracing in all media.
+    These are Snell's law in \equref{equ:snell} for the bending of the ray on material
+    boundaries, the Fresnel laws in \equref{equ:fresnel} for the
+    correct amount of intensity to be transmitted or reflected and
+    the Sellmeier equation of the lens material in \equref{equ:sellmeier}
+    to accurately describe dispersion effects of the material.
+    Furthermore, the geometry of the lens needs to be modelled accurately.
+    This is simple for conventional glass lenses where the geometry can be
+    described only by the radii of the surfaces and the thickness of the lens.
+    But for fresnel lenses this process can be quite complex and time
+    consuming, both in the modelling phase and the computational cost
+    of tracing many fundamental shapes.
+    Thus it is rarely feasable to trace lenses without any amount
+    of simplification.
+    The question of choosing the appropiate amount of approximation depends on the goal of the
+    simulation and the use case of the optical system and cannot be
+    generally answered.
+    It can be required to trace a specific lens with all the effects described
+    above if the goal of the simulation is to design that specific lens
+    for example.
+    For imaging systems like camera objectives, the lenses are usually
+    aligned in their optical axis, rays are predominantly 
+    entering the system at shallow angles and dispersion effects can 
+    be largely neglected.
+    Other tasks my require rays to hit the lens at odd angles so the
+    correct geometry of refraction is important, but dispersion effects
+    and transmitted power are not that important or can be 
+    approximated by another way.
+    Therefore the user ultimately needs to decide which amount of 
+    approximation is acceptable for the task at hand.        
+
+    Suppose the user simulates a camera objective.
+    Like in most optical systems a larger number of lenses are 
+    aligned in their optical axis and rays are only hitting the lens
+    with a small angle with respect to those axis.
+    Here the only thing that matters is the correct refraction of
+    rays according to the rules of geometric ray tracing in a thin lens.
+    Parallel rays always intersect the focal point and rays that
+    travel through the middle of the lens will not be refracted
+    at all.
+    Those lenses are therefore often modelled by the ABCD ray transfer
+    matrix~\cite{abcd_lens_rpphotonics}.
+    The lens is seen as a sort of blackbox with a certain thickness
+    and the transfer matrix describes how a ray is transmitted
+    through the lens.
+    The only information needed is the thickness of the lens and
+    the focal point of the lens.
+    If multiple lenses are in a row and described by ABCD transfer matrices,
+    the transfer matrix of the whole system can then be calculated
+    from the individual ones.
+    The ABCD transfer matrix only provides correct results once the
+    angles of the ray with respect to the optical axis of the lens
+    are shallow.
+    Then the $\sin(\theta)$ in Snell's law \equref{equ:snell} is
+    just approximated by $\theta$ for small angles (paraxial approximation).
+
+    Since lenses in the raytracer in this work can be rotated in any way,
+    a more general approach is to solve a trigonometrical formula for
+    each ray hitting the lens.
+    In this case also rays with steep angles are refracted correctly.
+    For the purposes of simplification the lens is usually made 
+    infinitely thin.
+    This way of tracing a thin lens is described in~\cite{thin_lens}.
+    It provides a good compromise between an approximation and using 
+    fully accurate refraction on a exactly modelled piece of glass, where normals and angles need to
+    be calculated and the laws of Snell, Fresnel and Sellmeier need to be applied.
+    Naturally, dispersion effects can not be modelled by this approach,
+    but for non-imaging systems it is often sufficient to trace lenses
+    without dispersion effects, especially because glass has a very
+    low dependency of the refractive index on wavelength according to
+    its Sellmeier coefficients.
+    If one still wants to model dispersion effects with this approach,
+    one method could be to provide an artificial thickness function 
+    or just upper bound depending on the applications requirement for
+    physical accuracy.
+    Then the Sellmeier coefficients for the desired material of the lens
+    in combination with the sampled thickness at the hitpoint can be used
+    to disperse the ray correctly.
+    An example for this would be a fresnel lens made from PMMA.
+    The sawtooth pattern of the ridges could then be given as a function
+    to be sampled at the hitpoint.
+
+    The Lens2D class represents the approximation of a thin lens
+    according to~\cite{thin_lens}.
+    It takes the radius and desired focal length and constructs
+    an object whose only fundamental shape is a Line2D shape representing
+    the thin lens.
+    Once a ray hits the line the ray is terminated and a new ray pointing
+    in the direction of refraction is generated at the hitpoint.
+    \todo{OPTIONAL: implement abcd lenses and maybe fresnel lens, dispersion!!!}
+
+    \paragraph{Mirror}
+
+    Mirrors like lenses are commonly used in optical systems.
+    Most of the time one wants optimize the shape of a mirror system
+    in order to fullfill some optical property.
+    As all objects in the framework, mirrors are also considered to be
+    rotationally symmetrical.
+    The mirrors implemented in the Mirror2D class consist of line segments
+    of the class Line2D, the amount of which can be given as an argument
+    to the constructor.
+    Additionally the shape of the mirror can be given as a parametrized
+    2D curve.
+    The function should take a single parameter $t \in [0, 1]$ and return
+    2D points along the curve.
+    The parameters of the shape function can then be changed by the simulation
+    in an optimization algorithm and the mirror reconstructed with the
+    updated values using the \emph{rebuild} method.
+    Naturally the action of the Mirror2D object is to reflect the ray
+    according to \equref{equ:reflection}.
+    
+    \paragraph{Crystal}
+
+    The Grid2D class offers to simulate quantities distributed within
+    a medium.
+    Rays are traced according to the laws in \equref{equ:snell},
+    \equref{equ:fresnel} and \equref{equ:sellmeier}.
+    When the ray first hits the medium a hit action can be given if
+    the hitpoint contains relevant information to the user.
+    Then the distance within each cell the ray is travelling through
+    is eveluated.
+    It is to be noted that it is assumed the medium is homogenous and
+    has constant refractive index.
+    Thus the rays travel in a straight line within the medium.
+    Additionally to the hit action a cell action can be given as a
+    parameter to the constructor.
+    The cell action function is executed once the ray hits a cell.
+    The distance travelled through the cell is evaluated and given to the
+    cell action function, which then in turn can access the cell
+    values in order to change them.
+    The tracing within the grid is done using a fast 2D voxel algorithm
+    shown in ~\cite{voxel}.
+    Here the cells are accessed in order the ray traverses them, which
+    is important should the cell action change the ray parameters in
+    any way.
+    
+    Absorbing media are modelled using the Grid2D class and
+    supplying a cell action that evaluates the lost power via
+    Lambert's law of absorption.
+    It describes the exponential decay of the remaining power
+    of a ray of light in an absorbing medium depending on
+    the coefficient of absorption of the medium and the 
+    distance travelled.
+    The remaining power of a ray of light is then given by
+    \equref{equ:lambert}.
+
+    \begin{equation}
+    \label{equ:lambert}
+        P_{rem} = P_{ray} \cdot e^{-\alpha(\lambda) d}
+    \end{equation}
+
+    Here the absorption coefficient is $\alpha$ and the distance
+    travelled by the ray is $d$. 
+    In general $\alpha$ depends on the vacuum wavelength of the ray
+    $\lambda$.
+    For this reason an absorption spectrum of the medium can be supplied
+    and evaluated at each cell.
+    Since the ray's wavelength stays constant this evaluation can be
+    optimized by evaluating $\alpha(\lambda)$ only once the ray hits the
+    medium and keeping track of this value for successor cells.
+    The absorbed power is then added to the cells value.
+    Thus after a full simulation of the scene the absorbption profile
+    is known.
+    Additionally the total irradiation is evaluated when the ray hits
+    the medium, if the user requires this information.
+    Supplying the apsorption spectrum can be done by using the various
+    utilities the framework provides.
+    These are described in \secref{sec:utilities}.
+
+    \todo{optimize $\alpha$ evaluation}
+    \todo{split crystal class to medium, grid and crystal class}    
 
     \begin{center}
     \begin{figure}
@@ -1169,7 +1344,107 @@ beam quality evaluated.
     \caption{UML class diagram of the Object2D and associated classes}
     \label{fig:uml_object2d}
     \end{figure}
-    \end{center}     
+    \end{center}
+
+    \subsubsection{Scene}
+
+    The Scene2D class represents an entire simulation setup with
+    a collection of initial rays and objects.
+    Objects can be added to the scene via the \emph{add} method.
+    It also provides functionality for generating the initial rays
+    via different light source setups and implements the tracing algorithm.
+    The tracing algorithm simulates rays until a certain depth is reached
+    and then outputs all rays that have been created during the simulation.
+    The depth is defined by the number of executed actions by objects 
+    along the path of the ray.
+    So suppose two opposing mirrors $mirror_1$ and $mirror_2$ bounce a
+    ray between them.
+    A depth of two is reached once the ray hits the $mirror_1$ object
+    and gets reflected by the objects defined action.
+    The second action is executed by $mirror_2$ when the ray is reflected
+    again on its surface.
+    Because a depth of two has been reached the simulation stops and
+    outputs the created rays for each depth:
+    At depth zero the initially created ray, at depth one the reflected
+    ray which bounced from $mirror_1$ to $mirror_2$ and at depth two
+    the ray which originates at $mirror_2$'s surface and goes to infinity.
+    This way the user can decide which depth is sufficient to simulate
+    the desired phenomena.
+    If one wants to observe the absorption of energy in a thin piece of
+    ionized glass with a weak absorption coefficient it might be required
+    to choose a higher depth in order to bounce the ray through the 
+    glass multiple times until the absorbed power becomes insignificant
+    and a steady state is reached.
+    Theoretically the user can implement a preprocessing step where the
+    simulation is executed multiple times with increasing depth until
+    a steady state is reached or no more rays are created and choose
+    that depth parameter for the optimization.
+    There are valid reasons though to choose a smaller value than is
+    actually required to reach steady state.
+    If the scene is quite complex and a significant number of rays are
+    needed, it can be necessary to limit the depth in order to reach
+    a result in an acceptable amount of time.
+    The same is true if the absorption for the example above is
+    dominated by the absorption from the first pass of the ray, 
+    i.e. the medium has a strong absorption coefficient.
+
+    The tracing algorithm starts with the initial rays at depth
+    zero.
+    The rays for the next higher depth are generated by tracing
+    the rays of the next lower depth against the scene.
+    Here rays that have been terminated in the previous depth
+    are ignored and no longer persued.
+    If a ray has not been terminated it will be tested against
+    all objects in the scene.
+    The intersection results are then stored in an ordered
+    datastructure, sorted in an ascending order by the $t$ value
+    of the object intersection result.
+    The actions defined by the intersected objects are then
+    executed in that order.
+    If preceeding object terminates the ray or all actions
+    have been executed the iteration is stopped and the
+    created rays are stored for the current depth.
+    Created rays can also be immediatly terminated by the action of 
+    the creating object.
+    An example for this would be the refraction of the ray where the
+    transmitted ray is terminated at the boundary of the object and
+    the exiting ray is still traced by the next higher depth. 
+    The tracing algorithm of the Scene2D class can be seen in
+    \algref{alg:trace}.
+
+    \begin{algorithm}
+        \SetAlgoLined
+        vector<vector<<Ray2D>> rays(depth)\;
+        rays[0] = startrays\;
+
+        \For{d in 1 ... depth}{
+            vector<Ray2D> createdRays\;
+
+            \For{ray in rays[d-1]}{
+                \If{ray.terminated}{
+                    continue\;
+                }
+                orderedMap<float, tuple<Object2D*, IntersectResult2D>> intersections\;
+                
+                \For{object in objects}{
+                    IntersectResult2D result = object->intersect(ray)\;
+                    \If{result.hit}{
+                        intersections.insert(result.tEnter, {object, result})\;
+                    }
+                }
+
+                \For{(t,item) in intersections}{
+                    item.object->action(ray, item.result, createdRays)\;
+                    \If{ray.terminated}{
+                        break\;
+                    }
+                }
+            }
+            rays[d] = createdRays\;
+        }
+        \caption{Tracing algorithm of the Scene2D class}
+        \label{alg:trace}
+    \end{algorithm}
 
     \subsubsection{Sampler}
 
@@ -1272,78 +1547,8 @@ beam quality evaluated.
         \label{fig:sampler_example}
     \end{figure}
       
-    \subsubsection{Scene}
-
-    The Scene2D class represents an entire simulation setup with
-    a collection of initial rays and objects.
-    Objects can be added to the scene via the \emph{add} method.
-    It also provides functionality for generating the initial rays
-    via different light source setups and implements the tracing algorithm.
-    The tracing algorithm simulates rays until a certain depth is reached
-    and then outputs all rays that have been created during the simulation.
-    The depth is defined by the number of executed actions by objects 
-    along the path of the ray.
-    So suppose two opposing mirrors $mirror_1$ and $mirror_2$ bounce a
-    ray between them.
-    A depth of two is reached once the ray hits the $mirror_1$ object
-    and gets reflected by the objects defined action.
-    The second action is executed by $mirror_2$ when the ray is reflected
-    again on its surface.
-    Because a depth of two has been reached the simulation stops and
-    outputs the created rays for each depth:
-    At depth zero the initially created ray, at depth one the reflected
-    ray which bounced from $mirror_1$ to $mirror_2$ and at depth two
-    the ray which originates at $mirror_2$'s surface and goes to infinity.
-    This way the user can decide which depth is sufficient to simulate
-    the desired phenomena.
-    If one wants to observe the absorption of energy in a thin piece of
-    ionized glass with a weak absorption coefficient it might be required
-    to choose a higher depth in order to bounce the ray through the 
-    glass multiple times until the absorbed power becomes insignificant
-    and a steady state is reached.
-    Theoretically the user can implement a preprocessing step where the
-    simulation is executed multiple times with increasing depth until
-    a steady state is reached or no more rays are created and choose
-    that depth parameter for the optimization.
-    There are valid reasons though to choose a smaller value than is
-    actually required to reach steady state.
-    If the scene is quite complex and a significant number of rays are
-    needed, it can be necessary to limit the depth in order to reach
-    a result in an acceptable amount of time.
-    The same is true if the absorption for the example above is
-    dominated by the absorption from the first pass of the ray, 
-    i.e. the medium has a strong absorption coefficient.
-
-    The tracing algorithm starts with the initial rays at depth
-    zero.
-    The rays for the next higher depth are generated by tracing
-    the rays of the next lower depth against the scene.
-    Here rays that have been terminated in the previous depth
-    are ignored and no longer persued.
-    If a ray has not been terminated it will be tested against
-    all objects in the scene.
-    The intersection results are then stored in an ordered
-    datastructure, sorted in an ascending order by the $t$ value
-    of the object intersection result.
-    The actions defined by the intersected objects are then
-    executed in that order.
-    If preceeding object terminates the ray or all actions
-    have been executed the iteration is stopped and the
-    created rays are stored for the current depth.
-    Created rays can also be immediatly terminated by the action of 
-    the creating object.
-    An example for this would be the refraction of the ray where the
-    transmitted ray is terminated at the boundary of the object and
-    the exiting ray is still traced by the next higher depth. 
-
-            
-    \subsubsection{IO Utilities}
+    \subsubsection{Utilities} \label{sec:utilities}
     
-    \subsection{Setup Specific Objects} \label{sec:specific_objects}
-    \subsubsection{Lens}
-    \subsubsection{Mirror}
-    \subsubsection{Crystal}
-
     \section{Optimization}
     \subsection{Functional Analysis}
     \subsection{Mesh Adaptive Direct Search (MADS)}
