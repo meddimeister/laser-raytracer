@@ -36,14 +36,21 @@ struct Ray2D {
     dvec2 orientedNormal = -normal;
     double theta_e = orientedAngle(direction, orientedNormal);
     double theta_t = snellius(theta_e, n_e, n_t);
-    auto [r_perp, r_para, t_perp, t_para] = fresnel(abs(theta_e), abs(theta_t));
-    Ray2D ray_reflect = reflect(t, normal);
-    ray_reflect.power = (r_perp + r_para) / 2 * power;
 
-    dvec2 transmit_dir = rotate(orientedNormal, -theta_t);
-    double transmit_power = (t_perp + t_para) / 2 * power;
-    Ray2D ray_transmit(origin + t * direction, transmit_dir, transmit_power,
-                       wavelength);
+    Ray2D ray_reflect = reflect(t, normal);
+    Ray2D ray_transmit(origin + t * direction, {0.0, 0.0}, 0.0, wavelength);
+
+    //total internal reflection
+    if(isnan(theta_t)){ 
+      ray_reflect.power = power;
+      ray_transmit.terminate(0.0);
+    }
+    else{
+      auto [r_perp, r_para, t_perp, t_para] = fresnel(abs(theta_e), abs(theta_t));
+      ray_reflect.power = (r_perp + r_para) / 2 * power;
+      ray_transmit.direction = rotate(orientedNormal, -theta_t);
+      ray_transmit.power = (t_perp + t_para) / 2 * power;
+    }
 
     return {ray_reflect, ray_transmit};
   }

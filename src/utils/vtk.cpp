@@ -1,4 +1,6 @@
 #include "utils/vtk.h"
+#include "math/allmath.h"
+#include "math/sampler.h"
 #include <filesystem>
 
 void VTKWriter::add(const shared_ptr<Shape2D> &shape, const string &name) {
@@ -15,25 +17,32 @@ void VTKWriter::add(const vector<shared_ptr<Shape2D>> &shapes,
 }
 
 void VTKWriter::add(const vector<Ray2D> &rays, const string &name,
-                    unsigned int previewEveryNth) {
-  for (unsigned int i = 0; i < rays.size(); i += previewEveryNth) {
-    rays2D[name].push_back(rays[i]);
+                    double percentage) {
+  percentage = glm::clamp(percentage, 0.0, 1.0);
+  unsigned int numRays = rays.size() * percentage;
+  UniformSampler1D sampler;
+  sampler.init(numRays);
+
+  for(unsigned int i = 0; i < numRays; ++i){
+    double sample = sampler.next();
+    unsigned int idx = sample * (rays.size()-1);
+    rays2D[name].push_back(rays[idx]);
   }
 }
 
 void VTKWriter::addAsComposition(const vector<vector<Ray2D>> &raySequence,
                                  const string &name,
-                                 unsigned int previewEveryNth) {
+                                 double percentage) {
   for (unsigned int i = 0; i < raySequence.size(); ++i) {
-    add(raySequence[i], name, previewEveryNth);
+    add(raySequence[i], name, percentage);
   }
 }
 
 void VTKWriter::addAsSequence(const vector<vector<Ray2D>> &raySequence,
                               const string &name,
-                              unsigned int previewEveryNth) {
+                              double percentage) {
   for (unsigned int i = 0; i < raySequence.size(); ++i) {
-    add(raySequence[i], name + "_" + to_string(i), previewEveryNth);
+    add(raySequence[i], name + "_" + to_string(i), percentage);
   }
 }
 

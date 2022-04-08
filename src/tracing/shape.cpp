@@ -109,10 +109,16 @@ IntersectResult2D BoundingBox2D::intersect(const Ray2D &ray) const {
   tmin = glm::max(tmin, glm::min(ty1, ty2));
   tmax = glm::min(tmax, glm::max(ty1, ty2));
 
-  if (tmin > 0 && tmax >= tmin) {
-    ret.hit = true;
-    ret.tEnter = tmin;
-    ret.tLeave = tmax;
+  if (tmax >= tmin) {
+    if (tmin >= 0.0) {
+      ret.hit = true;
+      ret.tEnter = tmin;
+      ret.tLeave = tmax;
+    } else if (aabb.isInside(ray.origin)) {
+      ret.hit = true;
+      ret.tEnter = 0.0;
+      ret.tLeave = tmax;
+    }
 
     if (tmin == tx1) {
       ret.normalEnter = {-1.0, 0.0};
@@ -193,7 +199,7 @@ IntersectResult2D Sphere2D::intersect(const Ray2D &ray) const {
 
   double a = dot(ray.direction, ray.direction);
   double b = 2.0 * ray.direction.x * (ray.origin.x - center.x) +
-            2.0 * ray.direction.y * (ray.origin.y - center.y);
+             2.0 * ray.direction.y * (ray.origin.y - center.y);
   double c = dot(ray.origin - center, ray.origin - center) - radius * radius;
 
   double discriminante = sqrt(b * b - 4.0 * a * c);

@@ -7,6 +7,7 @@
 #include "tracing/ray.h"
 #include "tracing/scene.h"
 #include "tracing/shape.h"
+#include "tracing/medium.h"
 #include "types/vecn.h"
 #include "utils/argparser.h"
 #include "utils/csv.h"
@@ -218,11 +219,14 @@ int main(int argc, char *argv[]) {
 
   auto lens = make_shared<ThinLens2D>(ThinLens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
+  auto test = make_shared<Medium2D>(Medium2D({-1.,0.0}, {1.0, 0.0}, sellmeierNdYag));
+
   Scene2D scene;
 
   scene.add(mirror);
   scene.add(crystal);
   scene.add(lens);
+  scene.add(test);
 
   scene.generateDirectionalRays({-1.590, 0.0}, emittorRadius, {1.0, 0.0},
                                 solarDivergence, solarPower, rays,
@@ -277,8 +281,10 @@ int main(int argc, char *argv[]) {
   vtkWriter.add(crystal->getAABBs(), "crystal.AABB");
   vtkWriter.add(lens, "lens");
   vtkWriter.add(lens->getAABBs(), "lens.AABB");
-  vtkWriter.addAsSequence(raysStorage, "rays", 100);
-  vtkWriter.addAsComposition(raysStorage, "rays_composition", 100);
+  vtkWriter.add(test, "test");
+  vtkWriter.add(test->getAABBs(), "test.AABB");
+  vtkWriter.addAsSequence(raysStorage, "rays", 0.01);
+  vtkWriter.addAsComposition(raysStorage, "rays_composition", 0.01);
   vtkWriter.write();
 
   LOG("Output");
