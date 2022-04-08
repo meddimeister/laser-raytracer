@@ -22,3 +22,12 @@ tuple<double, double, double, double> fresnel(double theta_e, double theta_t) {
     return {0.0, 0.0, 1.0, 1.0};
   }
 }
+
+double sellmeier(const vecn<double, 4> &coeff, double wavelength) {
+  double wavelengthMu = wavelength / 1000.;
+  double wavelengthSqrd = wavelengthMu * wavelengthMu;
+  double nSqrd = (coeff[0] * wavelengthSqrd) / (wavelengthSqrd - coeff[1]) +
+                 (coeff[2] * wavelengthSqrd) / (wavelengthSqrd - coeff[3]) +
+                 1.0;
+  return sqrt(nSqrd);
+};

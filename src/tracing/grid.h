@@ -13,18 +13,18 @@ private:
   int _maxX, _maxY;
   double _dx, _dy;
   vector<double> _data;
+  vecn<double, 4> _sellmeierCoeff;
   function<void(Ray2D &, double, double &)> _cellAction;
   function<void(Ray2D &, const IntersectResult2D &)> _hitAction;
-  function<double(double)> _refractiveIndexFunction;
 
 public:
   Grid2D(const dvec2 &pos, const dvec2 &bmin, const dvec2 &bmax, int maxX,
-         int maxY, function<void(Ray2D &, double, double &)> cellAction,
-         function<void(Ray2D &, const IntersectResult2D &)> hitAction,
-         function<double(double)> refractiveIndexFunction)
+         int maxY, const vecn<double, 4> sellmeierCoeff,
+         function<void(Ray2D &, double, double &)> cellAction,
+         function<void(Ray2D &, const IntersectResult2D &)> hitAction)
       : Object2D(0, pos), _bmin(bmin), _bmax(bmax), _maxX(maxX), _maxY(maxY),
-        _data(maxX * maxY, 0.0), _cellAction(cellAction), _hitAction(hitAction),
-        _refractiveIndexFunction(refractiveIndexFunction) {
+        _data(maxX * maxY, 0.0), _sellmeierCoeff(sellmeierCoeff),
+        _cellAction(cellAction), _hitAction(hitAction) {
     init();
     _cornerMin = root->box->aabb.bmin;
     _cornerMax = root->box->aabb.bmax;

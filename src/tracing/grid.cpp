@@ -14,7 +14,7 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
   ray.terminate(result.tEnter);
   auto [ray_reflect_in, ray_transmit_in] =
       ray.refract(result.tEnter, result.normalEnter, 1.0,
-                  _refractiveIndexFunction(ray.wavelength));
+                  sellmeier(_sellmeierCoeff, ray.wavelength));
 
   dvec2 enter = ray_transmit_in.origin + 0.0 * ray_transmit_in.direction;
 

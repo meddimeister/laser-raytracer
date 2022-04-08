@@ -1,18 +1,18 @@
-#include "utils/argparser.h"
-#include "utils/csv.h"
-#include "utils/debugutils.h"
-#include "utils/functionutils.h"
-#include "tracing/grid.h"
-#include "tracing/lens.h"
-#include "utils/log.h"
-#include "tracing/mirror.h"
+#include "math/sampler.h"
 #include "optimization/nomadbinding3.h"
 #include "optimization/optimization.h"
-#include "math/sampler.h"
+#include "tracing/grid.h"
+#include "tracing/lens.h"
+#include "tracing/mirror.h"
 #include "tracing/ray.h"
 #include "tracing/scene.h"
 #include "tracing/shape.h"
 #include "types/vecn.h"
+#include "utils/argparser.h"
+#include "utils/csv.h"
+#include "utils/debugutils.h"
+#include "utils/functionutils.h"
+#include "utils/log.h"
 #include "utils/vtk.h"
 #include <cmath>
 #include <cstddef>
@@ -90,13 +90,14 @@ int main(int argc, char *argv[]) {
 
     CSVWriter csvWriter("csvOut/samplertest");
 
-    for(size_t i = 0; i < 1000; ++i){
+    for (size_t i = 0; i < 1000; ++i) {
       auto uniformSample2D = uniformSampler2D.next();
       auto normalSample2D = normalSampler2D.next();
       auto uniformBallSample = uniformBallSampler.next();
-      csvWriter.add("uniformSampler2D", uniformSample2D[0], uniformSample2D[1]);      
+      csvWriter.add("uniformSampler2D", uniformSample2D[0], uniformSample2D[1]);
       csvWriter.add("normalSampler2D", normalSample2D[0], normalSample2D[1]);
-      csvWriter.add("uniformBallSampler", uniformBallSample[0], uniformBallSample[1], uniformBallSample[2]);
+      csvWriter.add("uniformBallSampler", uniformBallSample[0],
+                    uniformBallSample[1], uniformBallSample[2]);
     }
     csvWriter.write();
 
@@ -118,20 +119,14 @@ int main(int argc, char *argv[]) {
     return point;
   };
 
-  auto sellmeierNdYag = [](double wavelength) {
-    double wavelengthMu = wavelength / 1000.;
-    double wavelengthSqrd = wavelengthMu * wavelengthMu;
-    double nSqrd = (2.282 * wavelengthSqrd) / (wavelengthSqrd - 0.01185) +
-                   (3.27644 * wavelengthSqrd) / (wavelengthSqrd - 282.734) +
-                   1.0;
-    return sqrt(nSqrd);
-  };
+  vecn<double, 4> sellmeierNdYag = {2.282, 0.01185, 3.27644, 282.734};
 
   auto optmirror = make_shared<Mirror2D>(
       Mirror2D({0.122, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, optsegments));
 
   auto optcrystal = make_shared<Grid2D>(Grid2D(
       {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
+      sellmeierNdYag,
       [&](Ray2D &ray, double distance, double &cell) {
         // Lambert law of absorption
         double alpha = absorptionSpectrum(ray.wavelength);
@@ -142,8 +137,7 @@ int main(int argc, char *argv[]) {
       },
       [&](Ray2D &ray, const IntersectResult2D &result) {
         irradianceCrystal += ray.power;
-      },
-      sellmeierNdYag));
+      }));
 
   auto optlens =
       make_shared<Lens2D>(Lens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
@@ -156,8 +150,7 @@ int main(int argc, char *argv[]) {
 
   StratifiedSampler1D originSampler;
   UniformSampler1D divergenceSampler;
-  ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0,
-                                                1000.0);
+  ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0, 1000.0);
 
   optscene.generateDirectionalRays({-1.590, 0.0}, emittorRadius, {1.0, 0.0},
                                    solarDivergence, solarPower, optrays,
@@ -208,6 +201,7 @@ int main(int argc, char *argv[]) {
 
   auto crystal = make_shared<Grid2D>(Grid2D(
       {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
+      sellmeierNdYag,
       [&](Ray2D &ray, double distance, double &cell) {
         // Lambert law of absorption
         double alpha = absorptionSpectrum(ray.wavelength);
@@ -220,8 +214,7 @@ int main(int argc, char *argv[]) {
       },
       [&](Ray2D &ray, const IntersectResult2D &result) {
         irradianceCrystal += ray.power;
-      },
-      sellmeierNdYag));
+      }));
 
   auto lens = make_shared<Lens2D>(Lens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
