@@ -2,6 +2,7 @@
 
 #include "object.h"
 #include "shape.h"
+#include <memory>
 
 vector<shared_ptr<Shape2D>> build(const dvec2 &_pos, const dvec2 &_bmin,
                                   const dvec2 &_bmax);
@@ -10,26 +11,34 @@ class Grid2D : public Object2D {
   friend class VTKWriter;
 
 private:
-  dvec2 cornerMin, cornerMax;
-  int maxX, maxY;
-  double dx, dy;
-  vector<double> data;
-  function<void(Ray2D &, double, double &)> cellAction;
-  function<void(Ray2D &, const IntersectResult2D&)> hitAction;
-  function<double(double)> refractiveIndexFunction;
+  dvec2 _bmin, _bmax;
+  dvec2 _cornerMin, _cornerMax;
+  int _maxX, _maxY;
+  double _dx, _dy;
+  vector<double> _data;
+  function<void(Ray2D &, double, double &)> _cellAction;
+  function<void(Ray2D &, const IntersectResult2D &)> _hitAction;
+  function<double(double)> _refractiveIndexFunction;
 
 public:
-  Grid2D(const dvec2 &_pos, const dvec2 &_bmin, const dvec2 &_bmax, int _maxX,
-         int _maxY, function<void(Ray2D &, double, double &)> _cellAction,
-         function<void(Ray2D &, const IntersectResult2D&)> _hitAction,
-         function<double(double)> _refractiveIndexFunction)
-      : Object2D(build(_pos, _bmin, _bmax), 0, _pos), maxX(_maxX), maxY(_maxY),
-        data(maxX * maxY, 0.0), cellAction(_cellAction), hitAction(_hitAction),
-        refractiveIndexFunction(_refractiveIndexFunction) {
-    cornerMin = root->box->aabb.bmin;
-    cornerMax = root->box->aabb.bmax;
-    dx = (cornerMax.x - cornerMin.x) / maxX;
-    dy = (cornerMax.y - cornerMin.y) / maxY;
+  Grid2D(const dvec2 &pos, const dvec2 &bmin, const dvec2 &bmax, int maxX,
+         int maxY, function<void(Ray2D &, double, double &)> cellAction,
+         function<void(Ray2D &, const IntersectResult2D &)> hitAction,
+         function<double(double)> refractiveIndexFunction)
+      : Object2D({}, 0, pos), _bmin(bmin), _bmax(bmax), _maxX(maxX), _maxY(maxY), _data(maxX * maxY, 0.0),
+        _cellAction(cellAction), _hitAction(hitAction),
+        _refractiveIndexFunction(refractiveIndexFunction) {
+    init();
+    _cornerMin = root->box->aabb.bmin;
+    _cornerMax = root->box->aabb.bmax;
+    _dx = (_cornerMax.x - _cornerMin.x) / _maxX;
+    _dy = (_cornerMax.y - _cornerMin.y) / _maxY;
+  }
+
+  vector<shared_ptr<Shape2D>> build() {
+    vector<shared_ptr<Shape2D>> boxes;
+    boxes.push_back(make_shared<BoundingBox2D>(pos + _bmin, pos + _bmax));
+    return boxes;
   }
 
   void action(Ray2D &ray, const IntersectResult2D &result,

@@ -166,18 +166,18 @@ void VTKWriter::write() const {
     fs << filename << endl;
     fs << "ASCII" << endl;
     fs << "DATASET STRUCTURED_POINTS" << endl;
-    fs << "DIMENSIONS " << grid->maxX << " " << grid->maxY << " " << 1 << endl;
-    fs << "ORIGIN " << grid->cornerMin.x << " " << grid->cornerMin.y << " "
+    fs << "DIMENSIONS " << grid->_maxX << " " << grid->_maxY << " " << 1 << endl;
+    fs << "ORIGIN " << grid->_cornerMin.x << " " << grid->_cornerMin.y << " "
        << 0.0 << endl;
     fs << "SPACING "
-       << (grid->cornerMax.x - grid->cornerMin.x) / (grid->maxX - 1) << " "
-       << (grid->cornerMax.y - grid->cornerMin.y) / (grid->maxY - 1) << " "
+       << (grid->_cornerMax.x - grid->_cornerMin.x) / (grid->_maxX - 1) << " "
+       << (grid->_cornerMax.y - grid->_cornerMin.y) / (grid->_maxY - 1) << " "
        << 0.0 << endl;
-    fs << "POINT_DATA " << grid->data.size() << endl;
+    fs << "POINT_DATA " << grid->_data.size() << endl;
     fs << "SCALARS values double 1" << endl;
     fs << "LOOKUP_TABLE default" << endl;
 
-    for (auto it = grid->data.begin(); it != grid->data.end(); it++) {
+    for (auto it = grid->_data.begin(); it != grid->_data.end(); it++) {
       fs << *it << endl;
     }
 

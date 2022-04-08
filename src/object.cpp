@@ -113,7 +113,7 @@ Object2D::Object2D(const vector<shared_ptr<Shape2D>> &&_shapes,
                    const dvec2 &_up, const dvec2 &_scale)
     : shapes(_shapes), subdivisions(_subdivisions), pos(_pos), up(_up),
       scale(_scale) {
-  buildTree(_subdivisions);
+  //buildTree(_subdivisions);
 }
 
 IntersectResult2D Object2D::intersect(const Ray2D &ray) const {

@@ -64,6 +64,15 @@ public:
 
   IntersectResult2D intersect(const Ray2D &ray) const;
 
+  void init(){
+    shapes = build();
+    buildTree(subdivisions);
+  }
+
+  virtual vector<shared_ptr<Shape2D>> build(){
+    return {};
+  }
+
   virtual void action(Ray2D &ray, const IntersectResult2D &result,
                       vector<Ray2D> &createdRays) {
     ACTION_PRESETS::pass(ray, result, createdRays);
