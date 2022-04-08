@@ -1,20 +1,20 @@
 #include "grid.h"
 #include <iostream>
 
-vector<shared_ptr<Shape2D>> build(const dvec2 &_pos, const dvec2 &_bmin,
-                                  const dvec2 &_bmax) {
+vector<shared_ptr<Shape2D>> Grid2D::build() {
   vector<shared_ptr<Shape2D>> boxes;
-  boxes.push_back(make_shared<BoundingBox2D>(_pos + _bmin, _pos + _bmax));
+  boxes.push_back(make_shared<BoundingBox2D>(pos + _bmin, pos + _bmax));
   return boxes;
 }
 
 void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
                     vector<Ray2D> &createdRays) {
-  
+
   _hitAction(ray, result);
   ray.terminate(result.tEnter);
   auto [ray_reflect_in, ray_transmit_in] =
-      ray.refract(result.tEnter, result.normalEnter, 1.0, _refractiveIndexFunction(ray.wavelength));
+      ray.refract(result.tEnter, result.normalEnter, 1.0,
+                  _refractiveIndexFunction(ray.wavelength));
 
   dvec2 enter = ray_transmit_in.origin + 0.0 * ray_transmit_in.direction;
 
@@ -39,9 +39,9 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
   int nextY = stepY > 0 ? y + stepY : y;
 
   double tMaxX = abs(_cornerMin.x + nextX * _dx - ray_transmit_in.origin.x) /
-                abs(ray_transmit_in.direction.x);
+                 abs(ray_transmit_in.direction.x);
   double tMaxY = abs(_cornerMin.y + nextY * _dy - ray_transmit_in.origin.y) /
-                abs(ray_transmit_in.direction.y);
+                 abs(ray_transmit_in.direction.y);
 
   double tDeltaX = _dx / abs(ray_transmit_in.direction.x);
   double tDeltaY = _dy / abs(ray_transmit_in.direction.y);
@@ -81,8 +81,8 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
 
   ray_transmit_in.terminate(tSum);
 
-  //auto [ray_reflect_out, ray_transmit_out] =
-  //    ray_transmit_in.refract(tSum, normalLeave, 5.0, 1.0);
+  // auto [ray_reflect_out, ray_transmit_out] =
+  //     ray_transmit_in.refract(tSum, normalLeave, 5.0, 1.0);
 
   // createdRays.push_back(ray_reflect_in);
   createdRays.push_back(ray_transmit_in);

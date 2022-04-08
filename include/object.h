@@ -42,8 +42,7 @@ protected:
   void buildTree(unsigned int subdivisions);
 
 public:
-  Object2D(const vector<shared_ptr<Shape2D>> &&_shapes,
-           unsigned int _subdivisions = 0, const dvec2 &_pos = {0.0, 0.0},
+  Object2D(unsigned int _subdivisions = 0, const dvec2 &_pos = {0.0, 0.0},
            const dvec2 &_up = {0.0, 1.0}, const dvec2 &_scale = {1.0, 1.0});
 
   void setPos(const dvec2 &_pos) { pos = _pos; }
@@ -64,14 +63,12 @@ public:
 
   IntersectResult2D intersect(const Ray2D &ray) const;
 
-  void init(){
+  void init() {
     shapes = build();
     buildTree(subdivisions);
   }
 
-  virtual vector<shared_ptr<Shape2D>> build(){
-    return {};
-  }
+  virtual vector<shared_ptr<Shape2D>> build() { return {}; }
 
   virtual void action(Ray2D &ray, const IntersectResult2D &result,
                       vector<Ray2D> &createdRays) {

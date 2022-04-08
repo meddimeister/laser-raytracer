@@ -4,9 +4,6 @@
 #include "shape.h"
 #include <memory>
 
-vector<shared_ptr<Shape2D>> build(const dvec2 &_pos, const dvec2 &_bmin,
-                                  const dvec2 &_bmax);
-
 class Grid2D : public Object2D {
   friend class VTKWriter;
 
@@ -25,8 +22,8 @@ public:
          int maxY, function<void(Ray2D &, double, double &)> cellAction,
          function<void(Ray2D &, const IntersectResult2D &)> hitAction,
          function<double(double)> refractiveIndexFunction)
-      : Object2D({}, 0, pos), _bmin(bmin), _bmax(bmax), _maxX(maxX), _maxY(maxY), _data(maxX * maxY, 0.0),
-        _cellAction(cellAction), _hitAction(hitAction),
+      : Object2D(0, pos), _bmin(bmin), _bmax(bmax), _maxX(maxX), _maxY(maxY),
+        _data(maxX * maxY, 0.0), _cellAction(cellAction), _hitAction(hitAction),
         _refractiveIndexFunction(refractiveIndexFunction) {
     init();
     _cornerMin = root->box->aabb.bmin;
@@ -35,11 +32,7 @@ public:
     _dy = (_cornerMax.y - _cornerMin.y) / _maxY;
   }
 
-  vector<shared_ptr<Shape2D>> build() {
-    vector<shared_ptr<Shape2D>> boxes;
-    boxes.push_back(make_shared<BoundingBox2D>(pos + _bmin, pos + _bmax));
-    return boxes;
-  }
+  vector<shared_ptr<Shape2D>> build();
 
   void action(Ray2D &ray, const IntersectResult2D &result,
               vector<Ray2D> &createdRays);

@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
 
   auto trace = [&](const vecn<double, 4> &currentParams) {
     params = currentParams;
-    optmirror->rebuild();
+    optmirror->init();
     optraysStorage = optscene.trace(4);
     double functional = -optcrystal->sum();
     optcrystal->reset();
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
 
   auto traceVar = [&](const vecn<double, 4> &currentParams) {
     params = currentParams;
-    optmirror->rebuild();
+    optmirror->init();
     optraysStorage = optscene.trace(4);
     double functional = optcrystal->var();
     optcrystal->reset();
@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
                                 absorptionImpSampler, emissionSpectrum);
 
   vector<vector<Ray2D>> raysStorage;
-  mirror->rebuild();
+  mirror->init();
   raysStorage = scene.trace(4);
 
   double irradiationEfficiency = irradianceCrystal / solarPower;
