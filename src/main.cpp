@@ -2,7 +2,7 @@
 #include "optimization/nomadbinding3.h"
 #include "optimization/optimization.h"
 #include "tracing/grid.h"
-#include "tracing/lens.h"
+#include "tracing/thinlens.h"
 #include "tracing/mirror.h"
 #include "tracing/ray.h"
 #include "tracing/scene.h"
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
   double emittorRadius = 0.6;    // m
   double solarPower = solarConstant * M_PI * emittorRadius * emittorRadius;
   double solarDivergence = 0.53338 * (2.0 * M_PI / 360.0); // rad
+  vecn<double, 4> sellmeierNdYag = {2.282, 0.01185, 3.27644, 282.734};
 
   vecn<double, 4> params;
   double irradianceCrystal = 0.0;
@@ -119,7 +120,6 @@ int main(int argc, char *argv[]) {
     return point;
   };
 
-  vecn<double, 4> sellmeierNdYag = {2.282, 0.01185, 3.27644, 282.734};
 
   auto optmirror = make_shared<Mirror2D>(
       Mirror2D({0.122, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, optsegments));
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
       }));
 
   auto optlens =
-      make_shared<Lens2D>(Lens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
+      make_shared<ThinLens2D>(ThinLens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D optscene;
 
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
         irradianceCrystal += ray.power;
       }));
 
-  auto lens = make_shared<Lens2D>(Lens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
+  auto lens = make_shared<ThinLens2D>(ThinLens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D scene;
 

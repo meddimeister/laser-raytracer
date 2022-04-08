@@ -12,11 +12,11 @@
 using namespace std;
 using namespace glm;
 
-class Lens2D : public Object2D {
+class ThinLens2D : public Object2D {
 public:
   double _radius;
   double _focalLength;
-  Lens2D(const dvec2 &pos, const dvec2 &up, double radius, double focalLength)
+  ThinLens2D(const dvec2 &pos, const dvec2 &up, double radius, double focalLength)
       : Object2D(0, pos, up), _radius(radius), _focalLength(focalLength) {
     init();
   };

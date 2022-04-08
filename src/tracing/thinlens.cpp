@@ -1,7 +1,7 @@
-#include "tracing/lens.h"
+#include "tracing/thinlens.h"
 #include <cmath>
 
-vector<shared_ptr<Shape2D>> Lens2D::build() {
+vector<shared_ptr<Shape2D>> ThinLens2D::build() {
   vector<shared_ptr<Shape2D>> shapes;
   dvec2 a = pos + _radius * normalize(rotate(up, 0.5 * double(M_PI)));
   dvec2 b = pos + _radius * normalize(rotate(up, -0.5 * double(M_PI)));
@@ -9,7 +9,7 @@ vector<shared_ptr<Shape2D>> Lens2D::build() {
   return shapes;
 }
 
-void Lens2D::action(Ray2D &ray, const IntersectResult2D &result,
+void ThinLens2D::action(Ray2D &ray, const IntersectResult2D &result,
                     vector<Ray2D> &createdRays) {
   // thin lens paper chapter single lens
   double alpha = orientedAngle(ray.direction, up);
