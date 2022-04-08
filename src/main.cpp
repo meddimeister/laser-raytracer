@@ -1,19 +1,19 @@
-#include "argparser.h"
-#include "csv.h"
-#include "debugutils.h"
-#include "functionutils.h"
-#include "grid.h"
-#include "lens.h"
-#include "log.h"
-#include "mirror.h"
-#include "nomadbinding3.h"
-#include "optimization.h"
-#include "random.h"
-#include "ray.h"
-#include "scene.h"
-#include "shape.h"
-#include "vecn.h"
-#include "vtk.h"
+#include "utils/argparser.h"
+#include "utils/csv.h"
+#include "utils/debugutils.h"
+#include "utils/functionutils.h"
+#include "tracing/grid.h"
+#include "tracing/lens.h"
+#include "utils/log.h"
+#include "tracing/mirror.h"
+#include "optimization/nomadbinding3.h"
+#include "optimization/optimization.h"
+#include "math/sampler.h"
+#include "tracing/ray.h"
+#include "tracing/scene.h"
+#include "tracing/shape.h"
+#include "types/vecn.h"
+#include "utils/vtk.h"
 #include <cmath>
 #include <cstddef>
 
@@ -80,9 +80,9 @@ int main(int argc, char *argv[]) {
   LOG("Read Data");
 
   if (samplertest) {
-    RNG::UniformSamplerND<2> uniformSampler2D;
-    RNG::NormalSamplerND<2> normalSampler2D;
-    RNG::UniformBallSampler<3> uniformBallSampler;
+    UniformSamplerND<2> uniformSampler2D;
+    NormalSamplerND<2> normalSampler2D;
+    UniformBallSampler<3> uniformBallSampler;
 
     uniformSampler2D.init(1000);
     normalSampler2D.init(1000);
@@ -154,9 +154,9 @@ int main(int argc, char *argv[]) {
   optscene.add(optcrystal);
   optscene.add(optlens);
 
-  RNG::StratifiedSampler1D originSampler;
-  RNG::UniformSampler1D divergenceSampler;
-  RNG::ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0,
+  StratifiedSampler1D originSampler;
+  UniformSampler1D divergenceSampler;
+  ImportanceSampler1D absorptionImpSampler(absorptionSpectrum, 300.0,
                                                 1000.0);
 
   optscene.generateDirectionalRays({-1.590, 0.0}, emittorRadius, {1.0, 0.0},

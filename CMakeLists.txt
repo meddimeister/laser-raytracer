@@ -5,7 +5,7 @@ project (${PROG_NAME})
 
 ############# Required LIBRARIES ###############
 
-include_directories(include)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(lib/glm/glm)
 
 #add_subdirectory(lib/nomad)
@@ -21,10 +21,10 @@ link_directories(lib/nomad3/lib)
 
 ############# SOURCE ###############
 
-FILE(GLOB_RECURSE PROG_SRC  src/*.cpp)
-FILE(GLOB_RECURSE PROG_HEADER  include/*.h)
+FILE(GLOB_RECURSE PROG_SRC  src/**/*.cpp)
+FILE(GLOB_RECURSE PROG_HEADER  src/**/*.h)
 
-add_executable(${PROG_NAME} ${PROG_SRC} ${PROG_HEADER})
+add_executable(${PROG_NAME} src/main.cpp ${PROG_SRC} ${PROG_HEADER})
 #target_link_libraries(${PROG_NAME} ${LIBS} nomadAlgos nomadEval nomadUtils)
 target_link_libraries(${PROG_NAME} ${LIBS} nomad)
 target_compile_features(${PROG_NAME} PUBLIC cxx_std_17)
