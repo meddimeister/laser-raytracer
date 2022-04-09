@@ -22,10 +22,8 @@ class Shape2D {
 public:
   AABB2D aabb;
 
-  virtual IntersectResult2D intersect(const Ray2D &ray) const {
-    return IntersectResult2D();
-  }
-  virtual vector<vec4> lineRepresentation() const { return {}; }
+  virtual IntersectResult2D intersect(const Ray2D &ray) const = 0;
+  virtual vector<vec4> lineRepresentation() const = 0;
 };
 
 class Line2D : public Shape2D {
