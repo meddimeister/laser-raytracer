@@ -4,7 +4,7 @@
 #include "math/funcan.h"
 #include "utils/iterateshapes.h"
 #include "utils/log.h"
-#include "optimization/nomadbinding3.h"
+#include "optimization/nomadbinding.h"
 #include "math/sampler.h"
 #include "types/vecn.h"
 #include <cstddef>

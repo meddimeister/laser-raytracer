@@ -1,5 +1,4 @@
 #include "math/sampler.h"
-#include "optimization/nomadbinding3.h"
 #include "optimization/optimization.h"
 #include "tracing/grid.h"
 #include "tracing/thinlens.h"

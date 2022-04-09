@@ -1,6 +1,5 @@
 #pragma once
-#include "Cache/CacheBase.hpp"
-#include "Nomad/nomad.hpp"
+#include "nomad.hpp"
 #include "types/vecn.h"
 #include <cstddef>
 #include <functional>
@@ -10,116 +9,97 @@
 
 using namespace std;
 
-template <size_t N> class My_Evaluator : public NOMAD::Evaluator {
+template <size_t N> class My_Evaluator : public NOMAD::Multi_Obj_Evaluator {
 public:
-  function<double(const vecn<double, N>)> f;
+  function<double(const vecn<double, N>)> f1;
+  function<double(const vecn<double, N>)> f2;
 
-  My_Evaluator(function<double(const vecn<double, N> &)> functional,
-               const shared_ptr<NOMAD::EvalParameters> &evalParams)
-      : NOMAD::Evaluator(evalParams, NOMAD::EvalType::BB), f(functional) {}
+  My_Evaluator(function<double(const vecn<double, N> &)> functional1,
+               function<double(const vecn<double, N> &)> functional2,
+               const NOMAD::Parameters &p)
+      : NOMAD::Multi_Obj_Evaluator(p), f1(functional1), f2(functional2) {}
 
   ~My_Evaluator() {}
 
-  bool eval_x(NOMAD::EvalPoint &x, const NOMAD::Double &hMax,
-              bool &countEval) const override {
-    bool eval_ok = false;
+  bool eval_x(NOMAD::Eval_Point &x, const NOMAD::Double &h_max,
+              bool &count_eval) const {
+
     vecn<double, N> x_curr;
     for (size_t i = 0; i < N; ++i) {
-      x_curr[i] = double(x[i].todouble());
+      x_curr[i] = double(x[i].value());
     }
+    double f1_curr = f1(x_curr);
+    double f2_curr = f2(x_curr);
+    x.set_bb_output(0, NOMAD::Double(f1_curr));
+    x.set_bb_output(1, NOMAD::Double(f2_curr));
 
-    try {
-      double f_curr = f(x_curr);
-      auto bbOutputType =
-          _evalParams->getAttributeValue<NOMAD::BBOutputTypeList>(
-              "BB_OUTPUT_TYPE");
-      string bbo = to_string(f_curr);
-
-      x.setBBO(bbo);
-
-      eval_ok = true;
-    } catch (exception &e) {
-      string err("Exception: ");
-      err += e.what();
-      throw logic_error(err);
-    }
-
-    countEval = true;
-    return eval_ok;
+    count_eval = true; // count a black-box evaluation
+    return true;       // the evaluation succeeded
   }
 };
 
 template <size_t N>
-vector<vecn<double, N>> runNomad(function<double(const vecn<double, N> &)> f,
+vector<vecn<double, N>> runNomad(function<double(const vecn<double, N> &)> f1,
+                                function<double(const vecn<double, N> &)> f2,
                                 const vecn<double, N> &xStart,
                                 const vecn<double, N> &lowerBounds,
                                 const vecn<double, N> &upperBounds) {
-  NOMAD::MainStep TheMainStep;
-
-  auto allParams = make_shared<NOMAD::AllParameters>();
-  // Parameters creation
-  // Number of variables
-  allParams->setAttributeValue("DIMENSION", N);
-  // The algorithm terminates after
-  // this number of black-box evaluations
-  allParams->setAttributeValue("MAX_BB_EVAL", 1000);
-  allParams->setAttributeValue("MAX_EVAL", 1000);
-  allParams->setAttributeValue("NB_THREADS_OPENMP", 1);
-  // Starting point and bounds
-  NOMAD::Point x_0(N, 0.0);
-  NOMAD::ArrayOfDouble lb(N, 0.0);
-  NOMAD::ArrayOfDouble ub(N, 0.0);
-
-  for (size_t i = 0; i < N; ++i) {
-    x_0[i] = NOMAD::Double(xStart[i]);
-    lb[i] = NOMAD::Double(lowerBounds[i]);
-    ub[i] = NOMAD::Double(upperBounds[i]);
-  }
-
-  allParams->setAttributeValue("X0", x_0);
-  allParams->setAttributeValue("LOWER_BOUND", lb);
-  allParams->setAttributeValue("UPPER_BOUND", ub);
-
-  allParams->getPbParams()->setAttributeValue(
-      "GRANULARITY", NOMAD::ArrayOfDouble(N, 0.0000001));
-
-  // Constraints and objective
-  NOMAD::BBOutputTypeList bbOutputTypes;
-  bbOutputTypes.push_back(NOMAD::BBOutputType::OBJ); // f
-  allParams->setAttributeValue("BB_OUTPUT_TYPE", bbOutputTypes);
-  allParams->setAttributeValue("DIRECTION_TYPE",
-                               NOMAD::DirectionType::ORTHO_2N);
-  allParams->setAttributeValue("DISPLAY_DEGREE", 2);
-  allParams->setAttributeValue("DISPLAY_UNSUCCESSFUL", false);
-
-  // Parameters validation
-  allParams->checkAndComply();
-
-  TheMainStep.setAllParameters(allParams);
-
-  unique_ptr<My_Evaluator<N>> ev(
-      new My_Evaluator<N>(f, allParams->getEvalParams()));
-  TheMainStep.setEvaluator(std::move(ev));
 
   vector<vecn<double, N>> bf_ret;
-  try {
-    TheMainStep.start();
-    TheMainStep.run();
-    TheMainStep.end();
-    vector<NOMAD::EvalPoint> bf;
-    NOMAD::CacheBase::getInstance()->findBestFeas(
-        bf, NOMAD::Point(N), NOMAD::EvalType::BB, NOMAD::ComputeType::STANDARD,
-        nullptr);
-    for (const auto &point : bf) {
 
-      vecn<double, N> point_ret;
-      for (size_t i = 0; i < N; ++i) {
-        point_ret[i] = double(point[i].todouble());
-      }
-      bf_ret.push_back(point_ret);
+  NOMAD::Display out(std::cout);
+  out.precision(NOMAD::DISPLAY_PRECISION_STD);
+
+  try {
+
+    // parameters creation:
+    NOMAD::Parameters p(out);
+
+    p.set_DIMENSION(N);
+    p.set_MAX_BB_EVAL(100);
+    p.set_MAX_EVAL(1000);
+
+    NOMAD::Point x_0(N, 0.0);
+    NOMAD::Point lb(N, 0.0);
+    NOMAD::Point ub(N, 0.0);
+
+    for (size_t i = 0; i < N; ++i) {
+      x_0[i] = NOMAD::Double(xStart[i]);
+      lb[i] = NOMAD::Double(lowerBounds[i]);
+      ub[i] = NOMAD::Double(upperBounds[i]);
     }
-  } catch (std::exception &e) {
-    std::cerr << "\nNOMAD has been interrupted (" << e.what() << ")\n\n";
+
+    p.set_X0(x_0);
+    p.set_LOWER_BOUND(lb);
+    p.set_UPPER_BOUND(ub);
+
+    vector<NOMAD::bb_output_type> bbot(2); // definition of
+    bbot[0] = NOMAD::OBJ;
+    bbot[1] = NOMAD::OBJ;
+    p.set_BB_OUTPUT_TYPE(bbot);
+    p.set_DIRECTION_TYPE(NOMAD::ORTHO_2);
+    p.set_DISPLAY_STATS("bbe ( sol ) obj");
+    p.set_DISPLAY_DEGREE(2);
+    // p.set_SOLUTION_FILE("sol.txt");
+
+    // parameters validation:
+    p.check();
+
+    // custom evaluator creation:
+    My_Evaluator<N> ev(f1, f2, p);
+
+    // algorithm creation and execution:
+    NOMAD::Mads mads(p, &ev);
+    mads.multi_run();
+    auto evalPoint = mads.get_best_feasible();
+    vecn<double, N> solution;
+    for (size_t i = 0; i < N; ++i) {
+      solution[i] = double(evalPoint->value(i));
+    }
+    bf_ret.push_back(solution);
+
+  } catch (exception &e) {
+    cerr << "\nNOMAD has been interrupted (" << e.what() << ")\n\n";
   }
 
   return bf_ret;
