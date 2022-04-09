@@ -33,21 +33,19 @@ class Object2D {
 
 protected:
   vector<shared_ptr<Shape2D>> shapes;
-  unsigned int subdivisions;
   dvec2 pos;
   dvec2 up;
-  dvec2 scale;
+  unsigned int subdivisions;
   shared_ptr<Tree> root;
 
   void buildTree(unsigned int subdivisions);
 
 public:
-  Object2D(unsigned int _subdivisions = 0, const dvec2 &_pos = {0.0, 0.0},
-           const dvec2 &_up = {0.0, 1.0}, const dvec2 &_scale = {1.0, 1.0});
+  Object2D(const dvec2 &_pos = {0.0, 0.0},
+           const dvec2 &_up = {0.0, 1.0}, unsigned int _subdivisions = 0);
 
   void setPos(const dvec2 &_pos) { pos = _pos; }
   void setUp(const dvec2 &_up) { up = _up; }
-  void setScale(const dvec2 &_scale) { scale = _scale; }
 
   const vector<shared_ptr<Shape2D>> &getShapes() const { return shapes; }
 
@@ -59,7 +57,6 @@ public:
 
   dvec2 getPos() const { return pos; }
   dvec2 getUp() const { return up; }
-  dvec2 getScale() const { return scale; }
 
   IntersectResult2D intersect(const Ray2D &ray) const;
 
@@ -68,10 +65,8 @@ public:
     buildTree(subdivisions);
   }
 
-  virtual vector<shared_ptr<Shape2D>> build() { return {}; }
+  virtual vector<shared_ptr<Shape2D>> build() = 0;
 
   virtual void action(Ray2D &ray, const IntersectResult2D &result,
-                      vector<Ray2D> &createdRays) {
-    ACTION_PRESETS::pass(ray, result, createdRays);
-  }
+                      vector<Ray2D> &createdRays) = 0;
 };

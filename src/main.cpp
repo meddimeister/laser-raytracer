@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
 
 
   auto optmirror = make_shared<Mirror2D>(
-      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, optsegments));
+      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShapeBezier, optsegments));
 
   auto optcrystal = make_shared<Grid2D>(Grid2D(
       {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
   }
 
   auto mirror = make_shared<Mirror2D>(
-      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, mirrorShapeBezier, segments));
+      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShapeBezier, segments));
 
   auto crystal = make_shared<Grid2D>(Grid2D(
       {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
@@ -219,14 +219,11 @@ int main(int argc, char *argv[]) {
 
   auto lens = make_shared<ThinLens2D>(ThinLens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
-  auto test = make_shared<Medium2D>(Medium2D({-1.,0.0}, {1.0, 0.0}, sellmeierNdYag));
-
   Scene2D scene;
 
   scene.add(mirror);
   scene.add(crystal);
   scene.add(lens);
-  scene.add(test);
 
   scene.generateDirectionalRays({-1.590, 0.0}, emittorRadius, {1.0, 0.0},
                                 solarDivergence, solarPower, rays,
@@ -281,8 +278,6 @@ int main(int argc, char *argv[]) {
   vtkWriter.add(crystal->getAABBs(), "crystal.AABB");
   vtkWriter.add(lens, "lens");
   vtkWriter.add(lens->getAABBs(), "lens.AABB");
-  vtkWriter.add(test, "test");
-  vtkWriter.add(test->getAABBs(), "test.AABB");
   vtkWriter.addAsSequence(raysStorage, "rays", 0.01);
   vtkWriter.addAsComposition(raysStorage, "rays_composition", 0.01);
   vtkWriter.write();

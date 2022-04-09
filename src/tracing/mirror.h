@@ -16,9 +16,9 @@ private:
   int _segments;
 
 public:
-  Mirror2D(const dvec2 &pos, const dvec2 &up,
+  Mirror2D(const dvec2 &pos, const dvec2 &up, unsigned int subdivisions,
            function<dvec2(double)> shapeFunction, int segments)
-      : Object2D(4, pos, up), _shapeFunction(shapeFunction),
+      : Object2D(pos, up, subdivisions), _shapeFunction(shapeFunction),
         _segments(segments) {
     init();
   };

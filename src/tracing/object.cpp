@@ -108,11 +108,9 @@ void Object2D::buildTree(unsigned int subdivisions) {
   root->subdivide(subdivisions);
 }
 
-Object2D::Object2D(
-                   unsigned int _subdivisions, const dvec2 &_pos,
-                   const dvec2 &_up, const dvec2 &_scale)
-    : subdivisions(_subdivisions), pos(_pos), up(_up),
-      scale(_scale) {}
+Object2D::Object2D(const dvec2 &_pos, const dvec2 &_up,
+                   unsigned int _subdivisions)
+    : pos(_pos), up(_up), subdivisions(_subdivisions) {}
 
 IntersectResult2D Object2D::intersect(const Ray2D &ray) const {
   IntersectResult2D ret;

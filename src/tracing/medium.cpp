@@ -2,9 +2,7 @@
 #include <iostream>
 
 vector<shared_ptr<Shape2D>> Medium2D::build() {
-    vector<shared_ptr<Shape2D>> shapes;
-    shapes.push_back(make_shared<BoundingBox2D>(pos + dvec2(-0.1,-0.1), pos + dvec2(0.1, 0.1)));
-    return shapes;
+    return {};
 }
 
 void Medium2D::action(Ray2D &ray, const IntersectResult2D &result,
