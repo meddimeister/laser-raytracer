@@ -33,7 +33,11 @@ struct Ray2D {
 
   tuple<Ray2D, Ray2D> refract(double t, const dvec2 &normal, double n_e,
                               double n_t) const {
-    dvec2 orientedNormal = -normal;
+    
+    double dott = dot(direction, normal);
+    double sign = dott/abs(dott);
+
+    dvec2 orientedNormal = sign * normal;
     double theta_e = orientedAngle(direction, orientedNormal);
     double theta_t = snellius(theta_e, n_e, n_t);
 
