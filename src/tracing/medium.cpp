@@ -1,10 +1,6 @@
 #include "tracing/medium.h"
 #include <iostream>
 
-vector<shared_ptr<Shape2D>> Medium2D::build() {
-    return {};
-}
-
 void Medium2D::action(Ray2D &ray, const IntersectResult2D &result,
                       vector<Ray2D> &createdRays) {
   actionEnter(ray, result);

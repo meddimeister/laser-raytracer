@@ -7,16 +7,12 @@ vector<shared_ptr<Shape2D>> Grid2D::build() {
   return boxes;
 }
 
-void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
-                    vector<Ray2D> &createdRays) {
-
+void Grid2D::actionEnter(Ray2D &ray, const IntersectResult2D &result) {
   _hitAction(ray, result);
-  ray.terminate(result.tEnter);
-  auto [ray_reflect_in, ray_transmit_in] =
-      ray.refract(result.tEnter, result.normalEnter, 1.0,
-                  sellmeier(_sellmeierCoeff, ray.wavelength));
+}
 
-  dvec2 enter = ray_transmit_in.origin + 0.0 * ray_transmit_in.direction;
+void Grid2D::actionTransmit(Ray2D &ray, const IntersectResult2D &result) {
+  dvec2 enter = ray.origin + 0.0 * ray.direction;
 
   double xf = (enter.x - _cornerMin.x) / _dx;
   double yf = (enter.y - _cornerMin.y) / _dy;
@@ -24,27 +20,27 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
   int x = xf;
   int y = yf;
 
-  if (x == _maxX && ray_transmit_in.direction.x < 0.0) {
+  if (x == _maxX && ray.direction.x < 0.0) {
     x = x - 1;
   }
 
-  if (y == _maxY && ray_transmit_in.direction.y < 0.0) {
+  if (y == _maxY && ray.direction.y < 0.0) {
     y = y - 1;
   }
 
-  int stepX = ray_transmit_in.direction.x >= 0.0 ? 1 : -1;
-  int stepY = ray_transmit_in.direction.y >= 0.0 ? 1 : -1;
+  int stepX = ray.direction.x >= 0.0 ? 1 : -1;
+  int stepY = ray.direction.y >= 0.0 ? 1 : -1;
 
   int nextX = stepX > 0 ? x + stepX : x;
   int nextY = stepY > 0 ? y + stepY : y;
 
-  double tMaxX = abs(_cornerMin.x + nextX * _dx - ray_transmit_in.origin.x) /
-                 abs(ray_transmit_in.direction.x);
-  double tMaxY = abs(_cornerMin.y + nextY * _dy - ray_transmit_in.origin.y) /
-                 abs(ray_transmit_in.direction.y);
+  double tMaxX =
+      abs(_cornerMin.x + nextX * _dx - ray.origin.x) / abs(ray.direction.x);
+  double tMaxY =
+      abs(_cornerMin.y + nextY * _dy - ray.origin.y) / abs(ray.direction.y);
 
-  double tDeltaX = _dx / abs(ray_transmit_in.direction.x);
-  double tDeltaY = _dy / abs(ray_transmit_in.direction.y);
+  double tDeltaX = _dx / abs(ray.direction.x);
+  double tDeltaY = _dy / abs(ray.direction.y);
 
   double tLast = 0.0;
   double tSum = 0.0;
@@ -65,29 +61,9 @@ void Grid2D::action(Ray2D &ray, const IntersectResult2D &result,
       y = y + stepY;
     }
     tSum += tTravel;
-    double distance = length(tTravel * ray_transmit_in.direction);
-    _cellAction(ray_transmit_in, distance, _data[yCurrent * _maxX + xCurrent]);
+    double distance = length(tTravel * ray.direction);
+    _cellAction(ray, distance, _data[yCurrent * _maxX + xCurrent]);
   }
-
-  dvec2 normalLeave = {0.0, 0.0};
-  if (x < 0)
-    normalLeave.x = -1;
-  else if (x >= _maxX)
-    normalLeave.x = 1;
-  else if (y < 0)
-    normalLeave.y = -1;
-  else if (y >= _maxY)
-    normalLeave.y = 1;
-
-  ray_transmit_in.terminate(tSum);
-
-  // auto [ray_reflect_out, ray_transmit_out] =
-  //     ray_transmit_in.refract(tSum, normalLeave, 5.0, 1.0);
-
-  // createdRays.push_back(ray_reflect_in);
-  createdRays.push_back(ray_transmit_in);
-  // createdRays.push_back(ray_reflect_out);
-  // createdRays.push_back(ray_transmit_out);
 }
 
 double Grid2D::sum() {
@@ -115,15 +91,4 @@ void Grid2D::reset() {
   for (auto &cell : _data) {
     cell = 0.;
   }
-}
-
-ostream &operator<<(ostream &stream, const Grid2D &grid) {
-  cout << "Grid2D: {grid: [" << endl;
-  for (int y = 0; y < grid._maxY; ++y) {
-    for (int x = 0; x < grid._maxX; ++x) {
-      cout << grid._data[y * grid._maxX + x] << "\t";
-    }
-    cout << endl;
-  }
-  return cout << "]}";
 }

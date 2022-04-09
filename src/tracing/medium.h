@@ -7,15 +7,14 @@ using namespace std;
 
 class Medium2D : public Object2D {
 
-private:
+protected:
   vecn<double, 4> _sellmeierCoeff;
 
 public:
   Medium2D(
-      const dvec2 &pos, const dvec2 &up, const vecn<double, 4> sellmeierCoeff,
-      unsigned int subdivisions = 0)
+      const dvec2 &pos, const dvec2 &up, 
+      unsigned int subdivisions, const vecn<double, 4> sellmeierCoeff)
       : Object2D(pos, up, subdivisions), _sellmeierCoeff(sellmeierCoeff) {
-    init();
   }
 
   virtual vector<shared_ptr<Shape2D>> build() = 0;

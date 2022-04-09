@@ -209,8 +209,6 @@ int main(int argc, char *argv[]) {
         double remainingPower = ray.power * exp(-alpha * distance * 100.0);
         double absorbedPower = ray.power - remainingPower;
         cell += absorbedPower;
-        if (absorbedPower < 0.0)
-          cout << ray << " " << distance << " " << alpha << endl;
         ray.power = remainingPower;
       },
       [&](Ray2D &ray, const IntersectResult2D &result) {
