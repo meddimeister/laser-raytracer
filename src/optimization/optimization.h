@@ -170,7 +170,7 @@ gradientDescent(function<double(const vecn<double, N> &)> f,
 }
 
 template <size_t N>
-vector<vecn<double, N>>
+vector<tuple<vecn<double, N>, double, double>>
 mads(function<double(const vecn<double, N> &)> f1,function<double(const vecn<double, N> &)> f2, const vecn<double, N> &xStart,
      const vecn<double, N> &lowerBounds, const vecn<double, N> &upperBounds) {
   return runNomad<N>(f1, f2, xStart, lowerBounds, upperBounds);

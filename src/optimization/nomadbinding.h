@@ -6,6 +6,9 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <sstream>
+#include <regex>
 
 using namespace std;
 
@@ -39,13 +42,13 @@ public:
 };
 
 template <size_t N>
-vector<vecn<double, N>> runNomad(function<double(const vecn<double, N> &)> f1,
+vector<tuple<vecn<double, N>, double, double>> runNomad(function<double(const vecn<double, N> &)> f1,
                                 function<double(const vecn<double, N> &)> f2,
                                 const vecn<double, N> &xStart,
                                 const vecn<double, N> &lowerBounds,
                                 const vecn<double, N> &upperBounds) {
 
-  vector<vecn<double, N>> bf_ret;
+  vector<tuple<vecn<double, N>, double, double>> bf_ret;
 
   NOMAD::Display out(std::cout);
   out.precision(NOMAD::DISPLAY_PRECISION_STD);
@@ -90,14 +93,39 @@ vector<vecn<double, N>> runNomad(function<double(const vecn<double, N> &)> f1,
 
     // algorithm creation and execution:
     NOMAD::Mads mads(p, &ev);
-    mads.multi_run();
-    auto evalPoint = mads.get_best_feasible();
-    vecn<double, N> solution;
-    for (size_t i = 0; i < N; ++i) {
-      solution[i] = double(evalPoint->value(i));
-    }
-    bf_ret.push_back(solution);
 
+    stringstream buffer;
+    streambuf * old = cout.rdbuf(buffer.rdbuf());
+    mads.multi_run();
+    cout.rdbuf( old );
+
+    string madsOutput = buffer.str();
+    cout << madsOutput;
+
+    regex r("\\s+BBE\\s*\\(\\s+(.+)\\)\\s+(.+)");
+
+    for(sregex_iterator i = sregex_iterator(madsOutput.begin(), madsOutput.end(), r);
+                            i != sregex_iterator();
+                            ++i )
+    {
+        smatch m = *i;
+        string paramString = m[1].str();
+        string functionalString = m[2].str();
+
+        stringstream pss(paramString);
+        vecn<double, N> params;
+        for(size_t i = 0; i < N; ++i){
+          pss >> params[i];
+        }
+
+        stringstream fss(functionalString);
+        double f1;
+        double f2;
+        fss >> f1;
+        fss >> f2;
+
+        bf_ret.push_back({params, f1, f2});        
+    }
   } catch (exception &e) {
     cerr << "\nNOMAD has been interrupted (" << e.what() << ")\n\n";
   }

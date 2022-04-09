@@ -1,12 +1,12 @@
 #include "math/sampler.h"
 #include "optimization/optimization.h"
 #include "tracing/grid.h"
-#include "tracing/thinlens.h"
+#include "tracing/medium.h"
 #include "tracing/mirror.h"
 #include "tracing/ray.h"
 #include "tracing/scene.h"
 #include "tracing/shape.h"
-#include "tracing/medium.h"
+#include "tracing/thinlens.h"
 #include "types/vecn.h"
 #include "utils/argparser.h"
 #include "utils/csv.h"
@@ -120,7 +120,6 @@ int main(int argc, char *argv[]) {
     return point;
   };
 
-
   auto optmirror = make_shared<Mirror2D>(
       Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShapeBezier, optsegments));
 
@@ -181,6 +180,8 @@ int main(int argc, char *argv[]) {
     return functional;
   };
 
+  vector<vecn<double, 4>> solutionParams;
+
   // Optimization Algorithm
   if (!noopt) {
     cout << "Mirror Optimizer: " << endl;
@@ -192,8 +193,29 @@ int main(int argc, char *argv[]) {
       return -1;
     }
 
-    auto minimizingParameters = solutions[0];
-    params = minimizingParameters;
+    LOG("Optimizer");
+
+    cout << "Solutions:" << endl;
+    cout << endl;
+
+    for (size_t i = 0; i < solutions.size(); ++i) {
+      auto [params, power, variance] = solutions[i];
+      cout << "[" << i << "] "
+           << -power << " " << variance << endl;
+    }
+
+    cout << endl;
+    cout << "Choose solutions to output: " << endl;
+
+    string solutionsString;
+    getline(cin, solutionsString);
+    stringstream ss(solutionsString);
+    size_t idx;
+    while (ss >> idx) {
+      solutionParams.push_back(get<0>(solutions[idx]));
+    }
+  } else {
+    solutionParams.push_back(params);
   }
 
   auto mirror = make_shared<Mirror2D>(
@@ -214,7 +236,8 @@ int main(int argc, char *argv[]) {
         irradianceCrystal += ray.power;
       }));
 
-  auto lens = make_shared<ThinLens2D>(ThinLens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
+  auto lens =
+      make_shared<ThinLens2D>(ThinLens2D({-1.585, 0.0}, {1.0, 0.0}, 0.7, 1.2));
 
   Scene2D scene;
 
@@ -228,56 +251,61 @@ int main(int argc, char *argv[]) {
                                 absorptionImpSampler, emissionSpectrum);
 
   vector<vector<Ray2D>> raysStorage;
-  mirror->init();
-  raysStorage = scene.trace(4);
+  for (size_t i = 0; i <  solutionParams.size(); ++i) {
+    cout << endl;
+    cout << "Solution " << i << endl;
+    params = solutionParams[i];
+    mirror->init();
+    raysStorage = scene.trace(4);
 
-  double irradiationEfficiency = irradianceCrystal / solarPower;
-  double absorbedPower = crystal->sum();
-  double absorbedPowerVar = crystal->var();
-  double absorptionEfficiencyTotal = absorbedPower / solarPower;
-  double absorptionEfficiencyIrradiated = absorbedPower / irradianceCrystal;
+    double irradiationEfficiency = irradianceCrystal / solarPower;
+    double absorbedPower = crystal->sum();
+    double absorbedPowerVar = crystal->var();
+    double absorptionEfficiencyTotal = absorbedPower / solarPower;
+    double absorptionEfficiencyIrradiated = absorbedPower / irradianceCrystal;
 
-  LOG("Tracing");
+    cout << "Parameters: " << params << endl;
+    cout << "Solar power: " << solarPower << endl;
+    cout << "Irradiance crystal: " << irradianceCrystal << endl;
+    cout << "Irradiation efficiency: " << irradiationEfficiency << endl;
+    cout << "Absorbed power: " << absorbedPower << endl;
+    cout << "Absorbed power (var): " << absorbedPowerVar << endl;
+    cout << "Absorption efficiency (total): " << absorptionEfficiencyTotal
+         << endl;
+    cout << "Absorption efficiency (irradiated): "
+         << absorptionEfficiencyIrradiated << endl;
 
-  cout << "Final parameters: " << params << endl;
-  cout << "Solar power: " << solarPower << endl;
-  cout << "Irradiance crystal: " << irradianceCrystal << endl;
-  cout << "Irradiation efficiency: " << irradiationEfficiency << endl;
-  cout << "Absorbed power: " << absorbedPower << endl;
-  cout << "Absorbed power (var): " << absorbedPowerVar << endl;
-  cout << "Absorption efficiency (total): " << absorptionEfficiencyTotal
-       << endl;
-  cout << "Absorption efficiency (irradiated): "
-       << absorptionEfficiencyIrradiated << endl;
+    vector<tuple<double, double>> points;
+    for (size_t i = 0; i <= segments; ++i) {
+      dvec2 point = mirrorShapeBezier(double(i) / segments);
+      points.push_back({-point.y + 0.224, point.x});
+    }
+    auto mirrorXYFunction = getFunction(points, true);
 
-  vector<tuple<double, double>> points;
-  for (size_t i = 0; i <= segments; ++i) {
-    dvec2 point = mirrorShapeBezier(double(i) / segments);
-    points.push_back({-point.y + 0.224, point.x});
+    CSVWriter csvWriter("csvOut/solution"+to_string(i));
+    csvWriter.add("reflector", "#x", "y");
+    for (const auto &point : referenceReflector) {
+      double x = get<0>(point);
+      double xScaled = (x - 300.2396507) / 1000.0;
+      double yScaled = mirrorXYFunction(xScaled) * 1000.0;
+      csvWriter.add("reflector", x, yScaled);
+    }
+    csvWriter.write();
+
+    VTKWriter vtkWriter("vtkOut/solution"+to_string(i));
+    vtkWriter.add(mirror, "mirror");
+    vtkWriter.add(mirror->getAABBs(), "mirror.AABB");
+    vtkWriter.add(crystal, "crystal");
+    vtkWriter.add(crystal->getAABBs(), "crystal.AABB");
+    vtkWriter.add(lens, "lens");
+    vtkWriter.add(lens->getAABBs(), "lens.AABB");
+    vtkWriter.addAsSequence(raysStorage, "rays", 0.01);
+    vtkWriter.addAsComposition(raysStorage, "rays_composition", 0.01);
+    vtkWriter.write();
+
+    crystal->reset();
+    irradianceCrystal = 0.0;
   }
-  auto mirrorXYFunction = getFunction(points, true);
-  outputFunction(mirrorXYFunction, 0.0, 0.224, "csvOut", "test");
-
-  CSVWriter csvWriter("csvOut");
-  csvWriter.add("reflector", "#x", "y");
-  for (const auto &point : referenceReflector) {
-    double x = get<0>(point);
-    double xScaled = (x - 300.2396507) / 1000.0;
-    double yScaled = mirrorXYFunction(xScaled) * 1000.0;
-    csvWriter.add("reflector", x, yScaled);
-  }
-  csvWriter.write();
-
-  VTKWriter vtkWriter("vtkOut");
-  vtkWriter.add(mirror, "mirror");
-  vtkWriter.add(mirror->getAABBs(), "mirror.AABB");
-  vtkWriter.add(crystal, "crystal");
-  vtkWriter.add(crystal->getAABBs(), "crystal.AABB");
-  vtkWriter.add(lens, "lens");
-  vtkWriter.add(lens->getAABBs(), "lens.AABB");
-  vtkWriter.addAsSequence(raysStorage, "rays", 0.01);
-  vtkWriter.addAsComposition(raysStorage, "rays_composition", 0.01);
-  vtkWriter.write();
 
   LOG("Output");
 }
