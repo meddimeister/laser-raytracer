@@ -1104,15 +1104,84 @@ beam quality evaluated.
     A UML class diagram of the Object2D class and associated
     classes is given in \figref{fig:uml_object2d}.
 
-    \paragraph{Lens}
-
-    The accurate physical simulation of a lens follows the same laws
-    as the ray tracing in all media.
+    \paragraph{Medium2D}
+    All object that consist of some material that is transmissible by
+    light and have a non negligable thickness should implement the
+    Medium2D interface.
+    It holds information about the material via the materials
+    Sellmeier coefficients and implements the all the phenomena
+    relevant to the correct tracing of light on the border
+    between two materials of different refractive index. 
     These are Snell's law in \equref{equ:snell} for the bending of the ray on material
     boundaries, the Fresnel laws in \equref{equ:fresnel} for the
     correct amount of intensity to be transmitted or reflected and
     the Sellmeier equation of the lens material in \equref{equ:sellmeier}
     to accurately describe dispersion effects of the material.
+
+    Like all objects in the simulation it inherits from the 
+    Object2D class and implements the \emph{action} method in to
+    include the above described effects.
+    Furthermore the Medium2D class provides the abstract \emph{actionEnter}
+    and \emph{actionTransmit} methods which are executed
+    once the ray first hits the medium and once the transmitted part
+    of the ray was traced within the medium respectively.
+    They can then be implemented by the user in a user defined object
+    implementing the Medium2D interface.
+    These actions can even modify the affected light ray in order
+    to model absorption or thermal lensing effects within the medium.
+    If the ray is terminated by the user in the \emph{actionTransmit}
+    function, no further tracing is done and no additional rays
+    are created.
+    An example of this modification to the ray itself by the user
+    is the Grid2D class.
+    Here the power of the ray is modified by each cell the ray intersects 
+    in order to model the absorption of light within a medium.
+
+    The Medium2D inteface should serve as the base class for all
+    user defined objects where the tracing of light needs to
+    be physically accurate.
+    This means that no approximations are made and the required
+    computation per ray transmitting through these objects is quite
+    high.
+    Additionally, one ray that hits the object then in turn creates
+    three rays only one of which - the ray within the medium - is always
+    guaranteed to be terminated.
+    The other two generated rays, namely the reflected part and the
+    ray exiting the medium on the other side are two completely
+    new rays entering the scene.
+    These rays then need to be traced, increasing the overhead
+    of tracing a medium accurately even more.
+    Therefore it is advised to use the Medium2D interface with
+    great care and sparingly in order to keep the computational
+    cost to a minimum.
+    Only the most relevant objects to the simulation should be
+    traced with full physical accuracy.
+    Suppose one wants to model a mirror using the Medium2D class.
+    Technically this is possible, but practically it is infeasable,
+    since the only thing the user is most likely interested in
+    is the reflected part of the incoming ray.
+    The same is true for lenses or optical elements where either
+    the dispersion effects are negligable or the angle of
+    incidence is such that almost all light is transmitted
+    anyway.
+    In this case the user is most likely only interested in the
+    transmitted part of the ray and not the reflected or internal
+    part.
+    To prevent this unnecessary computational cost, one usually
+    wants to approximate or neglect certain parts of the
+    tracing in media.
+    This is what the ThinLens2D and Mirror2D classes shown below
+    demonstrate.
+
+    \paragraph{ThinLens2D}
+
+    The accurate physical simulation of a lens follows the same laws
+    as the ray tracing in all media.
+    This is modelled by the Medium2D interface, which implement all
+    relevant effects in a transmissible material.
+    Although it is phyysically accurate to trace the light rays with
+    the Medium2D class, significant amounts of computation is needed
+    to calculate and describe the light paths.
     Furthermore, the geometry of the lens needs to be modelled accurately.
     This is simple for conventional glass lenses where the geometry can be
     described only by the radii of the surfaces and the thickness of the lens.
@@ -1189,7 +1258,7 @@ beam quality evaluated.
     The sawtooth pattern of the ridges could then be given as a function
     to be sampled at the hitpoint.
 
-    The Lens2D class represents the approximation of a thin lens
+    The ThinLens2D class represents the approximation of a thin lens
     according to~\cite{thin_lens}.
     It takes the radius and desired focal length and constructs
     an object whose only fundamental shape is a Line2D shape representing
@@ -1198,7 +1267,7 @@ beam quality evaluated.
     in the direction of refraction is generated at the hitpoint.
     \todo{OPTIONAL: implement abcd lenses and maybe fresnel lens, dispersion!!!}
 
-    \paragraph{Mirror}
+    \paragraph{Mirror2D}
 
     Mirrors like lenses are commonly used in optical systems.
     Most of the time one wants optimize the shape of a mirror system
@@ -1218,7 +1287,7 @@ beam quality evaluated.
     Naturally the action of the Mirror2D object is to reflect the ray
     according to \equref{equ:reflection}.
     
-    \paragraph{Crystal}
+    \paragraph{Grid2D}
 
     The Grid2D class offers to simulate quantities distributed within
     a medium.
@@ -1290,15 +1359,16 @@ beam quality evaluated.
     }{
         ...
     }
-    \umlclass[x=0, y=0]{Object2D}{
+    \umlinterface[x=0, y=0]{Object2D}{
         \# subdivisions : uint \\
         \# pos : vec2 \\
         \# up : vec2 \\
         \# scale : vec2 \\
     }{
-        \# buildTree(subdivisions : uint) : void \\
         + Object2D(shapes : vector<Shape2D*>, subdivisions : uint) \\
+        + init() : void \\
         + intersect(ray : Ray2D) : IntersectResult2D \\
+        \umlvirt{+ build() : void} \\
         \umlvirt{+ action(ray : Ray2D, result : IntersectResult2D, createdRays : vector<Ray2D>*) : void} \\
         ...
     }
@@ -1308,36 +1378,46 @@ beam quality evaluated.
         ...
     }{
         + action(...) : void \\
-        + rebuild() : void \\
         ...
     }
-    \umlclass[x=4, y=-5]{Lens2D}{
+    \umlclass[x=4, y=-5]{ThinLens2D}{
         - radius : float \\
         - focalLength : float \\
     }{
         + action(...) : void \\
         ...
     }
-    \umlclass[x=0, y=-11]{Grid2D}{
+    \umlinterface[x=0, y=-9]{Medium2D}{
+       \# sellmeierCoeff : vec4; 
+    }
+    {
+        + action(...) : void \\
+        \umlvirt{+ build() : void} \\
+        \umlvirt{+ actionEnter(ray : Ray2D, result : IntersectResult2D) : void} \\
+        \umlvirt{+ actionTransmit(ray : Ray2D, result : IntersectResult2D) : void} \\
+        ...
+    }
+    \umlclass[x=0, y=-14.5]{Grid2D}{
         - bmin, bmax : vec2 \\
         - maxX, maxY : int \\
         - data : vector<float> \\
         - cellAction : function<void(ray : Ray2D, distance : float, cell : float*)> \\
         - hitAction : function<void(ray : Ray2D, result : IntersectionResult2D)> \\
-        - refractiveIndexLookup : function<float(wavelength : float)> \\      
+        ...
     }{
-        + action(...) : void \\
         + sum() : float \\
         + avg() : float \\
         + var() : float \\
         + stddev() : float \\
         + reset() : void \\
+        ...
     }
 
     \umluniassoc[arg=has, mult=1, geometry=--]{Object2D}{Object2D :: Tree}
-    \umlinherit{Mirror2D}{Object2D}
-    \umlinherit{Lens2D}{Object2D}
-    \umlinherit{Grid2D}{Object2D}
+    \umlimpl{Mirror2D}{Object2D}
+    \umlimpl{ThinLens2D}{Object2D}
+    \umlinherit{Medium2D}{Object2D}
+    \umlimpl{Grid2D}{Medium2D}
     \umlunicompo{Object2D :: Tree}{Shape2D}
 
     \end{tikzpicture}
