@@ -570,6 +570,41 @@ beam quality evaluated.
         n_i \sin(\theta_i) = n_t \sin(\theta_t)
     \end{equation}
 
+    Usually one rearranges the \equref{equ:snell} in order to solve
+    for $\theta_t$.
+    
+    \begin{equation}
+        \label{equ:snell_rearranged}
+        \theta_t = \asin(\frac{n_i}{n_t} \sin(\theta_i))
+    \end{equation}
+
+    Arranged like in \equref{equ:snell_rearranged} one can observe
+    that if $\frac{n_i}{n_t} > 1$ the argument of the $\asin$ function
+    can also be greater than 1 depending on the incident angle
+    $\theta_i$.
+    In this case the arcussinus is undefined and therefore Snell's 
+    law does not hold.
+    But rather than presenting a mathematical problem this only
+    models what happens in reality.
+    If for instance a light ray transitions from a medium of higher
+    refractive index $n_i$ to a medium woth lower refractive index
+    $n_t$ and the angle of incidence $\theta_i$ is low enough
+    for the expression $\frac{n_i}{n_t} \sin(\theta_i)$ to become
+    greater than one, the light is no longer transmitted to the 
+    medium wit lower refractive index.
+    Instead the entirety of the light ray is reflected back to the
+    medium with higher refractive index.
+    This phenomenon is called total internal reflection and is an 
+    effect that is abused in many physical applications, e.g.
+    fiber optics communication.
+    The light can travel along an optical fibre and even bends in the fibre
+    because the material has high enoungh refractive index and the angle
+    of light hitting the inside border from the fibre to air or other
+    materials is low enough.
+    In such scenarios the critical angle below which total internal reflection occurs is
+    then given by ${\theta_i}_{crit} = \asin(\frac{n_t}{n_i})$. 
+    An implementation of Snell's law therefore needs to detect, when
+    total internal reflection takes place.
     Naturally, the reflected ray is still reflected as given in
     \equref{equ:reflection}.
     The transmitted and reflected power can be calculated with the transmission- and
@@ -913,7 +948,17 @@ beam quality evaluated.
     The first element is the reflected ray and the second
     element is the transmitted ray into the medium.
     The direction of the transmitted ray is calculated using
-    \equref{equ:snell} and the power of the original ray
+    \equref{equ:snell}.
+    It should be noted here that as explained in
+    \secref{sec:raytracing_basics}
+    there does not necessarily exist a transmitted part of the ray.
+    This is due to the phenomenon of total internal reflection
+    which can occur once the ray transitions from a medium with high
+    reflective index to a medium with low refractive index.
+    In such cases the implementation of the \emph{refract} method
+    detects that Snell's law is undefined and reflects the ray
+    with the entire amount of power back into the medium.
+    In the normal case the power of the original ray
     is split between the reflected and transmitted part according
     to the Fresnel laws \equref{equ:fresnel} for unpolarized
     light \equref{equ:fresnel_unpolarized}. 
@@ -1265,7 +1310,6 @@ beam quality evaluated.
     the thin lens.
     Once a ray hits the line the ray is terminated and a new ray pointing
     in the direction of refraction is generated at the hitpoint.
-    \todo{OPTIONAL: implement abcd lenses and maybe fresnel lens, dispersion!!!}
 
     \paragraph{Mirror2D}
 
@@ -1344,9 +1388,6 @@ beam quality evaluated.
     Supplying the apsorption spectrum can be done by using the various
     utilities the framework provides.
     These are described in \secref{sec:utilities}.
-
-    \todo{optimize $\alpha$ evaluation}
-    \todo{split crystal class to medium, grid and crystal class}    
 
     \begin{center}
     \begin{figure}
