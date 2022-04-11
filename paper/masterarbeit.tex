@@ -1671,8 +1671,404 @@ beam quality evaluated.
     \subsubsection{Utilities} \label{sec:utilities}
     
     \section{Optimization}
-    \subsection{Functional Analysis}
-    \subsection{Mesh Adaptive Direct Search (MADS)}
+
+    \subsection{Optimization Methods Overview} \label{sec:opt_overview}
+
+    In fields like scientific computing and artificial intelligence
+    finding some minimum of a function is a common problem.
+    For a given function $f : \mathbb{R}^n \rightarrow \mathbb{R}$ 
+    and a domain $\Omega$ the problem is described by 
+    \equref{equ:optimization_global}.
+
+    \begin{equation}
+        \label{equ:optimization_global}
+        \begin{gathered}
+        \text{find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
+        f(\vec{x}_{min}) \leq f(\vec{x}) \quad \forall \vec{x} \in \Omega
+        \end{gathered} 
+    \end{equation}
+
+    To solve these kinds of problems a multitude of numerical
+    optimization methods are employed.
+    Since the applications of numerical optimization are so diverse
+    in nature, the functions to optimize often have a wide variety
+    of mathematical properties that can be exploited in order to solve
+    the problem more quickly or more accurately.
+    A general rule for choosing an optimization algorithm for a given
+    function, is to use any information available beforehand just by the
+    description of the problem.
+    For example, one might know that the function's second derivative is
+    strictly positive, implying that the shape of the function is convex.
+    With this knowledge one can deduct that there is a global minimum, 
+    thus the algorithm can be chosen accordingly, and that the 
+    solution of this algorithm will be the the global minimum.
+    Unfortunately it is often the case that many properties of a 
+    physical simulation can only be evaluated using
+    complex program codes and cannot be described in a linear or 
+    even closed mathematical form and thus produce nonlinear
+    dependencies on the input parameters.
+
+    To solve these class of nonlinear optimization problems one employs
+    iterative methods that should converge to a solution within a
+    finite amount of steps.
+    The definition of optimality is also of concern when defining
+    what condition actually constitutes a solution.
+    In the most cases one wants to find the global minimum as described
+    in \equref{equ:optimization_global}.
+    Knowing that the minimum which is found by any method is actually
+    the global minimum is not possible in general.
+    It can be proven mathematically~\cite{solomon_numerical} that it is only possible to know
+    for convex functions, but for non-convex
+    functions a lesser optimality criterium for local minima has to suffice.
+    A modified optimality criterium for non-convex functions is given
+    by \equref{equ:optimization_local} where a local minimum is reached
+    once the function value is smaller than all other function values 
+    in an epsilon ball $B_{\epsilon}$ around the minimum.
+
+    \begin{equation}
+        \label{equ:optimization_local}
+        \begin{gathered}
+        \text{find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
+        f(\vec{x}_{min}) \leq f(\vec{x}) \quad \forall \vec{x} \in B_{\epsilon}(\vec{x}_{min})
+        \end{gathered} 
+    \end{equation}
+
+    Depending on the knowledge about the function $f$, one has to choose
+    between a large number of iterative methods.
+    Iterative methods can be roughly categorized into second-order, 
+    first-order and zero-order optimization algortihms.
+    The second-order algortihms rely on the second derivative or
+    Hessian matrix of the function to converge.
+    First-order methods evaluate the gradient of the function, whereas
+    zero-order methods only need to evaluate the function itself.
+    As stated before, neither of these categories is better or worse
+    per se but depending on the problem at hand some algorithms
+    may perform better than others.
+    "Better" in this context can also mean completely different things
+    depending on the use case.
+    In a microcontroller controlling the flightpath of a rocket
+    time constraints may be significantly more important than
+    scientific calculations running in a laboratory analysis.
+    The main difference of the three types of categories is accuracy
+    and time constraints.
+    The Newton method~\cite{solomon_numerical} - a second-order method -
+    chooses the stepsize after eveluating the steepest descent
+    direction optimally using the Hessian matrix, thus needing
+    a fewer amount of steps and delivering an accurate solution to
+    the problem.
+    But on the other hand if one does not have the second derivative
+    in a closed form already,
+    computing the Hessian matrix needs $O(N^2)$
+    function evaluations, whereas the gradient descent method
+    - a first-order method - only needs to evaluate the gradient, which
+    takes the order of $O(N)$ function evaluations.
+    As a tradeoff the stepsize in the gradient descent method is not
+    known and can be chosen too large, in this case constantly
+    overshooting the solution and never satisfying the stop
+    criterium, or it can be chosen too small, needing a lot of
+    unnecessary iteration steps to finally reach the solution.
+    
+    Unlike the optimization of well posed analytical problems, scientific
+    simulations are often hard to analyze in terms of slope and 
+    curvature, and often produce non-smooth noisy results.
+    Disregarding the noise, some problems might even be smooth and
+    differentiable for a certain neighborhood of values but non smooth
+    for others.
+    To identify these neighborhoods is in itself a non trivial problem,
+    that might involve a large amount of computational expense.
+    Especially for codes that rely on some sort of random number generation
+    the goal is often to generate some sampled version of the actual function
+    that is represented at random sample points, so the whole
+    objective is to gradually "uncover" an unknown function where
+    little about the expected result is known beforehand.
+    These types of functions are often called \emph{oracle} functions
+    or \emph{black-box} functions, implying that properties like
+    the slope or curvature are either not well defined at some points
+    or are not available to the optimization algorithm.
+    This situation can occurr in a variety of applications and
+    for a variety of reasons.
+    One reason might be that a small there are some points where the
+    black-box function is non-smooth and therefore not differentiable.
+    So an optimization algorithm that evaluates the gradient directly
+    at those points will deliver incorrect results or will
+    not be stable.
+    Another reason can be that the black-box function might be
+    computationally expensive to evaluate at a single point making
+    the calculation of a gradient or even just part of the gradient
+    infeasable in an iterative context.
+    So the goal in this case would be to optimize a function with
+    a minimal amount of actual function evaluations.
+    For these cases of application zero-order or derivative-free 
+    optimization has enjoyed increasing popularity in recent years.
+
+    \subsection{Derivative-Free Optimization}
+
+    As discussed in \secref{sec:opt_overview} derivative-free 
+    optimization does not rely on the gradient as information for
+    the stepping scheme.
+    This has the advantage that the number of function evaluations
+    is low compared to first-order or second-order methods.
+    Of course this is only the case if the derivatives have to be
+    calculated numerically.
+    If the derivatives are given in a closed form then one generally
+    should use first or second-order methods, as these methods
+    usually exploit this knowledge in some way to get results
+    either faster or more accurately.
+    But if the derivative is not given in a closed form but has to be
+    calculated by evaluating a series of expensive fuction calls, then
+    derivative-free methods can shine.
+
+    As stated by Larson, Menickelly and Wild in~\cite{derivative_free_methods},
+    "Derivative-free optimization methods are sometimes employed for 
+    convenience rather than by necessity".
+    Keeping the strengths and weaknesses of derivate free optimization
+    methods in mind, there always most be a justification to use
+    a certain method.
+    In this work a ray tracing simulation provides a function value
+    (or multiple) depending on some geometric parameters of the 
+    simulation setup.
+    There are three major reasons why it was decided to use derivative
+    free approaches to optimize those geometric parameters.
+    The first reason is that there are configurations in the
+    simulation setup where the function value is discontinuous.
+    This can be seen in \figref{fig:opt_discontinuous} where a two
+    dimensional domain was evaluated quite densely to make the discontinuous
+    parts visible.
+    Of course this cannot be done during the optimization algorithm, 
+    because it would take a lot of computational cost to just evaluate
+    the whole domain.
+    To sample the function as densely as in \figref{fig:opt_discontinuous}
+    in hihger dimensions one would have to sample exponentially many
+    more points depending on the dimensions.
+
+    \begin{figure}
+        \centering
+        \missingfigure{plot of discontinuities in function}
+        \caption{}
+        \label{fig:opt_discontinuous}
+    \end{figure}
+
+    Another reason why it was chosen to use derivative free optimization
+    is the computational cost associated with evaluating the function.
+    One evaluation amounts to an entire raytracing simulation of the
+    scene using a significant amount of rays and detail in the scene
+    to achieve low noise.
+    As most derivative free algorithms are specifically designed to
+    minimize the amount of function evaluations, this is the
+    main reason why a black box optimization algorithm was chosen.
+    Especially since the simulation is intended to be uses with multiple
+    dimensions of free parameters, each additional dimension would
+    cost a lot in terms of gradient evaluation.
+    Even more so if one calculates the second-order gradient using
+    central differences.
+    The thid reason is that derivative free optimization methods
+    can deal well with noisy input.
+    This is particularly useful if the function is evaluated
+    with some sort of random sampling involved.
+    In this work the ray tracer calculates the absorption of light in a
+    transmissable medium.
+    The geometry, power, and wavelength of the rays in the scene are
+    randomly sampled.
+    This means that across multiple evaluations of the function the
+    result varies slightly due to noise generated by the random sampling.
+    This is a common problem in raytracing and can only be reduced by
+    sampling more often, i.e. shooting more rays into the scene.
+    Since the computational cost has to be limited for a function
+    evalution in some capacity the noise level cannot be reduced
+    to zero completely.
+    It is to be noted though that during the simulation all
+    random variables are kept the same and the sampling only
+    occurs during the setup process of the simulation.
+    Thus two evaluations of the function with the same parameters
+    deliver the same result.
+    This means that there is noise but the noise is deterministic
+    in nature.
+    Evaluating a gradient with noisy values is generally a bad idea
+    and will lead to large variance in the direction in the 
+    calculated gradient.
+    One could resort to just averaging the gradient across a
+    larger domain of points in order to smoothen the noise.
+    While this is certainly possible it comes with even more
+    computational cost than just calculating the gradient normally.
+    Additionally, there is no easy why to calculate a gradient
+    analyticly.
+    It is technically possible to generate an algorithmic
+    differentiation as an alternative to derivative free 
+    methods as discussed in ~\cite{derivative_free_methods}.
+    The idea here is to generate a derivative by evaluating the
+    written code and applying the chain rule for differentiation
+    for the elementary operations the code executes.
+    This can work well for simple codes and codes without a
+    significant amount of absolute values and conditional jumps.
+    But after considering that raytracing basically consists of
+    trigonometric functions, absolute values and conditional jumps
+    it was deemed inpractical to try an approach with algorithmic
+    differentiation.
+    For these reasons gradient based and therefore also second-order
+    methods along with algortihmic differentiation was not used in
+    this work and derivative free methods were preferred instead.
+
+    There are also multiple types and categories of derivative
+    free optimization.
+    These split into two general types.
+    Deterministic methods are methods where the decision process of
+    the algorithm only depends on information gathered and not
+    as in randomized methods also on some factor of randomness
+    introduced by a random variable.
+    These types of optimization then also depend on whether the
+    black-box function is itself deterministic or has stochastic
+    elements to it.
+    As described above, in this work the black-box function is
+    noisy but the evaluation is stricly deterministic.
+    Therefore here only methods are explained where the function
+    is deterministic.
+    Perhaps confusingly one can still aplly randomized methods on
+    a deterministic function.
+    This can have the benefit of not getting stuck on stationary
+    saddle points as easily as deterministic methods.
+    In fact most presented methods can be extended to use some
+    factor of randomization and thus becoming randomized
+    methods.
+    Also there are hybrid methods which use some parts of
+    each subtype making the distinction between methods not
+    as clear.
+    As in this work the deterministic MADS algorithm is used on
+    a deterministic but noisy function, only
+    deterministic methods relevant to the understanding of
+    MADS are explained.
+    
+    The first family of deterministic methods are direct search methods of which
+    the later used MADS~\cite{mads_original} algorithm is also a 
+    part of.
+    Direct methods do not attempt to approximate some sort of gradient
+    and generally evaluate a selection of points in order to advance
+    towards a minimum.
+    These are split into simplex methods and directional direct
+    search methods.
+    
+    Simplex methods use a simplex vertex structure and a set
+    of operations on those vertices to iteratively advance the vertices
+    to a local minimum.
+    The most well known of which is the Nelder-Mead method, where
+    the vertex with the biggest function value is continuously
+    reflected through a hyperplane spanned by the other points.
+    The simplex can also be expanded, contracted or shrunk depending
+    on the value of the function at the vertex points.
+    It has been shown that the Nelder-Mead method has some drawbacks
+    and convergence of the method to a stationary point is not always
+    guaranteed~\cite{derivative_free_methods}.
+    For this reason simplex methods where ruled out for the optimization
+    of the problem presented in this work.
+    
+    The directional direct search methods always have a current point
+    $\vec{x_k}$ and a set of poll points generated by a some set
+    of directions $\vec{d} \in D_k$ and a current step size $\alpha_k$
+    ~\cite{derivative_free_methods}.
+    The function is then evaluated at those poll points and the 
+    point with the smallest value becomes the new search point 
+    $\vec{x_{k+1}}$.
+    If there was no poll point with a smaller value the step
+    size $\alpha_k$ is decreased and a new set of poll points is
+    evaluated.
+    It is to be noted that across multiple iterations the set of
+    directions can change from one iteration to the next.
+    A general algorithm for direct search methods was given in
+    ~\cite{derivative_free_methods} as Algorithm 1 and 2 and 
+    an abbreviated version is 
+    repeated here for the sake of putting the used MADS
+    algorithm explained in ~\cite{mads_original} and 
+    \secref{sec:mads} in this work into better context. 
+
+    \begin{algorithm}
+        \label{alg:direct_search}
+        \SetAlgoLined
+        Set $0 < \gamma_{dec} < 1 \leq \gamma_{inc}$ \\
+        Set initial point $\vec{x}_0$ \\
+
+        \For{$k$ in 0,1,2,...}
+        {
+            Choose a finite set of points $Y_k$ \\
+            Choose best $\vec{x}_k^p$ from $Y_k$ \\
+            \If{$\vec{x}_k^p = \vec{x}_k$}{
+            \For{$\vec{d}$ in $D_k$}{
+                $pollpoints \leftarrow f(\vec{x} + \alpha_k \vec{d})$ 
+            }
+            Choose best $\vec{x}_k^p$ from $pollpoints$ \\
+            }
+            \If{$\vec{x}_k^p = \vec{x}_k$}{
+                $\alpha_{k+1} \leftarrow \gamma_{dec} \alpha_k$
+            }
+            \Else{
+                $\alpha_{k+1} \leftarrow \gamma_{inc} \alpha_k$
+            }
+            $\vec{x}_{k+1} \leftarrow \vec{x}_{k}^p$
+        }
+        
+        \caption{
+            A general direct search algorithm for derivative free
+            optimization taken and abbreviated from 
+            ~\cite{derivative_free_methods}.
+        }
+    \end{algorithm}
+
+    Note that before evaluating the poll points a search step can
+    be executed, where the function can be sampled at some
+    points in hopes to find a better local minimum.
+    This step is optional and can potentially help improve the 
+    performance of the algorithm.
+    The different methods of direct search generate the directions
+    $D_k$ differently.
+
+    Other than direct search methods there are also model based
+    methods.
+    Here the black-box function is modelled by surrogate representing
+    the function.
+    When iterating the function is locally approximated by a function
+    that has some desireable properties for optimization.
+    For example a surrogate function could be a polynomial
+    which is known to be smooth and differentiable.
+    The optimization is then carried out by using information
+    the surrogate function provides.
+    As usually the model is not accurate across the entire domain,
+    but only locally around the current search point.
+    The decision if a step should be taken is also influenced
+    by an estimation of the error the model has at that point.
+    Methods that use this information to make decisions are called
+    derivative-free trust-region methods.
+    Once the model has been formed around the current search point
+    the gradient of the model has to be evaluated.
+    This now is possible in a closed form as the mathematical description
+    and properties of the model function is known.
+    So the main problem with gradient based methods is circumvented
+    by this approach.
+    One drawback is the relyance on the smoothness of the model function.
+    While the model function is smooth the original black-box
+    function can be highly discontinuous.
+    Thus the model is either not trusted at the discontinuous points
+    or a larger number of points needs to be evaluated in order to
+    "model" the discontinuity.
+    These methods work well if the model function can closely resemble
+    the original function.
+    This is a problem in the simulation carried out in this work, since
+    the objective function is discontinuous and noisy.
+    
+    In conlusion it was determined that derivative free direct search
+    methods offer the most suitable features for the task at hand.
+    In particular one special form of direct search called the
+    mesh adaptive direct search (MADS) offers the capacity to
+    deal with the non smoothness and noisyness of the objective
+    function in this work.
+    Additionally it can handle constraints on the input parameters
+    even if they are also given in a black-box or oracle form,
+    something that can come in handy in the design process of 
+    any optical system.
+    Furthermore it offers the capability of solving biobjective
+    optimization, which is also required when opimizing both
+    the absorbed power and the variance of the absorption profile.
+    The MADS algorithm is explained and examined in detail in
+    \secref{sec:mads}.
+    
+    \subsection{Mesh Adaptive Direct Search (MADS)} \label{sec:mads}
     \subsection{Biobjective MADS}
     \subsection{Nomad Library}
     \subsection{Integration into Framework}
