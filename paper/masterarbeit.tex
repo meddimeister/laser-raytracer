@@ -11,6 +11,8 @@
 \usepackage{todonotes}
 \usepackage{tikz-uml}
 
+\newtheorem{definition}{Definition}
+
 % SETUP OF LSSPUB
 \lsstitle{Optimization of Mirrorshapes in Optically Pumped Solar Lasers Using Ray Tracing Simulation Techniques}%
 \lssauthor{Matthias König}%
@@ -56,6 +58,7 @@ beam quality evaluated.
 \newcommand{\figref}[1]{Figure~\ref{#1}}
 \newcommand{\algref}[1]{Algorithm~\ref{#1}}
 \newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\defref}[1]{Definition~\ref{#1}}
 
 \begin{document}
 
@@ -2148,6 +2151,204 @@ beam quality evaluated.
     The explanations in this chapter are taken from~\cite{mads_original}
     and theoretical mathematical concepts for the purpose of understanding
     the inner workings of MADS are added where deemed necessary.
+
+    \subsubsection{Optimality}
+
+    Usually optimality in an optimization problem of the form as in
+    \equref{equ:optimization_local} is defined by the notion of stationary
+    points.
+    A stationary point is a point where the gradient goes to 0 in all
+    directions ~\cite{solomon_numerical}.
+    Therefore a stationary point $\vec{x}$ must satisfy \equref{equ:stationary_grad}.
+
+    \begin{equation}
+        \label{equ:stationary_grad}
+        \nabla f(\vec{x}) = 0
+    \end{equation}
+
+    For most cases this criterium is adequate if the function $f$ is differentiable.
+    Since the direct directional search methods where mainly developed
+    to optimize non-smooth functions, one needs a more general way
+    of defining optimiality.
+    Defining optimality in a different way implies that a substitute
+    definition of the derivative or differentiability as a whole
+    is required.
+    There are many ways of defining some sort of generalized derivative.
+    One way of defining a generalized gradient is described by Clarke
+    in ~\cite{clarke}.
+    Here Clarke proposes a gradient which consists of a set of vectors
+    rather than a single vector.
+    To understand Clarke's definition, a few mathematical definitions
+    and explanations are needed beforehand.
+    
+    \begin{definition}
+        \label{def:local_lipschitz}
+        Let $X$ be a Banach space.
+        A real valued function $f$ is locally Lipschitz continuous in $\vec{x}$
+        if for every $\vec{x} \in X$ exists a neighborhood $N_x$ and a Lipschitz
+        constant $K_x$ s.t. for every $\vec{y}, \vec{z} \in N_x$ holds 
+        \begin{equation}
+            |f(\vec{y}) - f(\vec{z})| < K_x|y - z|
+        \end{equation}
+
+        A function $f$ is called locally Lipschitz continuous if it is
+        locally Lipschitz continuous for every $\vec{x} \in X$.
+    \end{definition}
+    
+    \defref{def:local_lipschitz} is just a restriction of Lipschitz continuity
+    to a neighborhood around a point.
+    Lipschitz continuity basically says that the function is continuous in
+    that point and the slope of the function is bounded by the constant $K_x$.     
+    Lipschitz continuity in that sense is even stronger than continuity
+    since additionally to normal continuity the slope has to be bounded.
+
+    \begin{definition}
+        Let $\{a_n\} \subset \mathbb{R}$.
+        \begin{equation}
+            \lim_{n \rightarrow \infty} \sup a_n = \lim_{n \rightarrow \infty} A_n
+        \end{equation} 
+        where
+        \begin{equation}
+            A_n = \sup\{a_n, a_{n+1}, ...\} = \sup\{a_k | k \geq n\}
+        \end{equation}
+    \end{definition}
+
+    The limit superior of a series $a_n$ is just the limit of a series, which consists
+    of the smallest upper bounds for a modified series, which
+    starts at increasingly later points in the original series.
+    One can think of a value that is the smallest possible value that is
+    an upper bound of a series (function values) at $n \rightarrow \infty$.
+    So basically ome is not interested in the bounding values in the start
+    of the series but in the bound which eventually is a bound for all
+    values except for a finite amount of values. 
+    With those definitions Clark defined the generalized directional
+    derivative as in \defref{def:generalized_deriv}.
+
+    \begin{definition}
+        \label{def:generalized_deriv}
+        Let $X$ be Banach, $\vec{v} \in X$ some direction and 
+        $f : X \rightarrow \mathbb{R}$ a real valued
+        function that is locally Lipschitz continuous.
+        The generalized directional derivative or Clarke directional
+        derivative of $f$ at $\vec{x}$ in direction $\vec{v}$ is given by
+
+        \begin{equation}
+            f^{\circ}(\vec{x};\vec{v}) = 
+            \lim_{y \rightarrow x; \lambda \downarrow 0} \sup
+             \frac{f(\vec{y} + \lambda \vec{v}) - f(\vec{y})}{\lambda}
+        \end{equation}
+
+    \end{definition}
+
+    The Clarke directional derivative represents an upper bound for the
+    slope in direction $\vec{v}$ as one gets closer and closer to $\vec{x}$.
+    This is useful since at some point the slope is definitely bound
+    because of local Lipschitz continuity of $f$.
+    It guarantees that the Clarke directional derivative always exists
+    for locally Lipschitz contiuous functions and the value of $f^{\circ}$
+    is a finite quantity ~\cite{clarke}.
+    Colloquially one could say that if one knows that the function always
+    has some neighborhood around the current point where the slope is bounded,
+    the slope in a certain direction can be defined as the slope
+    one finds as one takes infinitely many samples of the slope at
+    closer and closer points to the current point, where one wants
+    to find the slope.
+    This slope then is steeper than almost all sampled points - almost
+    all in the mathematical sense means except for a finite amount of
+    points - and it is finite.
+    This circumvents the problem of a derivative defined only with
+    the differential quotient, as those can become infinite or
+    undefined if the function does not behave well at $\vec{x}$.
+    Clark then defines a gradient from the diectional derivative as
+    a set of directions $\xi$, where the projection of $\xi$ onto
+    the direction $\vec{v}$ is smaller than the directional
+    derivatives for every direction possible.
+    
+    \begin{definition}
+        The Clark generalized gradient of $f$ at $\vec{x}$ is
+        \begin{equation}
+            \partial f(\vec{x}) = 
+            \{\xi \in X : f^{\circ}(\vec{x}; \vec{v}) >
+             \langle \vec{\xi}, \vec{v} \rangle\}
+             \quad \forall \vec{v} \in X
+        \end{equation}
+    \end{definition}
+
+    This definition of a gradient is not used in the algorithm itself
+    but is helpful to understand why the algorithm converges even
+    for nonsmooth functions.
+    It can be proven that for differentiable functions the Clark
+    generalized gradient collapses to a set with a single element,
+    that being the conventional gradient $\nabla f(\vec{x})$
+    ~\cite{mads_original}.
+    If function is optimized using GPS methods 
+    that produce $\vec{\hat{x}}$ as a solution for the minimum,
+    it has been shown by Audet and Dennis as stated in~\cite{mads_original}
+    that the conventional gradient is 0 if the function is
+    differentiable in $\vec{\hat{x}}$.
+    In particular a stationary point as in \equref{equ:stationary_grad}
+    was reached.
+    But for only locally Lipschitz continuous functions it was shown
+    in a convergence analysis by Audet and Dennis that the Clarke 
+    generalized directional
+    derivatives are nonnegative for the finite set of fixed directions
+    used in GPS methods.
+    If the criterium for optimality is just the statement that the
+    Clarke generalized directional derivatives have to be nonnegative
+    along the pattern directions, then GPS methods can provide
+    adequate solutions.
+    But this restriction to the finite set of directions produces a 
+    weaker optimality criterium than the one fullfilled by the
+    MADS class of algorithms.
+    The criterium for optimality for MADS methods is thus given by
+    reaching a Clarke stationary point and is defined in 
+    \defref{def:stationary_clarke}.
+    
+    \begin{definition}
+        \label{def:stationary_clarke}
+        A point $\vec{\hat{x}}$ is called a Clarke stationary point,
+        if the following holds
+        
+        \begin{equation}
+            f^{\circ}(\vec{\hat{x}}; \vec{v}) \geq 0 \quad \forall
+             \vec{v} \in \mathbb{R}^n
+            \Longleftrightarrow
+            0 \in \partial f(\vec{\hat{x}})
+        \end{equation}
+    \end{definition}
+
+    This definition also neatly showcases a more intuitive way of thinking
+    about the Clarks generalized gradient.
+    One can think of the set of vectors in the gradient as the directions
+    populating a cone limited by the corresponding Clarke directional
+    derivatives at that point.
+    If the cone has a positive slope on all sides, the point is a minimum.
+    Therefore the new formulation of the optimization problem for
+    the MADS class of optimization algolrithms is just given by finding
+    a Clarke stationary point within the domain $\Omega$.
+    Of course for this to happen one would need to sample infinitely
+    many directions, which is not possible in the optimization
+    algorithm.
+    But as with optimization strategies using the normal 
+    definition of stationary points in \equref{equ:stationary_grad} it
+    is enough to come asymptotically close to fulfilling the
+    criterium.
+    Whereas in practice one terminates an iterative algorithm using
+    normal gradients when the length of the gradient is small
+    enough - usually below some threshold $\epsilon$ - it can
+    also be said for the MADS class of algorithms that it is
+    enough that the directions are asymptotically densely
+    sampled.
+    Meaning that there is no inherent restriction of which direction
+    can be chosen by the algorithm and enough directions have been sampled
+    to say the criterium has been fulfilled with a certain degree of
+    confidence. 
+
+    \subsubsection{Constrained Optimization}
+
+    Another advantage that MADS algolrithms have is the handling of
+    constraints.
+
 
     \subsection{Biobjective MADS}
     \subsection{Nomad Library}
