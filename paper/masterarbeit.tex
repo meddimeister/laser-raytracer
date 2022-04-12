@@ -358,6 +358,28 @@ beam quality evaluated.
 
     \subsection{Raytracing Basics}  \label{sec:raytracing_basics}
 
+    The techiques presented in this chapter are largely explained
+    in the excellent lecture \emph{Global Illumination} by 
+    Stamminger at FAU~\cite{globillum}.
+    While the lecture applies those techniques in a different context,
+    namely for the purpose of generating physically accurate images
+    in image processing applications or video games,
+    a selection of the techniques are still relevant to using
+    ray tracing in scientific computing.
+    Since the aim of both fields is slightly different, the priorities
+    shift regarding to computational performance or numerical
+    accuracy.
+    In scientific computing more focus is layed on the accurate modelling
+    of physical phenomena.
+    For example, while in image processing it is sufficient to use a
+    faster approximation of Snell's law in \equref{equ:snell} in application
+    of physical rayracing one migt rather evaluate the actual law and
+    take the additional computational cost of evaluating trigonometric
+    functions into account.
+    Nevertheless there is a large overlap between the two fields of
+    application and a lot of techniques are entirely applicable
+    in scientific computing as is.
+
     Rays are represented as a parametric line from a ray origin $o$ in
     direction $d$.
     The parameter $t$ goes is in the interval $[0, \infty)$ and represents
@@ -929,7 +951,7 @@ beam quality evaluated.
     Therefore there is no need for the user to worry about 
     memory management. 
 
-    \subsubsection{Rays}
+    \subsubsection{Ray2D}
 
     Rays are the most basic datastructure in the simulation.
     They are described by an origin, a direction, a field for the
@@ -2118,6 +2140,15 @@ beam quality evaluated.
     \secref{sec:mads}.
     
     \subsection{Mesh Adaptive Direct Search (MADS)} \label{sec:mads}
+
+    The mesh adaptive direct search class of algorithms was originally
+    proposed by Audet and Dennis in 2006~\cite{mads_original}.
+    It was specifically designed to optimize nonlinear, nonsmooth
+    constrained functions.
+    The explanations in this chapter are taken from~\cite{mads_original}
+    and theoretical mathematical concepts for the purpose of understanding
+    the inner workings of MADS are added where deemed necessary.
+
     \subsection{Biobjective MADS}
     \subsection{Nomad Library}
     \subsection{Integration into Framework}
