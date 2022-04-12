@@ -13,7 +13,7 @@ void CSVWriter::write() const {
   }
 
   for (const auto &t : tables) {
-    string filename = t.first + ".csv";
+    string filename = t.first + extension;
     const auto &lines = t.second;
 
     fstream fs(outputDirectory + "/" + filename,

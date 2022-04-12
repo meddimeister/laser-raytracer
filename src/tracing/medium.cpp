@@ -18,21 +18,24 @@ void Medium2D::action(Ray2D &ray, const IntersectResult2D &result,
   internalResult.normalEnter = result.normalEnter;
   internalResult.normalLeave = -result.normalEnter;
   internalResult.hit = true;
-  if(transmitResult.hit){
+  if (transmitResult.hit) {
     internalResult = transmitResult;
   }
 
-  actionTransmit(ray_transmit_in, internalResult);  
+  actionTransmit(ray_transmit_in, internalResult);
 
-  ray_transmit_in.terminate(internalResult.tLeave);
-  
-  auto [ray_reflect_out, ray_transmit_out] =
-       ray_transmit_in.refract(internalResult.tLeave, internalResult.normalLeave, sellmeier(_sellmeierCoeff, ray_transmit_in.wavelength), 1.0);
+  if (!ray_transmit_in.terminated) {
+    ray_transmit_in.terminate(internalResult.tLeave);
 
+    auto [ray_reflect_out, ray_transmit_out] = ray_transmit_in.refract(
+        internalResult.tLeave, internalResult.normalLeave,
+        sellmeier(_sellmeierCoeff, ray_transmit_in.wavelength), 1.0);
+
+    // createdRays.push_back(ray_reflect_out);
+    if (!ray_transmit_out.terminated) {
+      createdRays.push_back(ray_transmit_out);
+    }
+  }
   createdRays.push_back(ray_reflect_in);
   createdRays.push_back(ray_transmit_in);
-  //createdRays.push_back(ray_reflect_out);
-  if(!ray_transmit_out.terminated){
-    createdRays.push_back(ray_transmit_out);
-  }
 }

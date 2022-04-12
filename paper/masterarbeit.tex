@@ -1843,8 +1843,25 @@ beam quality evaluated.
 
     \begin{figure}
         \centering
-        \missingfigure{plot of discontinuities in function}
-        \caption{}
+        \begin{tabular}{c}
+        \includegraphics[width=0.8\textwidth]{images/discontinuity.pdf} \\
+        \includegraphics[width=0.8\textwidth]{images/noisyness.pdf}
+        \end{tabular}
+        \caption{
+            Discontinuous (top) and noisy (bottom) points of an objective function
+            resulting from a ray tracing simulation.
+            The bottom plot is just the same plot as the top one but rotated
+            to make the noisy points more visible.
+            The simulation was carried out using a similar setup to the setup described
+            in \secref{sec:setup} but with a parabolic mirror of the form
+            $a*x^2 + b$ where $a$ and $b$ are would be the two input
+            parametes to the optimization algorithm.
+            It can be observed that the objective function is more a stepfunction than
+            a continuous one, making the calculation of a gradient using
+            finite differences inpractical.
+            Additionally, one can observe that the function has deterministic noise 
+            on top of the discontinuity.
+        }
         \label{fig:opt_discontinuous}
     \end{figure}
 
@@ -2073,8 +2090,8 @@ beam quality evaluated.
     \subsection{Nomad Library}
     \subsection{Integration into Framework}
 
-    \section{Examplatory Setup}
-    \subsection{Setup}
+    \section{Examplatory Setup} \label{sec:setup}
+    \subsection{Setup} 
     \subsection{ASLD Software}
     \subsection{Beam Analysis}
 

@@ -17,11 +17,12 @@ class CSVWriter {
 private:
   string outputDirectory;
   unordered_map<string, vector<string>> tables;
+  string extension;
   size_t precision;
 
 public:
-  CSVWriter(const string &_outputDirectory, size_t _precision = 7)
-      : outputDirectory(_outputDirectory), precision(_precision) {}
+  CSVWriter(const string &_outputDirectory, const string &_extension = ".csv", size_t _precision = 7)
+      : outputDirectory(_outputDirectory), extension(_extension), precision(_precision) {}
 
   template <typename... Args> void add(const string &name, Args &&...args) {
     stringstream ss;
