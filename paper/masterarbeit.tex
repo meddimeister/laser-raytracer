@@ -1708,7 +1708,7 @@ beam quality evaluated.
     \begin{equation}
         \label{equ:optimization_global}
         \begin{gathered}
-        \text{find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
+        \text{Find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
         f(\vec{x}_{min}) \leq f(\vec{x}) \quad \forall \vec{x} \in \Omega
         \end{gathered} 
     \end{equation}
@@ -1753,7 +1753,7 @@ beam quality evaluated.
     \begin{equation}
         \label{equ:optimization_local}
         \begin{gathered}
-        \text{find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
+        \text{Find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
         f(\vec{x}_{min}) \leq f(\vec{x}) \quad \forall \vec{x} \in B_{\epsilon}(\vec{x}_{min})
         \end{gathered} 
     \end{equation}
@@ -2265,7 +2265,7 @@ beam quality evaluated.
     derivatives for every direction possible.
     
     \begin{definition}
-        The Clark generalized gradient of $f$ at $\vec{x}$ is
+        The Clarke generalized gradient of $f$ at $\vec{x}$ is
         \begin{equation}
             \partial f(\vec{x}) = 
             \{\xi \in X : f^{\circ}(\vec{x}; \vec{v}) >
@@ -2348,7 +2348,52 @@ beam quality evaluated.
 
     Another advantage that MADS algolrithms have is the handling of
     constraints.
+    For this it is necessary to revisit the definition of the optimization
+    problem once again.
+    Constraints usually have to have a special form for most algorithms.
+    Either they need to be linear, bounded, or differentiable and so on.
+    For the constrained optimization with MADS algorithms none of
+    those properties are required.
+    The constraints can just be given as black-box functions or
+    oracles which decide whether an point satisfies the constraint
+    or not.
+    A big limitation of GPS methods is the directional dependence of
+    evaluating constraint functions caused by the restriction of the poll
+    directions to finitely many fixed directions.
+    In MADS algorithms the black-box constraints are included to arrive
+    at the updated version of the optimization problem in
+    \equref{equ:optimality_mads}.
 
+    \begin{equation}
+    \label{equ:optimality_mads}
+        \begin{gathered}
+        \text{Find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
+        f^{\circ}(\vec{x}_{min}; \vec{v}) \geq 0 \quad \forall
+             \vec{v} \in \mathbb{R}^n
+            \Longleftrightarrow
+            0 \in \partial f(\vec{x}_{min})\\
+        \text{and all constraint functions} \quad c_i(\vec{x}_{min}) > 0
+        \end{gathered}
+    \end{equation}
+
+    The MADS class of algorithms can use a so called barrier approach where the
+    constraint functions are just treated as points where the objective function
+    goes to infinity.
+    This is possible, because there is asymptotically dense polling of directions
+    so the barriers are accurately found during the iteration.
+    The optimization is then carried out as if the domain is unconstrained.
+    One could also write the optimization problem for MADS algorithms with
+    the set $\Omega$ excluding the points where one ore more of the constraint
+    functions $c_i$ delivers a negative value.
+    But this often leads to the assumption that $\Omega$ is somehow evaluated
+    beforehand which is not the case.
+    The barriers are only found during the iteration by sampling the poll
+    directions and finding those points.
+    The points where one or more of the constraints is not satisfied are often called
+    infeasable points.
+    As stated in ~\cite{mads_original}, "a key advantage of the barrier
+    approach is that one can avoid expensive function calls to $f$ whenever
+    a constraint is violated".
 
     \subsection{Biobjective MADS}
     \subsection{Nomad Library}
