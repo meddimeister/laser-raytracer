@@ -4,6 +4,7 @@
 \usepackage{physics}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsfonts}
 \usepackage{float}
 \usepackage[parfill]{parskip}
 \usepackage[ruled,vlined]{algorithm2e}
@@ -2029,8 +2030,11 @@ beam quality evaluated.
 
         \For{$k$ in 0,1,2,...}
         {
-            Choose a finite set of points $Y_k$ \\
-            Choose best $\vec{x}_k^p$ from $Y_k$ \\
+            Choose a finite set of search points $Y_k$ \\
+            \For{$\vec{y}$ in $Y_k$}{
+                $searchpoints \leftarrow f(\vec{y})$ 
+            }
+            Choose best $\vec{x}_k^p$ from $searchpoints$ \\
             \If{$\vec{x}_k^p = \vec{x}_k$}{
             \For{$\vec{d}$ in $D_k$}{
                 $pollpoints \leftarrow f(\vec{x} + \alpha_k \vec{d})$ 
@@ -2152,7 +2156,7 @@ beam quality evaluated.
     and theoretical mathematical concepts for the purpose of understanding
     the inner workings of MADS are added where deemed necessary.
 
-    \subsubsection{Optimality}
+    \subsubsection{Optimality and Clarke's Calculus for nonsmooth Optimization}
 
     Usually optimality in an optimization problem of the form as in
     \equref{equ:optimization_local} is defined by the notion of stationary
@@ -2320,7 +2324,7 @@ beam quality evaluated.
     This definition also neatly showcases a more intuitive way of thinking
     about the Clarks generalized gradient.
     One can think of the set of vectors in the gradient as the directions
-    populating a cone limited by the corresponding Clarke directional
+    populating a tangent cone limited by the corresponding Clarke directional
     derivatives at that point.
     If the cone has a positive slope on all sides, the point is a minimum.
     Therefore the new formulation of the optimization problem for
@@ -2344,7 +2348,7 @@ beam quality evaluated.
     to say the criterium has been fulfilled with a certain degree of
     confidence. 
 
-    \subsubsection{Constrained Optimization}
+    \subsubsection{Constrained Optimization with the Barrier Approach}
 
     Another advantage that MADS algolrithms have is the handling of
     constraints.
@@ -2360,7 +2364,7 @@ beam quality evaluated.
     A big limitation of GPS methods is the directional dependence of
     evaluating constraint functions caused by the restriction of the poll
     directions to finitely many fixed directions.
-    In MADS algorithms the black-box constraints are included to arrive
+    In MADS algorithms the black-box constraints $c_i$ are included to arrive
     at the updated version of the optimization problem in
     \equref{equ:optimality_mads}.
 
@@ -2368,11 +2372,16 @@ beam quality evaluated.
     \label{equ:optimality_mads}
         \begin{gathered}
         \text{Find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
-        f^{\circ}(\vec{x}_{min}; \vec{v}) \geq 0 \quad \forall
+        f_{\Omega}^{\circ}(\vec{x}_{min}; \vec{v}) \geq 0 \quad \forall
              \vec{v} \in \mathbb{R}^n
             \Longleftrightarrow
-            0 \in \partial f(\vec{x}_{min})\\
-        \text{and all constraint functions} \quad c_i(\vec{x}_{min}) > 0
+            0 \in \partial f_{\Omega}(\vec{x}_{min})\\
+        \text{where} \quad \Omega = \left \{  \vec{x} \vert  c_i(\vec{x}) > 0 \quad \forall \, c_i \right \}\\
+        \text{and} \quad f_{\Omega}(\vec{x}) = 
+        \begin{cases}
+            f(\vec{x}) & \quad \vec{x} \in \Omega \\
+            \infty & \quad \vec{x} \notin \Omega \\
+        \end{cases}
         \end{gathered}
     \end{equation}
 
@@ -2382,21 +2391,195 @@ beam quality evaluated.
     This is possible, because there is asymptotically dense polling of directions
     so the barriers are accurately found during the iteration.
     The optimization is then carried out as if the domain is unconstrained.
-    One could also write the optimization problem for MADS algorithms with
-    the set $\Omega$ excluding the points where one ore more of the constraint
-    functions $c_i$ delivers a negative value.
-    But this often leads to the assumption that $\Omega$ is somehow evaluated
-    beforehand which is not the case.
-    The barriers are only found during the iteration by sampling the poll
-    directions and finding those points.
+    It is important to note that the barries $\delta\Omega$ are not 
+    eveluated beforehand but are only found during the iteration by
+    sampling the poll directions and finding those points.
     The points where one or more of the constraints is not satisfied are often called
     infeasable points.
     As stated in ~\cite{mads_original}, "a key advantage of the barrier
     approach is that one can avoid expensive function calls to $f$ whenever
     a constraint is violated".
+    This translates to only evaluating the poll directions where the
+    poll point is a feasable point.
+    The definition of Clarke's directional derivative can then be modified
+    so that only feasable points are present in the formula.
+    This is modification was originated by Jahn and is also shown
+    and referenced in ~\cite{mads_original}.
+    Since the modification is quite trivial the definition of optimality
+    using this approach does not change much except that the
+    "sampled" points for building the tangent cone have to be feasable
+    points.  
+
+    \subsubsection{Mesh Generation and Execution of MADS algorithms}
+
+    As stated in \secref{sec:derivative_free}, the generalized algorithm for
+    direct directional search optimization is specialized by
+    the concrete implementation in terms of how to choose the set of directions
+    $D_k$ in each iteration $k$.
+    The same is also true for the MADS algorithm where the special properties
+    for optimality shown in \secref{sec:optimality} are only arising due
+    to the asymptotically dense evaluation of poll directions.
+    To achieve this dense sampling of directions, MADS algorithms generate two 
+    sets of meshes around the current point.
+    It is important to understand that these meshes only exist conceptually and
+    no actual datastructure is needed to store information about the mesh
+    other than some parameters and values kept track of during the actual
+    iteration.
+    One of the meshes is an actual mesh subdividing the domain in a finite amount
+    of $n_D$ directions $D$.
+    The set $D$, like in GPS methods is a fixed positive spanning set spanning
+    $\mathbb{R}^n$ as in \equref{equ:pss}.
+    The set $D$ can also be viewed as a $n \times n_D$ matrix and thus the
+    mesh is defined by \defref{def:mesh}.
+
+    \begin{definition}
+        \label{def:mesh}
+        The mesh $M_k$ at iteration $k$ is defined by
+        \begin{equation}
+            M_k = \bigcup_{\vec{x} \in S_k} 
+            \left\{ \vec{x} + \Delta^m_k D \vec{z} \, \vert \, \vec{z}
+             \in \mathbb{N}^{n_D} \right\}
+        \end{equation}        
+        where $\Delta_m^k$ is the mesh size parameter and $S_k$ is the 
+        set of already visited points.
+    \end{definition}
+
+    This definition of a mesh does not differ from GPS methods yet.
+    The distinction comes once the poll directions are chosen from this mesh.
+    If a trial point does not satisfy one of the constraints, the value of
+    the objective function is just set to infinity without calling $f$ in
+    any way.
+    It is stated in ~\cite{mads_original} that the constraint functions
+    $c_i$ should be ordered according to how expensive the evaluation
+    of a constraint oracle is.
+    It thus is the responsibility of the user that the cheaper constrained
+    should be evaluated first.
+    The objective function $f_{\Omega}$ is then evaluated at the trial
+    points $\vec{x} \in \Omega$.
+    Same as in all directional direct search algorithms the user can
+    select a finite set $Y_k$ of search points on the mesh at the
+    start of an iteration.
+    This has the potential benefit of providing flexibility for the user
+    to exploit some problem specific knowledge about the objective
+    function.
+    The way the user chooses those points does not affect the convergence
+    properties of the algortihm since the "lower bound" for convergence
+    is given by the poll step.
+    If a better point is found during the search step this point becomes
+    the new best value, the mesh size parameter $\Delta^m_k$ is increased
+    and the iteration is continued.
+    If the search step does not yield a better solution then the poll
+    step is executed and a better solution is searched with the
+    trial points produced by the poll directions.
+    Should the poll search also fail and the current solution
+    still be the best solution, the mesh size for the next iteration
+    $\Delta^m_{k+1}$ is decreased to produce a finer mesh and the
+    objective function can generally be evaluated closer and closer
+    to the current best point.
+    The exact rule for updating the mesh size parameter shown in
+    ~\cite{mads_original} and given in \equref{equ:meshsize}, were
+    $\tau > 1$ and $w^- \leq -1$ and $w^+ \geq 0$ are user defined
+    parameters.
+
+    \begin{equation}
+    \label{equ:meshsize}
+    \begin{gathered}
+    \Delta^m_{k+1} = \tau^{w_k}\Delta^m_k \\
+    w_k \in 
+    \begin{cases}
+        \{ 0,1,\dots,w^+\} &\quad \text{if improved point was found} \\
+        \{w^-,w^- + 1,\dots, -1\} &\quad \text{else} \\
+    \end{cases}
+    \end{gathered}
+    \end{equation}
+
+    The difference between MADS and GPS methods is how the algorithms choose
+    the trial points in the poll step.
+    For GPS methods the trial points have to lie a fixed distance away from
+    the current point.
+    This distance is $\Delta^m_k$ considering the mesh and means that
+    the trial points can only be one "hop" away from the current point.
+    This inherently limits the possible poll directions to the fixed finite
+    set of directions $D$ given in the generation of the mesh.
+    If the selection of trial points is independent of the current mesh
+    size, the possible trial point are limited by a so called \emph{frame}.
+    The frame is defined by separate poll size parameter $\Delta^p_k$
+    which limits the mesh distance at which trial point can be from
+    the current point.
+    For GPS methods it holds that $\Delta^p_k = \Delta^m_k$.
+    The MADS class of algortihms on the other hand does not impose such
+    a hard restriction on the frame size.
+    Here it must hold that $\Delta^p_k \geq \Delta^m_k$ for all iterations $k$.
+    The only additional requirement given to the different size parameters is
+    that the mesh size needs to tend towards zero if and only if the 
+    poll size also tends to zero with progressive iterations.
+    This ensures that the sampling of directions is asymptotically dense
+    and the modified definition of optimiality in \equref{equ:optimality_mads}
+    can be satisfied. 
+    
+    The process of generating the MADS frame is described in ~\cite{mads_original}
+    and yields a positive spanning set of directions $D_k$ which contrary to
+    GPS methods is \underline{not} a subset of $D$.
+    The set of poll points $P_k$ is a set of mesh points which are generated
+    using a nonnegative integer combination $\vec{d}$ of the directions in $D$
+    and the mesh size parameter $\Delta^m_k$.
+    The distance of the current best point or also called the \emph{frame center}
+    is also bound by a constant times the poll size parameter $\Delta^p_k$.
+    This ensures that the pollpoints in the frame still lie on the mesh
+    but are limited to a certain distance from the frame center.
+    The formal definition of a MADS frame is thus given by \equref{equ:madsframe}.
+
+    \begin{equation}
+        \label{equ:madsframe}
+        P_k = \{\vec{x}_k + \Delta^m_k \vec{d} \, | \, \vec{d} \in D\} \subset M_k
+    \end{equation}
+
+    The distinct advantage of such a frame definition is that during the 
+    optimization iteration of the MADS class of algorithms, the mesh size
+    parameter can decrease more rapidly than the frame size parameter.
+    For a GPS method where those two parameters are always equal the number
+    of possibilities for poll directions is finite and fixed.
+    Now suppose that the MADS algorithm iterates indefinitly and always
+    fails to find a better solution point, meaning that the mesh
+    and frame size is successively reduced.
+    It is ensured that if $\Delta^p_k \geq \Delta^m_k$ holds for all iterations,
+    and the mesh size is reduced more rapidly than the poll size,
+    the number of possibilities for the poll directions within the frame tends
+    towards infinity, thus producing a dense set of directions in the limit.
+    Now if all those poll points still do not deliver a better point
+    after a certain threshold of iterations or evaluations one can say
+    that in the limit the condition for optimiality using Clarke's
+    generalized gradient is fullfilled.
+    This is indeed proven in ~\cite{mads_original} and the reader is
+    encouraged to look at the proof themselves as it is enough for this
+    work to understand the inner workings of the MADS algorithm,
+    but keeping the convergence analysis for the reader to discover.   
+    A nice visual example of what a MADS iteration looks like compared
+    to GPS iterations is also given in ~\cite{mads_original} and is
+    also shown here, as the quite theoretical definitions become
+    intuitively clear when one understands the mesh and frame adaptation
+    visually.
+    The example illustrates how a finite set $D$ of mesh directions in
+    $\mathbb{R}^2$ can generate an infinite amount of poll directions
+    for the MADS algortihm but a finite and fixed amount of directions
+    for GPS methods.
+
+    \begin{figure}
+    \centering
+    \import{images/}{gps.pdf_tex}
+    \caption{}
+    \label{fig:gps}
+    \end{figure}
+
+    \begin{figure}
+    \centering
+    \import{images/}{mads.pdf_tex}
+    \caption{}
+    \label{fig:mads}
+    \end{figure}
 
     \subsection{Biobjective MADS}
-    \subsection{Nomad Library}
+    \subsection{NOMAD Library}
     \subsection{Integration into Framework}
 
     \section{Examplatory Setup} \label{sec:setup}
