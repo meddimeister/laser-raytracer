@@ -955,7 +955,7 @@ beam quality evaluated.
     Therefore there is no need for the user to worry about 
     memory management. 
 
-    \subsubsection{Ray2D}
+    \subsubsection{Rays}
 
     Rays are the most basic datastructure in the simulation.
     They are described by an origin, a direction, a field for the
@@ -1827,7 +1827,7 @@ beam quality evaluated.
     For these cases of application zero-order or derivative-free 
     optimization has enjoyed increasing popularity in recent years.
 
-    \subsection{Derivative-Free Optimization}
+    \subsection{Derivative-Free Optimization} \label{sec:derivative_free}
 
     As discussed in \secref{sec:opt_overview} derivative-free 
     optimization does not rely on the gradient as information for
@@ -2156,7 +2156,8 @@ beam quality evaluated.
     and theoretical mathematical concepts for the purpose of understanding
     the inner workings of MADS are added where deemed necessary.
 
-    \subsubsection{Optimality and Clarke's Calculus for nonsmooth Optimization}
+    \subsubsection{Optimality and Clarke's Calculus for nonsmooth Optimization} 
+    \label{sec:optimality}
 
     Usually optimality in an optimization problem of the form as in
     \equref{equ:optimization_local} is defined by the notion of stationary
@@ -2563,18 +2564,68 @@ beam quality evaluated.
     $\mathbb{R}^2$ can generate an infinite amount of poll directions
     for the MADS algortihm but a finite and fixed amount of directions
     for GPS methods.
+    So let the set $D$ be the set of eight directions 
+    $\{(d_1,d_2)^T \neq (0,0)^T : d_1,d_2 \in \{-1,0,1\}\}$.
+    Note that $D$ is a positive spanning set for $\mathbb{R}^2$.
+    There are eight different distinct positive spanning sets 
+    consisting of three directions.
+    The number three is chosen arbitrarily here and can also be
+    upto eight directions but at a minimum three directions are 
+    required to generate a positive spanning set $D_k$.
+    This is due to the fact that factors $\lambda_i$ for a 
+    positive spanning set have to be positive as shown in \equref{equ:pss}.
+    So in oreder to reach every point in $\mathbb{R}^2$ one needs at
+    least two vectors that would be just a spanning set and 
+    one additional direction to have some sort of way to reach
+    negative directions.
+    Examples of what a GPS and MADS iteration could look like for
+    a successful iteration, where a point $\vec{x}_k$ stays the
+    best solution for multiple iterations, and
+    different mesh and frame parameters are shown in \figref{fig:gps}
+    and \figref{fig:mads} respectively.
+    As can be seen in \figref{fig:gps} the directions for GPS methods
+    are restricted to come from the set $D$, because the mesh parameter
+    and the frame parameters are the same for each iteration and
+    the only possible trial points lie on the intersection of the 
+    edge of the frame with the mesh.
+    The frames in the MADS iteration in \figref{fig:mads} shrink at the
+    rate $\Delta^p_k = n \sqrt{\Delta^m_k}$ which is slower than
+    the rate at which the mesh size parameter is reduced.
+    The trial points can then be selected from all the mesh points
+    inside the frame.
+    In the limit $k \rightarrow \infty$ the amount of possible
+    trial points in the frame and therefore directions in $D_k$
+    also goes to infinity.
+    This achieves the desired effect that the polling directions in
+    the MADS class of algorithms is asymptotically dense and therefore
+    a Clarke stationary point can be identified.
 
     \begin{figure}
     \centering
     \import{images/}{gps.pdf_tex}
-    \caption{}
+    \caption{
+    Example of GPS frames
+    $P_k = \{\vec{x}_k + \Delta^m_k \vec{d} \, | \, \vec{d} \in D_k \}
+    = \{p^1, p^2, p^3\}$ for different values $\Delta^m_k = \Delta^p_k$.
+    Observe that the possible polling directions are limited to the
+    original set $D$ and thus $D_k \subseteq D$.
+    The figure was redrawn from Figure 2.1 in~\cite{mads_original}}
     \label{fig:gps}
     \end{figure}
 
     \begin{figure}
     \centering
     \import{images/}{mads.pdf_tex}
-    \caption{}
+    \caption{
+    Example of MADS frames
+    $P_k = \{\vec{x}_k + \Delta^m_k \vec{d} \, | \, \vec{d} \in D_k \}
+    = \{p^1, p^2, p^3\}$ for different values $\Delta^m_k \leq \Delta^p_k$.
+    Observe that the possible polling directions are not limited to the
+    original set $D$ and thus $D_k \nsubseteq D$. 
+    The number of possible polling directions goes to infinity and
+    therefore makes the set of sampled directions asymptotically dense.
+    The figure was redrawn from Figure 2.2 in~\cite{mads_original}
+    }
     \label{fig:mads}
     \end{figure}
 
