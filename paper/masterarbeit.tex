@@ -2716,8 +2716,13 @@ beam quality evaluated.
    
     \begin{figure}
         \centering
-        \missingfigure{dominance zones}
-        \caption{}
+        \resizebox{0.7\textwidth}{!}{\import{images/}{dominance_zones.pdf_tex}}
+        \caption{
+            Pareto dominance zones of an image point $F(\vec{x}_1) \in Y$.
+            The other points relate to the point $\vec{x}_1$ as follows:
+            $\vec{x}_1 \prec \vec{x}_3$, 
+            $\vec{x}_2 \prec \vec{x}_1$, $\vec{x}_1 \sim \vec{x}_4$
+        }
         \label{fig:dominance_zones}
     \end{figure}
 
@@ -2765,8 +2770,13 @@ beam quality evaluated.
     
     \begin{figure}
         \centering
-        \missingfigure{pareto front}
-        \caption{}
+        \resizebox{0.7\textwidth}{!}{\import{images/}{pareto_front.pdf_tex}}
+        \caption{The Pareto front $X_p$ of an image space $Y \in \mathbb{R}^2$
+        marked with the shaded areas.
+        The condition for a Pareto efficient point is that there is no other
+        point that dominates it.
+        The geometrical interpretation is that there is no point in $Y$ that
+        is to the left or down or both.}
         \label{fig:pareto_front}
     \end{figure}
     
