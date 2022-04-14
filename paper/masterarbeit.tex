@@ -2630,6 +2630,300 @@ beam quality evaluated.
     \end{figure}
 
     \subsection{Biobjective MADS}
+    \subsubsection{Multiobjective Optimization}
+
+    As discussed in the preceeding sections, the problem of single objective
+    nonsmooth optimization can be solved using the MADS algorithm.
+    Many optimization problems in scientific computation and engineering
+    applications have to consider multiple objectives at the same time.
+    The optimization problem in this work for example consists of
+    optimizing absorbed power in the laser crystal while at the same
+    time keeping a low variance of absorbed power across the crystal.
+    A high power absorption alone would generate a powerful output
+    beam, but one of low quality, while an even distribution of power
+    alone would create a high quality beam, but the beam would be of low
+    output power.
+    For this reason there is a need to optimize a multiobjective function
+    which describes both power and variance objectives.
+    The multiobjective optimization problem can be formulated as seen
+    in \equref{equ:optimization_multi}.
+
+    \begin{equation}
+        \label{equ:optimization_multi}
+        \begin{gathered}
+        \text{Find} \quad \vec{x}_{opt} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
+        F:\mathbb{R}^n \rightarrow \mathbb{R}^p \\ 
+        F(\vec{x}_{opt}) = (f_1(\vec{x}_{opt}),f_2(\vec{x}_{opt}),\dots,f_p(\vec{x}_{opt}))\\
+        \, \text{is optimal}
+        \end{gathered}
+    \end{equation}
+
+    Note that in \equref{equ:optimization_multi} the question of optimality is
+    specificly left vague as in multiobjective optimization a notion
+    of minimum does not make much sense.
+    This is because now the objective function is no longer real valued.
+    It arises the question of what point $\vec{x}$ is more optimal than
+    another point $\vec{y}$.
+    One can only somehow compare their vector valued images in $F$ and
+    has to decide what is inherently a better output, a worse output or
+    as a consequence of vector valued outputs an indifferent output.
+    indifferent in this sense means that one cannot say what output
+    is better or worse, but the point $\vec{x}$ is better than $\vec{y}$
+    in some objective functions $f_i$ while it is worse in others.
+    This implies there is always a tradeoff in multiobjective optimization
+    and one needs a more fitting definition of what it means
+    for a point to be optimal.
+    A solution to this problem is the definition of \emph{Pareto dominance},
+    which is explained in ~\cite{multiobjective} and the next chapter 
+    \secref{sec:pareto}.
+
+    \subsubsection{Pareto Dominance and Pareto Fronts} \label{sec:pareto}
+    
+    To compare two points in order to determine which point is more
+    optimal than the other, there cannot be a total order relation defined
+    on the image space of $F$.
+    Instead there is a partial order relation called \emph{Pareto dominance}
+    relation.
+    As shown in ~\cite{multiobjective}, this relation is defined in
+    \defref{def:pareto_dominance}.
+    
+    \begin{definition}
+        \label{def:pareto_dominance}
+        Let $\vec{u},\vec{v} \in X$ be two points of the multiobjective
+        function $F: X \rightarrow Y$.
+        \begin{itemize}
+            \item $\vec{u} \preceq \vec{v}$ ($\vec{u}$ weakly dominates $\vec{v}$)
+            $\Longleftrightarrow f_i(\vec{u}) \leq f_i(\vec{v}) \; \forall i \in \{1,\dots,p\}$   
+
+            \item $\vec{u} \prec \vec{v}$ ($\vec{u}$ dominates $\vec{v}$)
+            $\Longleftrightarrow \vec{u} \preceq \vec{v} \; \text{and} \; 
+            f_j(\vec{u}) < f_j(\vec{v}) \; \text{for at least one} \; j \in \{1,\dots,p\}$   
+
+            \item $\vec{u} \sim \vec{v}$ ($\vec{u}$ is indifferent to $\vec{v}$)
+            $\Longleftrightarrow \; \text{$\vec{u}$ does not dominate $\vec{v}$ and $\vec{v}$
+            does not dominate $\vec{u}$}$  
+        \end{itemize}
+    \end{definition}
+
+    For an image point $F(\vec{x})$ \defref{def:pareto_dominance} thus
+    subdivides the image space $Y$ or in this case $\mathbb{R}^p$ into three zones.
+    The first zone is the \emph{dominance zone}, which are all the image
+    points that dominate $\vec{x}$.
+    The \emph{dominated zone} then are all the image points dominated and
+    the \emph{indifferent zone} are all the image points indifferent to $\vec{x}$.
+    An example of this in $\mathbb{R}^2$ image space can be seen in figure
+    \figref{fig:dominance_zones}, which is based on Figure 2.1 in ~\cite{multiobjective}.
+   
+    \begin{figure}
+        \centering
+        \missingfigure{dominance zones}
+        \caption{}
+        \label{fig:dominance_zones}
+    \end{figure}
+
+    The definition of Pareto dominance alone is not enough to define optimality
+    for multiobjective optimization problems.
+    Like in the single objective case, it is not guaranteed that a problem
+    has a globally optimal solution.
+    For this reason it is necessary to define global and local optimality
+    in terms of the Pareto dominance relation.
+    A definition of global and local optimality for multiobjective problems
+    is given in ~\cite{multiobjective} and here in \defref{def:optimality_multi}.
+
+    \begin{definition}
+        \label{def:optimality_multi}
+        Let $\vec{x} \in X$ be a point of the multiobjective function $F: X \rightarrow Y$.
+        \begin{itemize}
+            \item $\vec{x}$ is globally Pareto optimal (just called Pareto optimal) 
+            $\Longleftrightarrow$
+            There exists no $\vec{y}$ s.t. $\vec{y} \prec \vec{x}$.
+            If $\vec{x}$ is Pareto optimal then $F(\vec{x})$ is called
+            Pareto efficient.
+
+            \item $\vec{x}$ is locally Pareto optimal $\Longleftrightarrow$
+            There exists an $\epsilon, \sigma > 0$ for which the set
+            $\{\vec{y} \in B_{\epsilon}(\vec{x}) \cap X \, | \, \vec{y} \prec \vec{x},\, 
+            F(\vec{y}) \in B_{\sigma}(F(\vec{x})) \}$ is empty.
+            If $\vec{x}$ is locally Pareto optimal then $F(\vec{x})$ is called
+            locally Pareto efficient.
+        \end{itemize}
+    \end{definition}
+
+    An intuitive understanding of Pareto efficiency is that there cannot be another
+    point in $X$ where all except at least one objective function $f_j$ of the single objective
+    functions $f_i$ are either equal or less than the objective functions at the current point,
+    whereas $f_j$ is truly smaller.
+    As a geometric interpretation in a two dimensional image space this means
+    there cannot be another point where the image point is to the left or down or both.
+    This is exactly the meaning of dominance zones in \figref{fig:dominance_zones}.
+    An example of Pareto efficient points in $\mathbb{R}^2$ is given in \figref{fig:pareto_front},
+    which is based on Figure 2.2 in ~\cite{multiobjective} with additional explanations.
+    It can be seen that the search for Pareto efficient points returns a
+    set of Pareto optimal points $X_p$, of which the dominance zone is outside the
+    image space $Y$.
+    The image $Y_p$ of the set $X_p$ of points is called the \emph{Pareto front}.
+    
+    \begin{figure}
+        \centering
+        \missingfigure{pareto front}
+        \caption{}
+        \label{fig:pareto_front}
+    \end{figure}
+    
+    The goal of any multiobjective optimization algortihm should be to deliver
+    a set of points which approximates the Pareto front as closely as possible.
+    There are multiple was of formulating a multiobjective problem as
+    a single objective problem.
+    One way would be to weight the single objective functions $f_i$ by a factor
+    $w_i \geq 0$ so that $\sum_i w_i = 1$.
+    As stated in ~\cite{multiobjective}, any solution to this problem is Pareto
+    optimal for the multiobjective problem.
+    If one solves the linear weighted problem for different combinations,
+    a subset of the Pareto front is generated.
+    The disadvantage of this method is that not all points of the pareto front
+    can be generated due to the limitation to the linear weighted form.
+    Another method would be to define a reference point $\vec{r} \in Y$ and
+    minimizing the $q$-norm as in \equref{equ:reference_point}, where
+    $1 \leq q \leq \infty$.
+
+    \begin{equation}
+        \min_{\vec{x} \in \Omega} || F(\vec{x}) - \vec{r} ||_q
+    \end{equation}
+
+    The reference point approach has the advantage that it can theoretically
+    reach the entire Pareto front.
+    Therefore, solving the reference point problem for different reference point
+    produces an approximation of the Pareto front~\cite{multiobjective}.
+    The only disadvantage is that if the point is chosen incorrectly
+    also non efficient points are generated.
+    The general question with the reference point approach is how to
+    choose those reference points.
+    Along with other approaches of solving the multiobjective optimization
+    problem, it is also shown in ~\cite{multiobjective} that a general
+    parametrized approach with respect to the reference point has some
+    properties necessary for optimality in Clarke's calculus, if the
+    parametrization conserves Lipschitz continuity and other properties.
+    The parametrized version of the single objective formulation of 
+    a multiobjective optimization problem uses the parametrized function
+    $\Phi_r$ as a real valued objective and is shown in
+    \equref{equ:parametrized}.
+    
+    \begin{equation}
+        \label{equ:parametrized}
+        \min_{x \in \Omega} \Psi_r(\vec{x}) \quad \quad \Psi_r(\vec{x}) =
+         \Phi_r(f_1(\vec{x}),f_2(\vec{x}),\dots,f_p(\vec{x})) 
+    \end{equation}
+
+    Depending on the choice of $\Phi_r$ the Pareto front is approximated
+    if one solves this problem for a set of reference points.
+    This is proven for a bunch of choices for $\Phi_r$ in ~\cite{multiobjective}
+    and the reader is encouraged to convince themselves of this property.
+    In the next section the concrete implementation of the BiMADS algorithm
+    for the solution of biobjective nonsmooth optimization problems 
+    is shortly presented.
+
+    \subsubsection{BiMADS}
+
+    The BiMADS algorithm was originally presented by Audet, Savard and Zghal
+    in ~\cite{multiobjective} in 2008.
+    It uses the MADS algorithm to solve a series of single objective formulations
+    of a biobjective problem with increasingly stringent stopping criteria.
+    The idea is to iteratively build a set of non-dominated points that
+    approximate the Pareto front.
+    The set of non-dominated dominated points $X_{\mathcal{L}}$ is updated
+    each time the MADS algorithm runs and keeping all visited trial points that
+    are non-dominated by the current set $X_{\mathcal{L}}$ and throwing
+    away all dominated points in $X_{\mathcal{L}}$.
+    The single objective problem the MADS has to solve each iteration is
+    a single objective formulation using the parametrized approach in
+    \equref{equ:parametrized}.
+    The reference point is chosen beforehand using a process which is later
+    described in more detail.
+    After the update of $X_{\mathcal{L}}$ the list is ordered in ascending
+    order according to the value of $f_1$ and in descending order according 
+    to $f_2$.
+    This is only possible because the amount of objectives is two.
+    The ordering is done in order to easily determine the euclidian distance
+    between the images $Y_{\mathcal{L}}$ of $X_{\mathcal{L}}$.
+    This is done so the point where the euclidian distance in image space $Y$
+    is the largest to its neighboring points $\vec{x}_j$ - note that neighboring here only
+    makes sense because of the ordering of set $X_{\mathcal{L}}$ according 
+    to the previous discussed relation defined for only two objectives
+    $f_1, f_2$ - can be determined and the values of the objectives of
+    those neighboring points can be combined to get a new reference point $\vec{r}$
+    that surely dominates the chosen point $\vec{x}_j$.
+    In short, that BiMADS algorithm choses its reference points in a
+    way to minimize the gaps between the Pareto efficient points in $Y_{\mathcal{L}}$.
+    This achieves better coverage of the Pareto front.
+    The MADS algorithm is then executed for the single objective problem
+    with respect to $\vec{r}$ and started from the chosen point $\vec{x}_j$.
+    Additionally to choosing the reference point, the algorithm then stores
+    a weighting factor for that specific $\vec{x}_j$ in order to achieve
+    better coverage and increase the stopping criterium for MADS should
+    that point be chosen again.
+    Once a reference point $\vec{r}$ was derived from a point $\vec{x}_j$ the
+    weighting is increased, which then in turn diminishes that points
+    ability to be chosen again in the successing iterations.
+    This approach of choosing the reference points gives an even distribution
+    of non-dominated points along the Pareto front.
+    Since the basic idea of the BiMADS algorithm was explained and is
+    sufficient to understand the application of the algorithm in this
+    work, the convergence analysis for BiMADS is left to the reader
+    to study in ~\cite{multiobjective}.
+    A detailed overfew of the BiMADS algorithm is given in \algref{alg:bimads}.
+
+    \begin{algorithm}
+        \label{alg:bimads}
+        \SetAlgoLined
+        Initial MADS run to solve $\min_{\vec{x} \in \Omega} f_1(\vec{x})$ and
+        $\min_{\vec{x} \in \Omega} f_2(\vec{x})$ at starting point $\vec{x}_0$ \\
+
+        Set $X_{\mathcal{L}} = {\vec{x}_1, \vec{x}_2,\dots,\vec{x}_J}$ to be an
+        ordered list of non-dominated points s.t. $f_1(\vec{x}_1) < \dots < f_1(\vec{x}_J)$
+        and $f_2(\vec{x}_1) > \dots > f_2(\vec{x}_J)$ \\
+
+        \While{$\delta_{\hat{j}} > threshold$ OR maximum iterations not reached}
+        {
+           \If{$J > 2$}{
+                $\hat{j} \leftarrow \text{argmax}_{j=2,\dots,J-1} \delta_j = 
+                \frac{||F(\vec{x}_j) - F(\vec{x}_{j-1})||^2 +
+                ||F(\vec{x}_j) - F(\vec{x}_{j+1})||^2}{w(\vec{x}_j) + 1}$\\
+                
+                Define reference point $\vec{r} \leftarrow (f_1(\vec{x}_{\hat{j} + 1})
+                , f_2(\vec{x}_{\hat{j} - 1}))$
+           }
+           \If{$J = 2$}{
+                $\vec{x}_{\hat{j}} \leftarrow \vec{x}_2$ \\
+                $\delta_{\hat{j}} \leftarrow \frac{||F(\vec{x}_2) - F(\vec{x}_{1})||^2}{w(\vec{x}_2) + 1}$\\
+
+                Define reference point $\vec{r} \leftarrow (f_1(\vec{x}_{2})
+                , f_2(\vec{x}_{1}))$
+           }
+           \If{$J = 1$}{
+                $\vec{x}_{\hat{j}} \leftarrow \vec{x}_1$ \\
+                $\delta_{\hat{j}} \leftarrow \frac{\delta}{w(\vec{x}_{\hat{j}}) + 1}$\\
+                Execute MADS from $\vec{x}_{\hat{j}}$ to solve $\min_{x \in \Omega} f_1(\vec{x})$
+                and $\min_{x \in \Omega} f_2(\vec{x})$. 
+                Terminate MADS when mesh size $\Delta^m$ drops below $O(\delta_{\hat{j}})$.
+                \emph{Goto} update step.
+           }
+
+           Execute MADS for the single objective formulation $\Phi_r$.
+           Terminate MADS when mesh size $\Delta^m$ drops below $O(\delta_{\hat{j}})$
+           or a maximum number of objective evaluations is reached.\\
+
+           Update $X_{\mathcal{L}}$ by adding all dominant points from the MADS run and
+           removing all dominated points.
+           Increase weights $w(\vec{x_{\hat{j}}}) \leftarrow w(\vec{x_{\hat{j}}}) + 1
+            \quad \forall \vec{x} \in X_{\mathcal{L}}$
+        }
+        
+        \caption{
+            BiMADS algorithm
+        }
+    \end{algorithm}
+
+
     \subsection{NOMAD Library}
     \subsection{Integration into Framework}
 
