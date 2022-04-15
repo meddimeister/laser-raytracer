@@ -17,6 +17,9 @@
 #include <cmath>
 #include <cstddef>
 
+#define MIRRORSHAPE 2
+#define DIM 6
+
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -36,32 +39,17 @@ int main(int argc, char *argv[]) {
   double solarDivergence = 0.53338 * (2.0 * M_PI / 360.0); // rad
   vecn<double, 4> sellmeierNdYag = {2.282, 0.01185, 3.27644, 282.734};
 
-  vecn<double, 4> params;
-  double irradianceCrystal = 0.0;
-
-  params[0] = 0.07281232625;
-  params[1] = 0.002341829939;
-  params[2] = 0.07726241648;
-  params[3] = 0.02685499005;
-
-  ArgParser args(
-      "-noopt -samplertest --prefix --optrays --optsegments --rays --segments --param0 "
-      "--param1 --param2 --param3",
+    ArgParser args(
+      "-noopt --prefix --optrays --optsegments --rays --segments",
       argc, argv);
   args.getFlag("-noopt", noopt);
-  args.getFlag("-samplertest", samplertest);
   args.getArg("--optrays", optrays);
   args.getArg("--optsegments", optsegments);
   args.getArg("--rays", rays);
   args.getArg("--segments", segments);
-  args.getArg("--param0", params[0]);
-  args.getArg("--param1", params[1]);
-  args.getArg("--param2", params[2]);
-  args.getArg("--param3", params[3]);
   args.getArg("--prefix", prefix);
 
   cout << "noopt: " << noopt << endl;
-  cout << "samplertest: " << samplertest << endl;
   cout << "optrays: " << optrays << endl;
   cout << "optsegments: " << optsegments << endl;
   cout << "rays: " << rays << endl;
@@ -82,38 +70,23 @@ int main(int argc, char *argv[]) {
 
   LOG("Read Data");
 
-  if (samplertest) {
-    UniformSamplerND<2> uniformSampler2D;
-    NormalSamplerND<2> normalSampler2D;
-    UniformBallSampler<3> uniformBallSampler;
+  vecn<double, DIM> params;
+  vecn<double, DIM> paramsStart;
+  vecn<double, DIM> paramsLower;
+  vecn<double, DIM> paramsUpper;
 
-    uniformSampler2D.init(1000);
-    normalSampler2D.init(1000);
-    uniformBallSampler.init(1000);
+  double irradianceCrystal = 0.0;
 
-    CSVWriter csvWriter("csvOut/samplertest");
-
-    for (size_t i = 0; i < 1000; ++i) {
-      auto uniformSample2D = uniformSampler2D.next();
-      auto normalSample2D = normalSampler2D.next();
-      auto uniformBallSample = uniformBallSampler.next();
-      csvWriter.add("uniformSampler2D", uniformSample2D[0], uniformSample2D[1]);
-      csvWriter.add("normalSampler2D", normalSample2D[0], normalSample2D[1]);
-      csvWriter.add("uniformBallSampler", uniformBallSample[0],
-                    uniformBallSample[1], uniformBallSample[2]);
-    }
-    csvWriter.write();
-
-    LOG("Sampler Test");
-    return 0;
-  }
-
-  auto mirrorShapeParabola = [&](double x) {
+  #if(MIRRORSHAPE==0)
+  auto mirrorShape = [&](double x) {
     dvec2 point = {x, params[0] * x * x + params[1]};
     return point;
   };
-
-  auto mirrorShapeBezier = [&](double x) {
+  paramsStart = {0.0, 0.0};
+  paramsLower = {0.0, 0.0};
+  paramsUpper = {1.0, 1.0};
+  #elif(MIRRORSHAPE==1)
+  auto mirrorShape = [&](double x) {
     dvec2 start = {0.0042, 0.0};
     dvec2 paramPoint1 = {params[0], params[1]};
     dvec2 paramPoint2 = {params[2], params[3]};
@@ -121,9 +94,25 @@ int main(int argc, char *argv[]) {
     dvec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
     return point;
   };
-
+  paramsStart = {0.0, 0.0, 0.075, 0.0};
+  paramsLower = {0.0, 0.0, 0.075, 0.0};
+  paramsUpper = {0.075, 0.3, 0.15, 0.3};
+  #elif(MIRRORSHAPE==2)
+  auto mirrorShape = [&](double x) {
+    dvec2 start = {0.0042, params[4]};
+    dvec2 paramPoint1 = {params[0], params[1]};
+    dvec2 paramPoint2 = {params[2], params[3]};
+    dvec2 end = {0.15, params[5]};
+    dvec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
+    return point;
+  };
+  paramsStart = {0.0, 0.0, 0.075, 0.0, -0.15, 0.3};
+  paramsLower = {0.0, 0.0, 0.075, 0.0, -0.3, 0.224};
+  paramsUpper = {0.075, 0.3, 0.15, 0.3, 0.0, 0.4};
+  #endif
+  
   auto optmirror = make_shared<Mirror2D>(
-      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShapeBezier, optsegments));
+      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShape, optsegments));
 
   auto optcrystal = make_shared<Grid2D>(Grid2D(
       {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
@@ -162,7 +151,7 @@ int main(int argc, char *argv[]) {
 
   vector<vector<Ray2D>> optraysStorage;
 
-  auto trace = [&](const vecn<double, 4> &currentParams) {
+  auto trace = [&](const vecn<double, DIM> &currentParams) {
     params = currentParams;
     optmirror->init();
     optraysStorage = optscene.trace(4);
@@ -172,7 +161,7 @@ int main(int argc, char *argv[]) {
     return functional;
   };
 
-  auto traceVar = [&](const vecn<double, 4> &currentParams) {
+  auto traceVar = [&](const vecn<double, DIM> &currentParams) {
     params = currentParams;
     optmirror->init();
     optraysStorage = optscene.trace(4);
@@ -182,14 +171,14 @@ int main(int argc, char *argv[]) {
     return functional;
   };
 
-  vector<vecn<double, 4>> solutionParams;
+  vector<vecn<double, DIM>> solutionParams;
 
   // Optimization Algorithm
   if (!noopt) {
     cout << "Mirror Optimizer: " << endl;
 
-    auto solutions = mads<4>(trace, traceVar, {0.0, 0.0, 0.075, 0.0},
-                             {0.0, 0.0, 0.075, 0.0}, {0.075, 0.3, 0.15, 0.3});
+    auto solutions = mads<DIM>(trace, traceVar, paramsStart, paramsLower, paramsUpper);
+
     if (solutions.empty()) {
       DEBUG("Error: No solutions found");
       return -1;
@@ -221,7 +210,7 @@ int main(int argc, char *argv[]) {
   }
 
   auto mirror = make_shared<Mirror2D>(
-      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShapeBezier, segments));
+      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShape, segments));
 
   auto crystal = make_shared<Grid2D>(Grid2D(
       {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
@@ -279,15 +268,15 @@ int main(int argc, char *argv[]) {
 
     vector<tuple<double, double>> points;
     for (size_t i = 0; i <= segments; ++i) {
-      dvec2 point = mirrorShapeBezier(double(i) / segments);
-      points.push_back({-point.y + mirrorShapeBezier(1.0).x, point.x});
+      dvec2 point = mirrorShape(double(i) / segments);
+      points.push_back({-point.y + mirrorShape(1.0).x, point.x});
     }
     auto mirrorXYFunction = getFunction(points, true);
-    //outputFunction(mirrorXYFunction, 0.0, mirrorShapeBezier(0.0).y, "csvOut", "test");
+    //outputFunction(mirrorXYFunction, 0.0, mirrorShape(0.0).y, "csvOut", "test");
 
     CSVWriter csvWriter("out/"+prefix+"/solution"+to_string(i), ".txt");
     for (size_t j = 0; j <= 1000; ++j) {
-      dvec2 point = mirrorShapeBezier(double(1000-j)/1000);
+      dvec2 point = mirrorShape(double(1000-j)/1000);
       double xScaled = (-point.y * 1000.0) + 224.0 + 300.2396507;
       double yScaled = point.x * 1000.0;
       csvWriter.add("reflector", xScaled, yScaled);
