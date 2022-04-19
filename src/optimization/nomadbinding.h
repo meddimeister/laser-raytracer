@@ -14,13 +14,17 @@ using namespace std;
 
 template <size_t N> class My_Evaluator : public NOMAD::Multi_Obj_Evaluator {
 public:
-  function<double(const vecn<double, N>)> f1;
-  function<double(const vecn<double, N>)> f2;
+  function<double(const vecn<double, N>&)> f1;
+  function<double(const vecn<double, N>&)> f2;
+  vector<function<double(const vecn<double, N>&)>> cs;
 
   My_Evaluator(function<double(const vecn<double, N> &)> functional1,
                function<double(const vecn<double, N> &)> functional2,
+               vector<function<double(const vecn<double, N> &)>> constraints,
                const NOMAD::Parameters &p)
-      : NOMAD::Multi_Obj_Evaluator(p), f1(functional1), f2(functional2) {}
+      : NOMAD::Multi_Obj_Evaluator(p), f1(functional1), f2(functional2) {
+        cs = constraints;
+      }
 
   ~My_Evaluator() {}
 
@@ -36,6 +40,10 @@ public:
     x.set_bb_output(0, NOMAD::Double(f1_curr));
     x.set_bb_output(1, NOMAD::Double(f2_curr));
 
+    for(size_t i = 0; i < cs.size(); ++i){
+      x.set_bb_output(2+i, NOMAD::Double(cs[i](x_curr)));
+    }
+
     count_eval = true; // count a black-box evaluation
     return true;       // the evaluation succeeded
   }
@@ -46,7 +54,8 @@ vector<tuple<vecn<double, N>, double, double>> runNomad(function<double(const ve
                                 function<double(const vecn<double, N> &)> f2,
                                 const vecn<double, N> &xStart,
                                 const vecn<double, N> &lowerBounds,
-                                const vecn<double, N> &upperBounds) {
+                                const vecn<double, N> &upperBounds,
+                                vector<function<double(const vecn<double, N> &)>> constraints) {
 
   vector<tuple<vecn<double, N>, double, double>> bf_ret;
 
@@ -59,7 +68,7 @@ vector<tuple<vecn<double, N>, double, double>> runNomad(function<double(const ve
     NOMAD::Parameters p(out);
 
     p.set_DIMENSION(N);
-    p.set_MAX_BB_EVAL(100);
+    p.set_MAX_BB_EVAL(1000);
     p.set_MAX_EVAL(1000);
 
     NOMAD::Point x_0(N, 0.0);
@@ -76,9 +85,14 @@ vector<tuple<vecn<double, N>, double, double>> runNomad(function<double(const ve
     p.set_LOWER_BOUND(lb);
     p.set_UPPER_BOUND(ub);
 
-    vector<NOMAD::bb_output_type> bbot(2); // definition of
+    vector<NOMAD::bb_output_type> bbot(2 + constraints.size()); // definition of
     bbot[0] = NOMAD::OBJ;
     bbot[1] = NOMAD::OBJ;
+
+    for(size_t i = 0; i < constraints.size(); ++i){
+      bbot[2] = NOMAD::PB;
+    }
+
     p.set_BB_OUTPUT_TYPE(bbot);
     p.set_DIRECTION_TYPE(NOMAD::ORTHO_2);
     p.set_DISPLAY_STATS("bbe ( sol ) obj");
@@ -89,7 +103,7 @@ vector<tuple<vecn<double, N>, double, double>> runNomad(function<double(const ve
     p.check();
 
     // custom evaluator creation:
-    My_Evaluator<N> ev(f1, f2, p);
+    My_Evaluator<N> ev(f1, f2, constraints, p);
 
     // algorithm creation and execution:
     NOMAD::Mads mads(p, &ev);

@@ -26,10 +26,6 @@ public:
         _data(maxX * maxY, 0.0),
         _cellAction(cellAction), _hitAction(hitAction) {
     init();
-    _cornerMin = root->box->aabb.bmin;
-    _cornerMax = root->box->aabb.bmax;
-    _dx = (_cornerMax.x - _cornerMin.x) / _maxX;
-    _dy = (_cornerMax.y - _cornerMin.y) / _maxY;
   }
 
   vector<shared_ptr<Shape2D>> build();

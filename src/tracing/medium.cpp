@@ -4,6 +4,7 @@
 void Medium2D::action(Ray2D &ray, const IntersectResult2D &result,
                       vector<Ray2D> &createdRays) {
   actionEnter(ray, result);
+  if(!ray.terminated){
   ray.terminate(result.tEnter);
 
   auto [ray_reflect_in, ray_transmit_in] =
@@ -38,4 +39,5 @@ void Medium2D::action(Ray2D &ray, const IntersectResult2D &result,
   }
   createdRays.push_back(ray_reflect_in);
   createdRays.push_back(ray_transmit_in);
+  }
 }

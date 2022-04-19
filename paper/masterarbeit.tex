@@ -11,6 +11,7 @@
 \usepackage{import}
 \usepackage{todonotes}
 \usepackage{tikz-uml}
+\usepackage{siunitx}
 
 \newtheorem{definition}{Definition}
 
@@ -72,6 +73,10 @@ beam quality evaluated.
     % Now the acutal thesis can start
 
     \tableofcontents
+
+    \newpage
+
+    \listoffigures
 
     \newpage
 
@@ -470,7 +475,7 @@ beam quality evaluated.
             \centering    
             \def\svgwidth{0.8\textwidth}
             \import{images/}{line_intersect.pdf_tex}
-            \caption{
+            \caption[Ray-line intersection]{
                 Ray-line intersection of two rays. The line is specified by
                 the points $\vec{a}$ and $\vec{b}$ and the rays are 
                 defined by
@@ -516,7 +521,7 @@ beam quality evaluated.
         \If{$t_{min} \geq 0$ and $t_{min} \leq t_{max}$}{
             AABB was hit!
         }
-        \caption{
+        \caption[Intersection test for a AABB]{
         Intersection test for a AABB $(\vec{b}_{min}, \vec{b}_{max})$
         with ray $(\vec{o}, \vec{d})$
         }
@@ -535,7 +540,7 @@ beam quality evaluated.
             \centering    
             \def\svgwidth{0.6\textwidth}
             \import{images/}{aabb_intersect.pdf_tex}
-            \caption{
+            \caption[Ray-AABB intersection]{
                 Ray-AABB intersection, where first the intersection points with
                 the $x$ axis (marked in green) and $y$ axis (marked in blue) are
                 calculated.
@@ -715,7 +720,7 @@ beam quality evaluated.
         \begin{figure}
             \centering    
             \includegraphics[width=0.8\textwidth]{images/mirror.png}
-            \caption{
+            \caption[Subdivision using quadtrees]{
                 A parabolic mirror comprised of line segments
                 subdivided by a quadtree of AABBs with depth 4.
                 Note that the AABBs are encompassing their contained line
@@ -751,7 +756,7 @@ beam quality evaluated.
             treeQueue.pop()\;
         }
 
-        \caption{Intersection test for a single object subdivided by a quadtree}
+        \caption{[Object intersection]Intersection test for a single object subdivided by a quadtree}
     \end{algorithm}
 
 
@@ -802,7 +807,7 @@ beam quality evaluated.
         \begin{figure}
             \centering    
             \includegraphics[width=0.25\textwidth]{images/stratified.png}
-            \caption{
+            \caption[Uniform vs. stratified sampling]{
                 Uniform sampling of a 1D interval (left) vs. stratified sampling (right).
                 Observe the large gap between samples on the left whereas
                 the samples on the right are spaced out more equally.
@@ -883,7 +888,7 @@ beam quality evaluated.
             \includegraphics[width=0.3\textwidth]{images/impsampling_rectangles.png} &
             \includegraphics[width=0.7\textwidth]{images/inversion.png}
             \end{tabular}
-            \caption{
+            \caption[Inversion method for importance sampling]{
                 Visualization of inversion method to sample according the
                 pdf on the left.
                 The intevals $p_i$ are summed up and stacked.
@@ -1682,7 +1687,7 @@ beam quality evaluated.
             \includegraphics[width=0.5\textwidth]{images/sampling_uniform_ball.pdf} &
             \includegraphics[width=0.5\textwidth]{images/sampling_importance.pdf}
         \end{tabular}
-        \caption{
+        \caption[Different examples of sampler output]{
         Different examples of sampler output.
         Two dimensional samplers using the UniformSamplerND (left) and 
         NormalSamplerND (right) classes.
@@ -1873,7 +1878,7 @@ beam quality evaluated.
         \includegraphics[width=0.8\textwidth]{images/discontinuity.pdf} \\
         \includegraphics[width=0.8\textwidth]{images/noisyness.pdf}
         \end{tabular}
-        \caption{
+        \caption[Discontinuity and noisyness of the objective function]{
             Discontinuous (top) and noisy (bottom) points of an objective function
             resulting from a ray tracing simulation.
             The bottom plot is just the same plot as the top one but rotated
@@ -2050,8 +2055,8 @@ beam quality evaluated.
             $\vec{x}_{k+1} \leftarrow \vec{x}_{k}^p$
         }
         
-        \caption{
-            A general direct search algorithm for derivative free
+        \caption[General directional direct search algorithm]{
+            A general directional direct search algorithm for derivative free
             optimization taken and abbreviated from 
             ~\cite{derivative_free_methods}.
         }
@@ -2603,7 +2608,7 @@ beam quality evaluated.
     \begin{figure}
     \centering
     \import{images/}{gps.pdf_tex}
-    \caption{
+    \caption[Example of GPS frames]{
     Example of GPS frames
     $P_k = \{\vec{x}_k + \Delta^m_k \vec{d} \, | \, \vec{d} \in D_k \}
     = \{p^1, p^2, p^3\}$ for different values $\Delta^m_k = \Delta^p_k$.
@@ -2616,7 +2621,7 @@ beam quality evaluated.
     \begin{figure}
     \centering
     \import{images/}{mads.pdf_tex}
-    \caption{
+    \caption[Example of MADS frames]{
     Example of MADS frames
     $P_k = \{\vec{x}_k + \Delta^m_k \vec{d} \, | \, \vec{d} \in D_k \}
     = \{p^1, p^2, p^3\}$ for different values $\Delta^m_k \leq \Delta^p_k$.
@@ -2717,7 +2722,7 @@ beam quality evaluated.
     \begin{figure}
         \centering
         \resizebox{0.7\textwidth}{!}{\import{images/}{dominance_zones.pdf_tex}}
-        \caption{
+        \caption[Pareto dominance]{
             Pareto dominance zones of an image point $F(\vec{x}_1) \in Y$.
             The other points relate to the point $\vec{x}_1$ as follows:
             $\vec{x}_1 \prec \vec{x}_3$, 
@@ -2771,7 +2776,7 @@ beam quality evaluated.
     \begin{figure}
         \centering
         \resizebox{0.7\textwidth}{!}{\import{images/}{pareto_front.pdf_tex}}
-        \caption{The Pareto front $X_p$ of an image space $Y \in \mathbb{R}^2$
+        \caption[Pareto front]{The Pareto front $X_p$ of an image space $Y \in \mathbb{R}^2$
         marked with the shaded areas.
         The condition for a Pareto efficient point is that there is no other
         point that dominates it.
@@ -2935,13 +2940,152 @@ beam quality evaluated.
 
 
     \subsection{NOMAD Library}
-    \subsection{Integration into Framework}
 
-    \section{Examplatory Setup} \label{sec:setup}
-    \subsection{Setup} 
+    The MADS algorithm as well as the BiMADS algorithm are implemented in the
+    open source library NOMAD~\cite{nomad3}.
+    It was developed by Charles Audet, Sebastien Le Digabel
+    and Christophe Tribes.
+    The library offers a C++ interface to describe blackbox optimization
+    problems and solve them using the MADS algorithm.
+    Additionally to the library interface, one can also optimize
+    any user created program in batch mode, which takes inputs and generates
+    outputs in a standardized way.
+    While this approach can help to get a working optimization
+    off the ground quickly, it was decided that the added
+    flexibility and performance of the customizable library interface
+    is better suited for the blackbox problem in this work.
+    It is to be noted that the NOMAD library currently is undergoing
+    a rewrite in verion 4 and unfortunately some features of version 3
+    including the BiMADS implementation where missing when trying out
+    the newest version.
+    Thus the older version 3 of NOMAD available at 
+    ~\cite{nomad_website} had to be used in this work.
+
+    The integration into the raytracing framework is done by defining
+    a user defined evaluator class inheriting from a NOMAD provided
+    multi objective evaluator.
+    The user then needs to override an evaluation function where the
+    parameter list contains the current point $\vec{x}$.
+    For BiMADS the two objective functions need to be set as an output
+    additionally to the list of constraint functions $c_i$.
+    Hereby the constraints are of the form $c_i \leq 0$, meaning that
+    if a point dissatisfies a condition a positive value needs to be
+    returned.       
+    There are also multiple parameters that need to be set in order to
+    define the optimization problem.
+    The dimension of the problem needs to be defined and the maximum number
+    of blackbox evaluations per MADS run needs to be defined.
+    For the constraint functions different types of handling are available.
+    The barrier approach can be set to be enforced rigorously by 
+    prohibiting the MADS frame to evaluate infeasable points.
+    There are also more relaxed tyoes of constraint handling, e.g. by allowing
+    infeasible points during the iteration but not as the final solution
+    for a Pareto efficient point.
+    This approach was also chosen in this work as the algorithm can then pass
+    through barriers potentially reaching a better solution on the other side.
+    Also the type of allowed mesh directions and the number of 
+    generated poll points per iteration can be set by a parameter.
+    Unfortunately in version 3 of NOMAD the ouput of the pareto front
+    is only available via reading the conole output of the BiMADS run
+    or by setting a file as an statistics file.
+    Therefore if the solutions are required by the user in the
+    parts of the program after the BiMADS run, the user either has to
+    read in the file or reroute the console output and parse the resulting
+    text.
+    NOMAD can also be set to run in parallel based on OpenMP directives by
+    setting the corresponding parameters.
+    In this work the parallelization was not used, but it would be possible
+    to set up an array of scenes each with their own instantiation of
+    the objects in the scene.
+    A list of the available parameters and other instructions for 
+    the usage of NOMAD can be found on the website ~\cite{nomad_website} as
+    a user guide for NOMAD 3.
+    
+
+    \section{Simulation of Pump Light Absorption in Solar Lasers} \label{sec:setup}
+    
+    In this chapter a conceptual example of a solar pumped Nd:YAG laser is
+    simulated using the raytracer framework presented in \secref{sec:raytracing}
+    and the BiMADS algorithm presented in \secref{sec:optimization}.
+    The BiMADS algorithm is employed to optimize geometric parameters such
+    as mirrorshape and positions of optical components.
+    The BiMADS algorithm has two objective functions.
+    One fucntion evaluates the total absorbed power and the other one
+    evaluates the variance of power across the Nd:YAG crystal.
+    Different outputs of optimizations with different parameter constraints
+    are presented and discussed.
+    For the evaluation of the resulting beam properties of a solution
+    the software ASLD ~\cite{asld} was used.
+
+    \subsection{Setup}
+    
+    The simulated setup consists of a large fresnel lens with a 
+    diameter of \SI{1.2}{m}
+    collecting the sunlight and focussing it with a focal length of \SI{1.2}{m}.
+    The light then hits a reflective mirror bouncing the light onto an Nd:YAG
+    laser rod with a diameter of \SI{6}{mm} and a length of \SI{95}{mm}.
+
+    Sunlight is generated in a \SI{1.2}{m} wide round surface consisting of
+    rays according to the solar spectrum.
+    Hereby the solar spectrum has been importance sampled with
+    respect to the absorption spectrum of an Nd:YAG crytsal.
+    This is done so the majority of rays in the raytracer actually
+    have a contribution to the absorbed power in the crystal.
+    The rays are also given a divergence equal to the value of solar divergence
+    of \ang{0.53338}.
+
+    The fresnel lens is approximated via the thin lens approach described
+    in \secref{sec:objects}.
+    For now, no assumption for dispersive effects are made for the
+    fresnel lens.
+    \todo{dispersive lens}
+
+    The mirror shape is described using a Bezier curve with 4 control
+    points.
+    Generated line segments are then subdivided using a quadtree as described
+    in \secref{sec:raytracing_acceleration}.
+    During the optimization the number of line segments is set to 100
+    per side of the laser rod (upper and lower).
+    The positions of the control points are also input parameters
+    for the optimization step.
+
+    The Nd:YAG laser rod is a grid with 158 by 10 cells.
+    For dispersion effects within the crystal the Sellmeier coefficients
+    for an Nd:YAG crystal were taken from ~\cite{sellmeier_ndyag}.
+    Absorption of light within the crystal is modelled using the Lambert
+    law of absorption described in \equref{equ:lambert}.
+    Additionally, the irradiated power reaching the crystal is
+    tracked when a ray hits the crystal.
+    The distance of the laser rod and the mirror to the
+    fresnel lens can be opened as a parameter for the optimization.
+
+    The optimization is done by first executing a random search
+    for maximal absorbed power across all opened parameters 
+    which satisfy given constraints to gain
+    an estimate for a good starting point for the 
+    constrained BiMADS algorithm.
+    The two objective functions for the BiMADS algortihm are chosen
+    to be the negated sum of all power values of the cells within the
+    crystal grid and the variance of the cell values.
+    The output of the BiMADS algorithm is an approximation 
+    of the Pareto front and chosen points are then traced with
+    a higher resolution of 10000 line segments.
+    The scene is output in the VTK format
+    and the mirror shape is additionally output in a format to 
+    be read by ASLD for the beam analysis.
+
+    Different outputs of the optimization step for different 
+    combinations of allowed values and constraints are presented and
+    observed behavior of the optimization discussed.
+    The solutions for the different runs are compared to a 
+    reference solution on the basis of the ASLD beam parameters.
+
+    \paragraph{Constrained Setup}
+    \paragraph{Unconstrained Setup}
+
     \subsection{ASLD Software}
     \subsection{Beam Analysis}
-
+    
     \newpage
 
     \bibliographystyle{plain}

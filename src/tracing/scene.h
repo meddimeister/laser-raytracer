@@ -9,6 +9,7 @@ public:
   vector<Ray2D> startrays;
 
   void add(const shared_ptr<Object2D> &object);
+  void init();
 
   void generatePointRays(const dvec2 &origin, const dvec2 &direction,
                          double maxAngle, double totalPower, unsigned int count,

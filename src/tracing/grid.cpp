@@ -3,12 +3,23 @@
 
 vector<shared_ptr<Shape2D>> Grid2D::build() {
   vector<shared_ptr<Shape2D>> boxes;
-  boxes.push_back(make_shared<BoundingBox2D>(pos + _bmin, pos + _bmax));
+  auto box = make_shared<BoundingBox2D>(pos + _bmin, pos + _bmax);
+  boxes.push_back(box);
+  _cornerMin = box->aabb.bmin;
+  _cornerMax = box->aabb.bmax;
+  _dx = (_cornerMax.x - _cornerMin.x) / _maxX;
+  _dy = (_cornerMax.y - _cornerMin.y) / _maxY;
+  reset();
   return boxes;
 }
 
 void Grid2D::actionEnter(Ray2D &ray, const IntersectResult2D &result) {
-  _hitAction(ray, result);
+  if(result.normalEnter.x != 0.0){
+    ray.terminate(result.tEnter);
+  }
+  else{
+    _hitAction(ray, result);
+  }
 }
 
 void Grid2D::actionTransmit(Ray2D &ray, const IntersectResult2D &result) {

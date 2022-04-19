@@ -18,7 +18,7 @@
 #include <cstddef>
 
 #define MIRRORSHAPE 2
-#define DIM 6
+#define DIM 9
 
 using namespace std;
 
@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
 
   LOG("Start");
   bool noopt = false;
+  bool norand = false;
   size_t optrays = 10000;
   size_t optsegments = 100;
   size_t rays = 100000;
@@ -39,10 +40,11 @@ int main(int argc, char *argv[]) {
   double solarDivergence = 0.53338 * (2.0 * M_PI / 360.0); // rad
   vecn<double, 4> sellmeierNdYag = {2.282, 0.01185, 3.27644, 282.734};
 
-    ArgParser args(
-      "-noopt --prefix --optrays --optsegments --rays --segments",
-      argc, argv);
+  ArgParser args(
+      "-noopt -norand --prefix --optrays --optsegments --rays --segments", argc,
+      argv);
   args.getFlag("-noopt", noopt);
+  args.getFlag("-norand", norand);
   args.getArg("--optrays", optrays);
   args.getArg("--optsegments", optsegments);
   args.getArg("--rays", rays);
@@ -77,7 +79,7 @@ int main(int argc, char *argv[]) {
 
   double irradianceCrystal = 0.0;
 
-  #if(MIRRORSHAPE==0)
+#if (MIRRORSHAPE == 0)
   auto mirrorShape = [&](double x) {
     dvec2 point = {x, params[0] * x * x + params[1]};
     return point;
@@ -85,7 +87,7 @@ int main(int argc, char *argv[]) {
   paramsStart = {0.0, 0.0};
   paramsLower = {0.0, 0.0};
   paramsUpper = {1.0, 1.0};
-  #elif(MIRRORSHAPE==1)
+#elif (MIRRORSHAPE == 1)
   auto mirrorShape = [&](double x) {
     dvec2 start = {0.0042, 0.0};
     dvec2 paramPoint1 = {params[0], params[1]};
@@ -97,26 +99,43 @@ int main(int argc, char *argv[]) {
   paramsStart = {0.0, 0.0, 0.075, 0.0};
   paramsLower = {0.0, 0.0, 0.075, 0.0};
   paramsUpper = {0.075, 0.3, 0.15, 0.3};
-  #elif(MIRRORSHAPE==2)
+#elif (MIRRORSHAPE == 2)
   auto mirrorShape = [&](double x) {
-    dvec2 start = {0.0042, params[4]};
+    dvec2 start = {params[4], params[5]};
     dvec2 paramPoint1 = {params[0], params[1]};
     dvec2 paramPoint2 = {params[2], params[3]};
-    dvec2 end = {0.15, params[5]};
+    dvec2 end = {params[6], params[7]};
     dvec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
     return point;
   };
-  paramsStart = {0.0, 0.0, 0.075, 0.0, -0.15, 0.3};
-  paramsLower = {0.0, 0.0, 0.075, 0.0, -0.3, 0.224};
-  paramsUpper = {0.075, 0.3, 0.15, 0.3, 0.0, 0.4};
-  #endif
-  
+  paramsStart = {0.0042,  0.0, 0.0042,  0.0, 0.0042,  0.0, 0.6000,  0.1,  0.0};
+  paramsLower = {0.0042, -2.0, 0.0042, -2.0, 0.0042, -2.0, 0.0042, -2.0, -0.3};
+  paramsUpper = {1.0000,  2.0, 1.0000,  2.0, 1.0000,  2.0, 1.0000,  2.0,  2.0};
+
+  auto monotonyConstraint = [](const vecn<double, DIM> &currentParams) {
+    if ((currentParams[4] <= currentParams[0] &&
+         currentParams[0] <= currentParams[2] &&
+         currentParams[2] <= currentParams[6]) &&
+        (currentParams[5] <= currentParams[1] &&
+         currentParams[1] <= currentParams[3] &&
+         currentParams[3] <= currentParams[7]))
+      return -1.0;
+    return 1.0;
+  };
+
+  vector<function<double(const vecn<double, DIM> &)>> constraints = {
+      monotonyConstraint};
+
+#endif
+
+  dvec2 mirrorPos = {0.122, 0.0};
+  dvec2 crystalPos = {0.0475, 0.0};
+
   auto optmirror = make_shared<Mirror2D>(
-      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShape, optsegments));
+      Mirror2D(mirrorPos, {-1.0, 0.0}, 4, mirrorShape, optsegments));
 
   auto optcrystal = make_shared<Grid2D>(Grid2D(
-      {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
-      sellmeierNdYag,
+      crystalPos, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10, sellmeierNdYag,
       [&](Ray2D &ray, double distance, double &cell) {
         // Lambert law of absorption
         double alpha = absorptionSpectrum(ray.wavelength);
@@ -153,7 +172,9 @@ int main(int argc, char *argv[]) {
 
   auto trace = [&](const vecn<double, DIM> &currentParams) {
     params = currentParams;
-    optmirror->init();
+    optcrystal->setPos(crystalPos + dvec2(params[8], 0.0));
+    optmirror->setPos(mirrorPos + dvec2(params[8], 0.0));
+    optscene.init();
     optraysStorage = optscene.trace(4);
     double functional = -optcrystal->sum();
     optcrystal->reset();
@@ -163,7 +184,9 @@ int main(int argc, char *argv[]) {
 
   auto traceVar = [&](const vecn<double, DIM> &currentParams) {
     params = currentParams;
-    optmirror->init();
+    optcrystal->setPos(crystalPos + dvec2(params[8], 0.0));
+    optmirror->setPos(mirrorPos + dvec2(params[8], 0.0));
+    optscene.init();
     optraysStorage = optscene.trace(4);
     double functional = optcrystal->var();
     optcrystal->reset();
@@ -175,24 +198,58 @@ int main(int argc, char *argv[]) {
 
   // Optimization Algorithm
   if (!noopt) {
-    cout << "Mirror Optimizer: " << endl;
+    // initially sarch randomly for highest power
+    if (!norand) {
+      cout << "Initial search: " << endl;
+      UniformSamplerND<DIM> sampler;
+      sampler.init(1000000);
+      double optPower = numeric_limits<double>::max();
+      size_t bb_eval = 0;
+      size_t max_bb_eval = 100000;
+      for (size_t i = 0; i < 1000000; ++i) {
+        auto sample = sampler.next();
+        vecn<double, DIM> searchPoint;
+        for (size_t j = 0; j < DIM; ++j) {
+          searchPoint[j] =
+              paramsLower[j] + sample[j] * (paramsUpper[j] - paramsLower[j]);
+        }
+        for (auto constraint : constraints) {
+          if (constraint(searchPoint) > 0.0) {
+            continue;
+          }
+        }
+        if (bb_eval > max_bb_eval)
+          break;
+        double power = trace(searchPoint);
+        bb_eval++;
+        if (power < optPower) {
+          optPower = power;
+          paramsStart = searchPoint;
+          cout << "(" << bb_eval << "/" << max_bb_eval << ") "
+               << "Better starting point: " << optPower
+               << " params: " << paramsStart << endl;
+        }
+      }
+      LOG("Initial search");
+    }
 
-    auto solutions = mads<DIM>(trace, traceVar, paramsStart, paramsLower, paramsUpper);
+    cout << "Optimization: " << endl;
+    auto solutions = mads<DIM>(trace, traceVar, paramsStart, paramsLower,
+                               paramsUpper, constraints);
 
     if (solutions.empty()) {
       DEBUG("Error: No solutions found");
       return -1;
     }
 
-    LOG("Optimizer");
+    LOG("Optimization");
 
     cout << "Solutions:" << endl;
     cout << endl;
 
     for (size_t i = 0; i < solutions.size(); ++i) {
       auto [params, power, variance] = solutions[i];
-      cout << "[" << i << "] "
-           << -power << " " << variance << endl;
+      cout << "[" << i << "] " << -power << " " << variance << endl;
     }
 
     cout << endl;
@@ -210,11 +267,10 @@ int main(int argc, char *argv[]) {
   }
 
   auto mirror = make_shared<Mirror2D>(
-      Mirror2D({0.122, 0.0}, {-1.0, 0.0}, 4, mirrorShape, segments));
+      Mirror2D(mirrorPos, {-1.0, 0.0}, 4, mirrorShape, segments));
 
   auto crystal = make_shared<Grid2D>(Grid2D(
-      {0.0475, 0.0}, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10,
-      sellmeierNdYag,
+      crystalPos, {-0.0475, -0.003}, {0.0475, 0.003}, 158, 10, sellmeierNdYag,
       [&](Ray2D &ray, double distance, double &cell) {
         // Lambert law of absorption
         double alpha = absorptionSpectrum(ray.wavelength);
@@ -242,11 +298,13 @@ int main(int argc, char *argv[]) {
                                 absorptionImpSampler, emissionSpectrum);
 
   vector<vector<Ray2D>> raysStorage;
-  for (size_t i = 0; i <  solutionParams.size(); ++i) {
+  for (size_t i = 0; i < solutionParams.size(); ++i) {
     cout << endl;
     cout << "Solution " << i << endl;
     params = solutionParams[i];
-    mirror->init();
+    crystal->setPos(crystalPos + dvec2(params[8], 0.0));
+    mirror->setPos(mirrorPos + dvec2(params[8], 0.0));
+    scene.init();
     raysStorage = scene.trace(4);
 
     double irradiationEfficiency = irradianceCrystal / solarPower;
@@ -266,24 +324,31 @@ int main(int argc, char *argv[]) {
     cout << "Absorption efficiency (irradiated): "
          << absorptionEfficiencyIrradiated << endl;
 
-    vector<tuple<double, double>> points;
-    for (size_t i = 0; i <= segments; ++i) {
-      dvec2 point = mirrorShape(double(i) / segments);
-      points.push_back({-point.y + mirrorShape(1.0).x, point.x});
-    }
-    auto mirrorXYFunction = getFunction(points, true);
-    //outputFunction(mirrorXYFunction, 0.0, mirrorShape(0.0).y, "csvOut", "test");
+    CSVWriter csvWriter("out/" + prefix + "/solution" + to_string(i), ".txt");
 
-    CSVWriter csvWriter("out/"+prefix+"/solution"+to_string(i), ".txt");
+    auto startPoint = mirrorShape(0.0);
+    auto endPoint = mirrorShape(1.0);
+
+    double asldMirrorZcoordinate =
+        ((mirror->getPos().x - (crystal->getPos().x - 0.0475)) -
+         (startPoint.y + (endPoint.y - startPoint.y) / 2.0)) *
+        1000.0;
+
+    double asldLensZcoordinate =
+        (lens->getPos().x - (crystal->getPos().x - 0.0475)) * 1000.0;
+
+    csvWriter.add("reflector", "#asldMirrorZcoordinate", asldMirrorZcoordinate);
+    csvWriter.add("reflector", "#asldLensZcoordinate", asldLensZcoordinate);
+
     for (size_t j = 0; j <= 1000; ++j) {
-      dvec2 point = mirrorShape(double(1000-j)/1000);
-      double xScaled = (-point.y * 1000.0) + 224.0 + 300.2396507;
+      dvec2 point = mirrorShape(double(1000 - j) / 1000);
+      double xScaled = (-point.y * 1000.0);
       double yScaled = point.x * 1000.0;
       csvWriter.add("reflector", xScaled, yScaled);
     }
     csvWriter.write();
 
-    VTKWriter vtkWriter("out/"+prefix+"/solution"+to_string(i));
+    VTKWriter vtkWriter("out/" + prefix + "/solution" + to_string(i));
     vtkWriter.add(mirror, "mirror");
     vtkWriter.add(mirror->getAABBs(), "mirror.AABB");
     vtkWriter.add(crystal, "crystal");

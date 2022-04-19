@@ -10,6 +10,12 @@ void Scene2D::add(const shared_ptr<Object2D> &object) {
   objects.push_back(object);
 }
 
+void Scene2D::init(){
+  for(auto &object : objects){
+    object->init();
+  }
+}
+
 void Scene2D::generatePointRays(const dvec2 &origin, const dvec2 &direction,
                                 double maxAngle, double totalPower,
                                 unsigned int count,
