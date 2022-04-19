@@ -959,6 +959,77 @@ beam quality evaluated.
     in order to manage heap allocated resources.
     Therefore there is no need for the user to worry about 
     memory management. 
+    Before going into more detail for each part of the raytracing
+    framework a rough overview over the structure and different
+    components is given in \figref{fig:uml_framework}.
+    
+    \begin{center}
+    \begin{figure}
+    \centering
+    \begin{tikzpicture}
+    \begin{umlpackage}{Tracing}
+    \umlsimpleclass[x=0, y=4]{IntersectResult2D}
+    \umlsimpleclass[x=6, y=4]{AABB2D}
+    \umlsimpleclass[type=interface, x=4, y=2]{Shape2D}
+    \umlsimpleclass[x=9, y=3]{Line2D}
+    \umlsimpleclass[x=9, y=2]{BoundingBox2D}
+    \umlsimpleclass[x=9, y=1]{Sphere2D}
+
+    \umlsimpleclass[type=interface, x=4, y=-2]{Object2D}
+    \umlsimpleclass[x=9, y=-1]{Mirror2D}
+    \umlsimpleclass[x=9, y=-2]{ThinLens2D}
+    \umlsimpleclass[type=interface, x=9, y=-3]{Medium2D}
+    \umlsimpleclass[x=9, y=-5]{Grid2D}
+    
+    \umlsimpleclass[x=0, y=-5]{Ray2D}
+
+
+    \umlsimpleclass[x=0, y=-2]{Scene2D}
+    
+    \umlimpl[]{Line2D}{Shape2D}
+    \umlimpl[]{BoundingBox2D}{Shape2D}
+    \umlimpl[]{Sphere2D}{Shape2D}
+    \umluniassoc[anchor1=70,arg=has,mult=1, geometry=|-]{Shape2D}{AABB2D}
+    \umldep[anchor1=110, geometry=|-]{Shape2D}{IntersectResult2D}
+    \umlimpl{Mirror2D}{Object2D}
+    \umlimpl{ThinLens2D}{Object2D}
+    \umlinherit{Medium2D}{Object2D}
+    \umlimpl{Grid2D}{Medium2D}
+
+    \umlunicompo{Object2D}{Shape2D}
+    \umlunicompo{Scene2D}{Object2D}
+
+    \umldep{Scene2D}{IntersectResult2D}
+    \umldep{Scene2D}{Ray2D}
+
+    \end{umlpackage}
+
+    \begin{umlpackage}{Utilities}
+        \umlsimpleclass[x=3, y=8]{VtkWriter}
+        \umlsimpleclass[x=3, y=7]{CsvWriter}
+        \umlsimpleclass[x=3, y=6]{CsvReader}
+        \umlsimpleclass[x=6, y=8]{Timer}
+        \umlsimpleclass[x=6, y=7]{ArgsParser}
+    \end{umlpackage}
+
+    \begin{umlpackage}{NOMAD}
+        \umlsimpleclass[x=9.5, y=8]{MADS}
+        \umlsimpleclass[x=9.5, y=7]{BiMADS}
+    \end{umlpackage}
+
+    \begin{umlpackage}{Maths}
+        \umlsimpleclass[type=interface, x=-0.5, y=8]{Sampler}
+        \umlsimpleclass[x=-0.5, y=7]{Physics}
+    \end{umlpackage}
+
+    \umldep{Tracing}{Maths}
+    \umldep{Tracing}{Utilities}
+    \umldep{Tracing}{NOMAD}
+    \end{tikzpicture}
+    \caption{UML class diagram of the raytracing framework}
+    \label{fig:uml_framework}
+    \end{figure}
+    \end{center}
 
     \subsubsection{Rays}
 
