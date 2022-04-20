@@ -989,7 +989,7 @@ beam quality evaluated.
     \umlimpl[]{Line2D}{Shape2D}
     \umlimpl[]{BoundingBox2D}{Shape2D}
     \umlimpl[]{Sphere2D}{Shape2D}
-    \umluniassoc[anchor1=70,arg=has,mult=1, geometry=|-]{Shape2D}{AABB2D}
+    \umluniassoc[anchor1=70, geometry=|-]{Shape2D}{AABB2D}
     \umldep[anchor1=110, geometry=|-]{Shape2D}{IntersectResult2D}
     \umlimpl{Mirror2D}{Object2D}
     \umlimpl{ThinLens2D}{Object2D}
@@ -1010,6 +1010,7 @@ beam quality evaluated.
         \umlsimpleclass[x=3, y=6]{CsvReader}
         \umlsimpleclass[x=6, y=8]{Timer}
         \umlsimpleclass[x=6, y=7]{ArgsParser}
+        \umlsimpleclass[x=6, y=6]{FunctionUtils}
     \end{umlpackage}
 
     \begin{umlpackage}{NOMAD}
@@ -1771,7 +1772,35 @@ beam quality evaluated.
     \end{figure}
       
     \subsubsection{Utilities} \label{sec:utilities}
-    
+
+    Out of convenience, there are also some utilities included for the user.
+    A VtkWriter class is provided to output the scene, rays and tracing results
+    for included grids.
+    Here the user can specify the percentage of rays to output since
+    it is often not feasable to output all the rays in the simulation
+    but just a representation to observe the behavior of rays.
+    The rays are then sampled uniformly using the Sampler class for each
+    depth.
+    Also, all bounding boxes of objects are output additionally.
+    For the input and output of tables in the CSV format the two CSV classes
+    are provided.
+    The user can specify the datatype for each column in the CSV file so
+    the values are parsed accordingly.
+    Probably the most important part of the included utilities are the
+    function utilities.
+    The collection of methods provide the implementation for lookup
+    functions and other operations done on real valued functions.
+    For example the datapoints from the CSVReader can be sorted and linearly
+    interpolated and the corresponding lookup function returned.
+    The lookup function the uses a binary search algorithm to determine
+    the interpolated value as efficiently as possible.
+    This is particularly important if the user wants to evaluate a function
+    in one of the raytracing action functions.
+    Furthermore a timer class is implemented to enable accurate timing
+    measurements and an argument parser is provided.
+    As a part of the Maths module commonly used physics laws are implemented
+    such as Snell's law, the Fresnel laws etc.
+
     \section{Optimization}
 
     \subsection{Optimization Methods Overview} \label{sec:opt_overview}
@@ -3083,10 +3112,22 @@ beam quality evaluated.
     The BiMADS algorithm has two objective functions.
     One fucntion evaluates the total absorbed power and the other one
     evaluates the variance of power across the Nd:YAG crystal.
+    To analyse the effect of a high power and low variance absorption
+    in the laser rod, the commercial software ASLD (Advanced Software
+    for Laser Design) ~\cite{asld_website} was used.
+    ASLD provides thermal and structural analysis of laser crystals
+    employing the finite element method as well as
+    calculation of laser output power and beam quality of a resonator setup
+    using dynamic multimode analysis.
+    The stability of the resonator and the resulting beam radius
+    can also be analysed. 
+    Additionally, ASLD also has an internal 3D raytracer for the analysis
+    of pump light absorption.
+    This is were the obtained mirrorshapes and geometrical parameters
+    from the optimization can be loaded into and the resulting output
+    beam is calculated.
     Different outputs of optimizations with different parameter constraints
     are presented and discussed.
-    For the evaluation of the resulting beam properties of a solution
-    the software ASLD ~\cite{asld} was used.
 
     \subsection{Setup}
     
@@ -3095,22 +3136,22 @@ beam quality evaluated.
     collecting the sunlight and focussing it with a focal length of \SI{1.2}{m}.
     The light then hits a reflective mirror bouncing the light onto an Nd:YAG
     laser rod with a diameter of \SI{6}{mm} and a length of \SI{95}{mm}.
+    The free space between the objects is always assumed to be vacuum and
+    therefore has a refractive index of 1 and no light is lost when a 
+    ray transverses the free space.
 
     Sunlight is generated in a \SI{1.2}{m} wide round surface consisting of
     rays according to the solar spectrum.
     Hereby the solar spectrum has been importance sampled with
-    respect to the absorption spectrum of an Nd:YAG crytsal.
+    respect to the absorption spectrum of an 1\% doped Nd:YAG crytsal.
     This is done so the majority of rays in the raytracer actually
     have a contribution to the absorbed power in the crystal.
     The rays are also given a divergence equal to the value of solar divergence
     of \ang{0.53338}.
-
     The fresnel lens is approximated via the thin lens approach described
     in \secref{sec:objects}.
     For now, no assumption for dispersive effects are made for the
     fresnel lens.
-    \todo{dispersive lens}
-
     The mirror shape is described using a Bezier curve with 4 control
     points.
     Generated line segments are then subdivided using a quadtree as described
@@ -3119,22 +3160,42 @@ beam quality evaluated.
     per side of the laser rod (upper and lower).
     The positions of the control points are also input parameters
     for the optimization step.
-
     The Nd:YAG laser rod is a grid with 158 by 10 cells.
     For dispersion effects within the crystal the Sellmeier coefficients
     for an Nd:YAG crystal were taken from ~\cite{sellmeier_ndyag}.
     Absorption of light within the crystal is modelled using the Lambert
     law of absorption described in \equref{equ:lambert}.
+    Hereby the absorption spectrum of a 1\% doped Nd:YAG laser
+    rod was used in both ASLD and the optimization program.
     Additionally, the irradiated power reaching the crystal is
     tracked when a ray hits the crystal.
     The distance of the laser rod and the mirror to the
     fresnel lens can be opened as a parameter for the optimization.
+    An example setup can be seen in \figref{fig:setup_example}.
+
+    \begin{figure}
+        \missingfigure{Example setup}
+        \label{fig:setup_example}
+        \caption{Example setup}
+    \end{figure}
 
     The optimization is done by first executing a random search
     for maximal absorbed power across all opened parameters 
     which satisfy given constraints to gain
     an estimate for a good starting point for the 
     constrained BiMADS algorithm.
+    It was observed that if the random search algorithm
+    finds a point that does not satisfy all constraints, the initial MADS
+    runs cannot adequateliy find Pareto efficient points.
+    This happens even if a soft barrier approach is used.
+    Note that optimal here in the random search step means only for one
+    and \underline{not} Pareto optimal for the two objective functions.
+    Therefore the random search should use the rejection method to
+    satisfy the constraints for all found points.
+    Additionally it should also be short and used to
+    gain a rough estimate of a good starting point for the objective
+    function for the initial MADS runs for BiMADS.
+
     The two objective functions for the BiMADS algortihm are chosen
     to be the negated sum of all power values of the cells within the
     crystal grid and the variance of the cell values.
@@ -3148,15 +3209,81 @@ beam quality evaluated.
     Different outputs of the optimization step for different 
     combinations of allowed values and constraints are presented and
     observed behavior of the optimization discussed.
-    The solutions for the different runs are compared to a 
-    reference solution on the basis of the ASLD beam parameters.
+    The main focus is the total amount of absorbed power, in
+    comparison to the input power, which was set at \SI{720}{W}
+    for the sunlight hitting the fresnel lens.
+    Furthermore the variance of absorbed power in the crystal
+    is evaluated for the different constraints.
+    The amount of power hitting the crystal in relation to the
+    pump power can be defined as the irradiation efficiency
+    $E_{irr}$ as in \equref{equ:irr_eff}.
 
-    \paragraph{Constrained Setup}
-    \paragraph{Unconstrained Setup}
+    \begin{equation}
+        \label{equ:irr_eff}
+        E_{irr} = \frac{P_{irr}}{P_{pump}}
+    \end{equation}
 
-    \subsection{ASLD Software}
-    \subsection{Beam Analysis}
-    
+    The absorbed power can also be described by defining the geometric
+    optical efficiency as in \equref{equ:geom_eff}, where
+    $P_{abs}$ is the amount of absorbed power and $P_{pump}$ is
+    the power of the pump light or in this case the amount of
+    solar power irradiating the fresnel lens.
+
+    \begin{equation}
+        \label{equ:geom_eff}
+        E_{opt} = \frac{P_{abs}}{P_{pump}}
+    \end{equation}
+
+    Additionally, one can define an absorption efficiency, which
+    describes the amount of power absorbed in relation to the
+    amount of power hitting the laser rod. 
+    This can be seen in \equref{equ:geom_eff}.
+
+    \begin{equation}
+        \label{equ:geom_eff}
+        E_{abs} = \frac{P_{abs}}{P_{irr}}
+    \end{equation}
+
+
+    The solutions are compared using these defined efficiencies and
+    the variance of the absorbed power across the crystal.
+    Finally, the solutions for the different runs are compared to a
+    each other and a 
+    reference solution on the basis of the ASLD beam parameters
+    for continuous wave power output and beam quality.
+    For each solution the setup parameters are presented in a table
+    once again and the VTK output is shown and discussed.
+
+    Before presenting the solutions, it is also important to quickly go
+    over the relevant settings used
+    in ASLD, as the optimization program should emulate these parameters
+    as closely as possible or ideally be identical.
+    Hereby only the non trivial settings specifc to ASLD are explained 
+    as e.g. the pump power was already explained before and is a trivial
+    setting.
+    The crystal is traced using Snell's law at the sides and
+    and using closed faces at the circular faces of the rod.
+    This is done because usually one wants to have some sort of resonator
+    setup around the circular faces of the crytsal consisting of 
+    two mirrors where no light is able to pass from the outside.
+    Therefore no power should be transmitted through those faces
+    and a good solution should minimize the loss at the faces.
+    Unfortunately ASLD cannot model the Fresnel laws when refracting
+    rays into the crystal and instead uses a flat transmissibility 
+    parameter for all rays independent of the incident angle.
+    This was set to 100\% and the optimization program was adjusted
+    to also use this flat transmissibility when refracting a ray.
+    The problem with this approach was observed during optimization
+    and is also shown later when the setups and solutions are explained.
+    The crystals dispersive properties are set to use the Sellmeier
+    coefficients from \cite{sellmeier_ndyag}.
+    The resonator setup consists of two flat mirrors one to the left of
+    the laser rod with a distance of \SI{550}{mm} and one to the right
+    of the laser rod also with a distance of \SI{550}{mm}.
+    Here the left mirror has a reflectivity of 100\% whereas
+    the right mirror has a reflectivity of 96\%.
+
+    \section{Conclusion}
     \newpage
 
     \bibliographystyle{plain}
