@@ -1,20 +1,20 @@
 \babel@toc {english}{}\relax 
 \babel@toc {ngerman}{}\relax 
 \babel@toc {english}{}\relax 
-\contentsline {figure}{\numberline {1}{\ignorespaces Ray-line intersection}}{10}{figure.1}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Ray-AABB intersection}}{11}{figure.2}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Subdivision using quadtrees}}{13}{figure.3}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Uniform vs. stratified sampling}}{14}{figure.4}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Inversion method for importance sampling}}{15}{figure.5}%
-\contentsline {figure}{\numberline {6}{\ignorespaces UML class diagram of the raytracing framework}}{17}{figure.6}%
-\contentsline {figure}{\numberline {7}{\ignorespaces UML class diagram of the Ray2D class}}{17}{figure.7}%
-\contentsline {figure}{\numberline {8}{\ignorespaces UML class diagram of the Shape2D and associated classes}}{19}{figure.8}%
-\contentsline {figure}{\numberline {9}{\ignorespaces UML class diagram of the Object2D and associated classes}}{23}{figure.9}%
-\contentsline {figure}{\numberline {10}{\ignorespaces UML class diagram of the Sampler and associated classes}}{24}{figure.10}%
-\contentsline {figure}{\numberline {11}{\ignorespaces Different examples of sampler output}}{26}{figure.11}%
-\contentsline {figure}{\numberline {12}{\ignorespaces Discontinuity and noisyness of the objective function}}{29}{figure.12}%
-\contentsline {figure}{\numberline {13}{\ignorespaces Example of GPS frames}}{36}{figure.13}%
-\contentsline {figure}{\numberline {14}{\ignorespaces Example of MADS frames}}{37}{figure.14}%
-\contentsline {figure}{\numberline {15}{\ignorespaces Pareto dominance}}{38}{figure.15}%
-\contentsline {figure}{\numberline {16}{\ignorespaces Pareto front}}{39}{figure.16}%
-\contentsline {figure}{\numberline {17}{\ignorespaces Example setup}}{42}{figure.17}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Ray-line intersection}}{11}{figure.1}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Ray-AABB intersection}}{12}{figure.2}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Subdivision using quadtrees}}{14}{figure.3}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Uniform vs. stratified sampling}}{15}{figure.4}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Inversion method for importance sampling}}{16}{figure.5}%
+\contentsline {figure}{\numberline {6}{\ignorespaces UML class diagram of the raytracing framework}}{18}{figure.6}%
+\contentsline {figure}{\numberline {7}{\ignorespaces UML class diagram of the Ray2D class}}{18}{figure.7}%
+\contentsline {figure}{\numberline {8}{\ignorespaces UML class diagram of the Shape2D and associated classes}}{20}{figure.8}%
+\contentsline {figure}{\numberline {9}{\ignorespaces UML class diagram of the Object2D and associated classes}}{24}{figure.9}%
+\contentsline {figure}{\numberline {10}{\ignorespaces UML class diagram of the Sampler and associated classes}}{25}{figure.10}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Different examples of sampler output}}{27}{figure.11}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Discontinuity and noisyness of the objective function}}{30}{figure.12}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Example of GPS frames}}{37}{figure.13}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Example of MADS frames}}{38}{figure.14}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Pareto dominance}}{39}{figure.15}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Pareto front}}{40}{figure.16}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Example setup of the solar laser. The mirrorshape is determined using the four control points $\mathbf {p}_1,\mathbf {p}_2,\mathbf {p}_3,\mathbf {p}_4$. The distance from the left side of the crystal to the origin is controlled by the parameter $d$. When translating the crytsal with $d$ the mirror is also translated. Since in the open setups the start and endpoint of the mirror are also open, the position of the mirror relative to the crystal can be controlled via the controlpoints.}}{43}{figure.17}%

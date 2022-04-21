@@ -12,6 +12,7 @@
 \usepackage{todonotes}
 \usepackage{tikz-uml}
 \usepackage{siunitx}
+\usepackage{multirow}
 
 \newtheorem{definition}{Definition}
 
@@ -77,6 +78,10 @@ beam quality evaluated.
     \newpage
 
     \listoffigures
+
+    \newpage
+
+    \listoftables
 
     \newpage
 
@@ -3102,7 +3107,7 @@ beam quality evaluated.
     a user guide for NOMAD 3.
     
 
-    \section{Simulation of Pump Light Absorption in Solar Lasers} \label{sec:setup}
+    \section{Optimization of Pump Light Absorption in a Nd:YAG Solar Laser} \label{sec:setup}
     
     In this chapter a conceptual example of a solar pumped Nd:YAG laser is
     simulated using the raytracer framework presented in \secref{sec:raytracing}
@@ -3129,7 +3134,7 @@ beam quality evaluated.
     Different outputs of optimizations with different parameter constraints
     are presented and discussed.
 
-    \subsection{Setup}
+    \subsection{Setup and Simulation Parameters}
     
     The simulated setup consists of a large fresnel lens with a 
     diameter of \SI{1.2}{m}
@@ -3153,7 +3158,22 @@ beam quality evaluated.
     For now, no assumption for dispersive effects are made for the
     fresnel lens.
     The mirror shape is described using a Bezier curve with 4 control
-    points.
+    points as in \equref{equ:mirror}.
+
+    \begin{equation}
+        \label{equ:mirror}
+        \begin{gathered}
+            s : [0,1] \rightarrow \mathbb{R}^2\\
+            s(t) = Bezier(t, \vec{p}_1, \vec{p}_2, \vec{p}_3, \vec{p}_4)\\
+        \end{gathered}
+    \end{equation}
+
+    Hereby the mirror shape is restricted to a monotonous shape
+    along the rotational axis of the setup.
+    This is implemented using a constraint function which compares
+    the control points of the Bezier curve and outputs a 
+    value according to the convention for the optimization algorithm as
+    described in \secref{sec:constrained}.
     Generated line segments are then subdivided using a quadtree as described
     in \secref{sec:raytracing_acceleration}.
     During the optimization the number of line segments is set to 100
@@ -3174,9 +3194,18 @@ beam quality evaluated.
     An example setup can be seen in \figref{fig:setup_example}.
 
     \begin{figure}
-        \missingfigure{Example setup}
+        \centering
+        \import{images/}{setup.pdf_tex}
         \label{fig:setup_example}
-        \caption{Example setup}
+        \caption{Example setup of the solar laser. The mirrorshape
+        is determined using the four control points 
+        $\vec{p}_1,\vec{p}_2,\vec{p}_3,\vec{p}_4$.
+        The distance from the left side of the crystal to the origin
+        is controlled by the parameter $d$.
+        When translating the crytsal with $d$ the mirror is also translated.
+        Since in the open setups the start and endpoint of the mirror are
+        also open, the position of the mirror relative to the crystal
+        can be controlled via the controlpoints.}
     \end{figure}
 
     The optimization is done by first executing a random search
@@ -3190,8 +3219,13 @@ beam quality evaluated.
     This happens even if a soft barrier approach is used.
     Note that optimal here in the random search step means only for one
     and \underline{not} Pareto optimal for the two objective functions.
-    Therefore the random search should use the rejection method to
-    satisfy the constraints for all found points.
+    Therefore the random search should either use a method that only
+    generates searchpoints that satisfy the constraints or use the
+    rejection method to reject samples that violate one of the
+    constraints.
+    Since in this case only a single monotony constraint was used,
+    it is easy to generate only samples satisfying this constraint
+    and it was decided to use this approach.
     Additionally it should also be short and used to
     gain a rough estimate of a good starting point for the objective
     function for the initial MADS runs for BiMADS.
@@ -3282,6 +3316,148 @@ beam quality evaluated.
     of the laser rod also with a distance of \SI{550}{mm}.
     Here the left mirror has a reflectivity of 100\% whereas
     the right mirror has a reflectivity of 96\%.
+
+    \subsection{Setup 1: Fixed Crystal Position and fixed Mirror Endpoints}
+    
+    
+    \begin{table}
+    \centering
+    \setlength\tabcolsep{8pt}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{| c | p{40mm} | c |}
+        \hline
+        \multirow{4}{*}{Raytracing Settings} & Optimization rays & 10000 \\
+        \cline{2-3}
+        & Optimization segments & 100 \\
+        \cline{2-3}
+        & Final step rays & 100000 \\
+        \cline{2-3}
+        & Final step segments & 10000 \\
+        \hline
+        \multirow{4}{*}{Optimization Settings} & Maximum initial random search black-box evaluations & 10000 \\
+        \cline{2-3}
+        & BiMADS Maximum black-box evaluations per MADS run & 1000 \\
+        \cline{2-3}
+        & BiMADS constraint type & Progressive barrier \\
+        \cline{2-3}
+        & BiMADS poll direction type & Orthogonal N+1 \\
+        \hline
+        \multirow{9}{*}{Optimization Parameters} & 
+        $\vec{p}_1.x$ & $4.2mm$ \\
+        \cline{2-3}
+        & $\vec{p}_2.x$ & $[4.2mm, 75mm]$\\
+        \cline{2-3}
+        & $\vec{p}_3.x$ & $[75mm, 150mm]$\\ 
+        \cline{2-3}
+        & $\vec{p}_4.x$ & $150mm$\\ 
+        \cline{2-3}
+        & $\vec{p}_1.y$ & $0mm$ \\
+        \cline{2-3}
+        & $\vec{p}_2.y$ & $[0mm, 300mm]$\\
+        \cline{2-3}
+        & $\vec{p}_3.y$ & $[0mm, 300mm]$\\ 
+        \cline{2-3}
+        & $\vec{p}_4.y$ & $224mm$\\ 
+        \cline{2-3}
+        & $d$ & $0mm$\\ 
+        \hline 
+    \end{tabular}
+    \caption{Parameters for Setup 1}
+    \end{table}
+
+    \subsection{Setup 2: Fixed Crystal Position and open Mirror Endpoints}
+    
+    \begin{table}
+    \centering
+    \setlength\tabcolsep{8pt}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{| c | p{40mm} | c |}
+        \hline
+        \multirow{4}{*}{Raytracing Settings} & Optimization rays & 10000 \\
+        \cline{2-3}
+        & Optimization segments & 100 \\
+        \cline{2-3}
+        & Final step rays & 100000 \\
+        \cline{2-3}
+        & Final step segments & 10000 \\
+        \hline
+        \multirow{4}{*}{Optimization Settings} & Maximum initial random search black-box evaluations & 10000 \\
+        \cline{2-3}
+        & BiMADS Maximum black-box evaluations per MADS run & 1000 \\
+        \cline{2-3}
+        & BiMADS constraint type & Progressive barrier \\
+        \cline{2-3}
+        & BiMADS poll direction type & Orthogonal N+1 \\
+        \hline
+        \multirow{9}{*}{Optimization Parameters} & 
+        $\vec{p}_1.x$ & $[4.2mm, 1000mm]$ \\
+        \cline{2-3}
+        & $\vec{p}_2.x$ & $[4.2mm, 1000mm]$\\
+        \cline{2-3}
+        & $\vec{p}_3.x$ & $[4.2mm, 1000mm]$\\ 
+        \cline{2-3}
+        & $\vec{p}_4.x$ & $[4.2mm, 1000mm]$\\ 
+        \cline{2-3}
+        & $\vec{p}_1.y$ & $[-2000mm, 2000mm]$ \\
+        \cline{2-3}
+        & $\vec{p}_2.y$ & $[-2000mm, 2000mm]$\\
+        \cline{2-3}
+        & $\vec{p}_3.y$ & $[-2000mm, 2000mm]$\\ 
+        \cline{2-3}
+        & $\vec{p}_4.y$ & $[-2000mm, 2000mm]$\\ 
+        \cline{2-3}
+        & $d$ & $0mm$\\ 
+        \hline 
+    \end{tabular}
+    \caption{Parameters for Setup 2}
+    \end{table}
+    
+    \subsection{Setup 3: Open Crystal Position and open Mirror Endpoints}
+    
+    \begin{table}
+    \centering
+    \setlength\tabcolsep{8pt}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{| c | p{40mm} | c |}
+        \hline
+        \multirow{4}{*}{Raytracing Settings} & Optimization rays & 10000 \\
+        \cline{2-3}
+        & Optimization segments & 100 \\
+        \cline{2-3}
+        & Final step rays & 100000 \\
+        \cline{2-3}
+        & Final step segments & 10000 \\
+        \hline
+        \multirow{4}{*}{Optimization Settings} & Maximum initial random search black-box evaluations & 10000 \\
+        \cline{2-3}
+        & BiMADS Maximum black-box evaluations per MADS run & 1000 \\
+        \cline{2-3}
+        & BiMADS constraint type & Progressive barrier \\
+        \cline{2-3}
+        & BiMADS poll direction type & Orthogonal N+1 \\
+        \hline
+        \multirow{9}{*}{Optimization Parameters} & 
+        $\vec{p}_1.x$ & $[4.2mm, 1000mm]$ \\
+        \cline{2-3}
+        & $\vec{p}_2.x$ & $[4.2mm, 1000mm]$\\
+        \cline{2-3}
+        & $\vec{p}_3.x$ & $[4.2mm, 1000mm]$\\ 
+        \cline{2-3}
+        & $\vec{p}_4.x$ & $[4.2mm, 1000mm]$\\ 
+        \cline{2-3}
+        & $\vec{p}_1.y$ & $[-2000mm, 2000mm]$ \\
+        \cline{2-3}
+        & $\vec{p}_2.y$ & $[-2000mm, 2000mm]$\\
+        \cline{2-3}
+        & $\vec{p}_3.y$ & $[-2000mm, 2000mm]$\\ 
+        \cline{2-3}
+        & $\vec{p}_4.y$ & $[-2000mm, 2000mm]$\\ 
+        \cline{2-3}
+        & $d$ & $[-300mm, 2000mm]$\\ 
+        \hline 
+    \end{tabular}
+    \caption{Parameters for Setup 3}
+    \end{table}
 
     \section{Conclusion}
     \newpage
