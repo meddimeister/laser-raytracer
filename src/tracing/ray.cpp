@@ -9,6 +9,10 @@ ostream &operator<<(ostream &stream, const Ray2D &ray) {
                 << "direction: [" << ray.direction.x << "," << ray.direction.y
                 << "]"
                 << ", "
+                << "terminated: " << ray.terminated
+                << ", "
+                << "terminatedAt: " << ray.terminatedAt
+                << ", "
                 << "power: " << ray.power
                 << ", "
                 << "wavelength: " << ray.wavelength

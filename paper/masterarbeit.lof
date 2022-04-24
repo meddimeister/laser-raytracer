@@ -18,3 +18,9 @@
 \contentsline {figure}{\numberline {15}{\ignorespaces Pareto dominance}}{39}{figure.15}%
 \contentsline {figure}{\numberline {16}{\ignorespaces Pareto front}}{40}{figure.16}%
 \contentsline {figure}{\numberline {17}{\ignorespaces Example setup of the solar laser. The mirrorshape is determined using the four control points $\mathbf {p}_1,\mathbf {p}_2,\mathbf {p}_3,\mathbf {p}_4$. The distance from the left side of the crystal to the origin is controlled by the parameter $d$. When translating the crytsal with $d$ the mirror is also translated. Since in the open setups the start and endpoint of the mirror are also open, the position of the mirror relative to the crystal can be controlled via the controlpoints.}}{43}{figure.17}%
+\contentsline {figure}{\numberline {18}{\ignorespaces VTK Output for Setup 3 with initial random search}}{48}{figure.18}%
+\contentsline {figure}{\numberline {19}{\ignorespaces VTK Output for Setup 3 with initial random search for different raytracing depths}}{49}{figure.19}%
+\contentsline {figure}{\numberline {20}{\ignorespaces ASLD beam profile for Setup 3 with initial random search}}{50}{figure.20}%
+\contentsline {figure}{\numberline {21}{\ignorespaces VTK Output for Setup 3 with pipe start configuration}}{51}{figure.21}%
+\contentsline {figure}{\numberline {22}{\ignorespaces VTK Output for Setup 3 with pipe start configuration different raytracing depths}}{52}{figure.22}%
+\contentsline {figure}{\numberline {23}{\ignorespaces ASLD beam profile for Setup 3 with pipe start configuration}}{53}{figure.23}%

@@ -94,7 +94,7 @@ vector<tuple<vecn<double, N>, double, double>> runNomad(function<double(const ve
     }
 
     p.set_BB_OUTPUT_TYPE(bbot);
-    p.set_DIRECTION_TYPE(NOMAD::ORTHO_2);
+    p.set_DIRECTION_TYPE(NOMAD::ORTHO_NP1_QUAD);
     p.set_DISPLAY_STATS("bbe ( sol ) obj");
     p.set_DISPLAY_DEGREE(2);
     // p.set_SOLUTION_FILE("sol.txt");

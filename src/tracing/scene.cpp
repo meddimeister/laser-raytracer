@@ -77,6 +77,38 @@ void Scene2D::generateDirectionalRays(
   }
   startrays.insert(startrays.end(), generatedRays.begin(), generatedRays.end());
 }
+
+void Scene2D::generateDirectionalRaysUniform(
+    const dvec2 &origin, double radius, const dvec2 &direction, double divergenceAngle, double totalPower,
+    unsigned int count, Sampler<double> &originSampler, Sampler<double> &divergenceSampler,
+    UniformSampler1D &wavelengthSampler,
+    const function<double(double)> &spectrum) {
+
+  originSampler.init(count);
+  divergenceSampler.init(count);
+  wavelengthSampler.init(count);
+  vector<Ray2D> generatedRays;
+  double powerIntegral = 0.0;
+  for (unsigned int i = 0; i < count; ++i) {
+    double originRadius = radius * (2.0 * originSampler.next() - 1.0);
+    double divergence = 0.5 * divergenceAngle * (2.0 * divergenceSampler.next() - 1.0);
+    double wavelengthSample = wavelengthSampler.next();
+    double wavelength = 300.0 + wavelengthSample* (1000.0 - 300.0);
+    double power = spectrum(wavelength);
+    if(isnan(power) || isinf(power))
+      continue;
+    powerIntegral += power;
+
+    generatedRays.push_back(
+        Ray2D(origin + originRadius * rotate(direction, 0.5 * double(M_PI)),
+              rotate(direction, divergence), power, wavelength));
+  }
+  for (auto &ray : generatedRays) {
+    ray.power = ray.power * (totalPower / powerIntegral);
+  }
+  startrays.insert(startrays.end(), generatedRays.begin(), generatedRays.end());
+}
+
 vector<vector<Ray2D>> Scene2D::trace(unsigned int depth) {
 
   vector<vector<Ray2D>> allrays(depth);

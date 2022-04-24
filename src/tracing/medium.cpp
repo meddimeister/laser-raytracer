@@ -10,7 +10,7 @@ void Medium2D::action(Ray2D &ray, const IntersectResult2D &result,
   auto [ray_reflect_in, ray_transmit_in] =
       ray.refract(result.tEnter, result.normalEnter, 1.0,
                   sellmeier(_sellmeierCoeff, ray.wavelength));
-
+  
   auto transmitResult = intersect(ray_transmit_in);
 
   IntersectResult2D internalResult;
@@ -34,10 +34,12 @@ void Medium2D::action(Ray2D &ray, const IntersectResult2D &result,
 
     // createdRays.push_back(ray_reflect_out);
     if (!ray_transmit_out.terminated) {
+      ray_transmit_out.origin += 20.0 * numeric_limits<double>::epsilon() *
+      length(ray_transmit_out.origin) * ray_transmit_out.direction;
       createdRays.push_back(ray_transmit_out);
     }
   }
-  createdRays.push_back(ray_reflect_in);
+  //createdRays.push_back(ray_reflect_in);
   createdRays.push_back(ray_transmit_in);
   }
 }

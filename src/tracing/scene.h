@@ -25,5 +25,13 @@ public:
                                ImportanceSampler1D &wavelengthSampler,
                                const function<double(double)> &spectrum);
 
+  void generateDirectionalRaysUniform(const dvec2 &origin, double radius,
+                               const dvec2 &direction, double divergenceAngle,
+                               double totalPower, unsigned int count,
+                               Sampler<double> &originSampler,
+                               Sampler<double> &divergenceSampler,
+                               UniformSampler1D &wavelengthSampler,
+                               const function<double(double)> &spectrum);
+
   vector<vector<Ray2D>> trace(unsigned int depth = 1);
 };

@@ -3413,8 +3413,8 @@ beam quality evaluated.
     \end{table}
     
     \subsection{Setup 3: Open Crystal Position and open Mirror Endpoints}
-    
-    \begin{table}
+   
+    \begin{table}[H]
     \centering
     \setlength\tabcolsep{8pt}
     \renewcommand{\arraystretch}{1.5}
@@ -3458,6 +3458,171 @@ beam quality evaluated.
     \end{tabular}
     \caption{Parameters for Setup 3}
     \end{table}
+
+    \paragraph{Random Search}
+
+    \begin{table}[H]
+    \centering
+    \setlength\tabcolsep{8pt}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
+        \hline
+        Solution      &1&2&3&4&5&6&7&8\\
+        \hline
+        Absorbed Power[W] &186.759&186.718&185.703&176.553&174.826&160.409&159.861&159.84\\
+        \hline
+        Variance[W] &2.49616&2.26328&1.58416&0.436452&0.413845&0.136575&0.133112&0.133173\\
+        \hline
+        Irradiation Efficiency &1.65709&1.65652&1.6547&1.56725&1.55209&1.36465&1.36168&1.36157\\
+        \hline
+        Optical Efficiency &0.259387&0.25933&0.25792&0.245213&0.242814&0.22279&0.222029&0.222\\
+        \hline
+        Absorption Efficiency &0.156532&0.156551&0.155872&0.156461&0.156443&0.163258&0.163055&0.163047\\
+        \hline
+        Output@690W cw[W]  &38.2208&37.3604&36.8358&30.1742&32.9153&22.0884&21.2313&21.1807\\
+        \hline
+        Beam quality x&4.03186&4.41607&4.10377&4.54892&4.61978&4.87704&4.73166&4.6973\\
+        \hline
+        Beam quality y&1.96171&3.03994&2.18569&4.18909&4.10707&4.54695&4.41803&4.41483\\
+        \hline
+        $\vec{p}_1.x$ &0.00420029&0.0042&0.00428074&0.0042&0.004993&0.00420985&0.004248&0.00425067\\
+        \hline
+        $\vec{p}_2.x$ &0.251026&0.246106&0.247624&0.357773&0.354395&0.403453&0.40239&0.402275\\
+        \hline
+        $\vec{p}_3.x$ &0.51036&0.524769&0.541623&0.696144&0.697815&0.691056&0.691833&0.691909\\ 
+        \hline
+        $\vec{p}_4.x$ &0.778925&0.777577&0.774725&0.99293&0.992893&0.999921&0.999946&0.999955\\ 
+        \hline
+        $\vec{p}_1.y$ &0.0306715&0.0299213&0.0275087&0.0249417&0.0237927&0.0103885&0.0106971&0.0107064\\
+        \hline
+        $\vec{p}_2.y$ &0.853278&0.856198&0.855013&0.83422&0.832387&0.791001&0.793445&0.793481\\
+        \hline
+        $\vec{p}_3.y$ &1.201&1.20065&1.12187&1.21969&1.19309&1.37838&1.37793&1.37692\\ 
+        \hline
+        $\vec{p}_4.y$ &1.46555&1.46093&1.47381&1.59199&1.59316&1.99991&1.99996&1.99996\\ 
+        \hline
+        $d$           &-0.299994&-0.299915&-0.294753&-0.267227&-0.267243&-0.236607&-0.236138&-0.236142\\
+        \hline
+    \end{tabular}
+    \label{tab:setup3_results}
+    \caption[]{}
+    \end{table}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/open_rand/0.png}
+        \label{fig:setup3_rand}
+        \caption[VTK Output for Setup 3 with initial random search]{
+            VTK Output for Setup 3 with initial random search
+            }
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{c c}
+            \includegraphics[width=0.5\textwidth]{images/open_rand/1.png} &
+            \includegraphics[width=0.5\textwidth]{images/open_rand/2.png} \\
+            \includegraphics[width=0.5\textwidth]{images/open_rand/3.png} &
+            \includegraphics[width=0.5\textwidth]{images/open_rand/4.png} \\
+        \end{tabular}
+        \label{fig:setup3_rand_depths}
+        \caption[VTK Output for Setup 3 with initial random search for 
+        different raytracing depths]{
+            VTK Output for Setup 3 with initial random search for different 
+            raytracing depths.
+            }
+    \end{figure}
+
+    \begin{figure}[H]
+        \includegraphics[width=1.0\textwidth]{images/open_rand/beam.png} \\
+        \label{fig:setup3_rand_beam}
+        \caption[ASLD beam profile for Setup 3 with initial random search]{
+            ASLD beam profile for Setup 3 with initial random search.
+        }
+    \end{figure}
+
+    \paragraph{Startpoint Pipe}
+    
+    \begin{table}[H]
+    \centering
+    \setlength\tabcolsep{8pt}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
+        \hline
+        Solution      &1&2&3&4&5&6&7&8\\
+        \hline
+        Absorbed Power[W] &191.13&185.107&185.703&184.499&184.499&183.376&176.899&176.838\\
+        \hline
+        Variance[W] &4.08243&0.656283&0.581405&0.579919&0.579918&0.512752&0.308049&0.307249\\
+        \hline
+        Irradiation Efficiency &1.71106&1.66766&1.66571&1.5656&1.6656&1.6533&1.57289&1.57186\\
+        \hline
+        Optical Efficiency &0.265458&0.257092&0.256286&0.256248&0.256248&0.254689&0.245693&0.245608\\
+        \hline
+        Absorption Efficiency &0.155143&0.154164&0.15386&0.153847&0.153847&0.154049&0.156205&0.156253\\
+        \hline
+        Output@665W cw[W]  &38.0459&35.5647&34.287&34.4085&34.3&34.3316&27.895&28.0038\\
+        \hline
+        Beam quality x&3.90344&4.48709&4.64939&4.62625&4.63656&4.49723&4.5033&4.52114\\
+        \hline
+        Beam quality y&1.6565&3.47603&3.93324&3.92045&3.95655&3.80461&4.24484&4.22979\\
+        \hline
+        $\vec{p}_1.x$ &0.00447318&0.00425127&0.0042&0.00420299&0.0042033&0.00422858&0.00609447&0.00606513\\
+        \hline
+        $\vec{p}_2.x$ &0.071726&0.036325&0.0355318&0.0355358&0.0355359&0.034885&0.107214&0.10722\\
+        \hline
+        $\vec{p}_3.x$ &0.081082&0.127823&0.132396&0.132338&0.132336&0.134111&0.247537&0.247626\\ 
+        \hline
+        $\vec{p}_4.x$ &0.997331&0.99929&0.998178&0.999964&0.999968&0.998946&0.816317&0.816374\\ 
+        \hline
+        $\vec{p}_1.y$ &0.029702&0.027449&0.0267495&0.0267489&0.0267493&0.026972&0.0256143&0.0255339\\
+        \hline
+        $\vec{p}_2.y$ &0.095375&0.07988&0.0797193&0.0797386&0.0797387&0.079853&0.180669&0.180627\\
+        \hline
+        $\vec{p}_3.y$ &0.619623&0.589294&0.592914&0.592911&0.592912&0.586527&0.707573&0.707552\\ 
+        \hline
+        $\vec{p}_4.y$ &1.20947&1.21832&1.21444&1.21371&1.21369&1.21789&1.88648&1.8865\\ 
+        \hline
+        $d$           &-0.2647&-0.281156&-0.280846&-0.280857&-0.280857&-0.278955&-0.242194&-0.242155\\
+        \hline
+    \end{tabular}
+    \label{tab:setup3_results_pipe}
+    \caption[]{}
+    \end{table}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/open_pipe/0.png}
+        \label{fig:setup3_rand}
+        \caption[VTK Output for Setup 3 with pipe start configuration]{
+            VTK Output for Setup 3 with pipe start configuration
+            }
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{c c}
+            \includegraphics[width=0.5\textwidth]{images/open_pipe/1.png} &
+            \includegraphics[width=0.5\textwidth]{images/open_pipe/2.png} \\
+            \includegraphics[width=0.5\textwidth]{images/open_pipe/3.png} &
+            \includegraphics[width=0.5\textwidth]{images/open_pipe/4.png} \\
+        \end{tabular}
+        \label{fig:setup3_rand_depths}
+        \caption[VTK Output for Setup 3 with pipe start configuration
+        different raytracing depths]{
+            VTK Output for Setup 3 with pipe start configuration for different 
+            raytracing depths.
+            }
+    \end{figure}
+
+    \begin{figure}[H]
+        \includegraphics[width=1.0\textwidth]{images/open_pipe/beam.png} \\
+        \label{fig:setup3_rand_beam}
+        \caption[ASLD beam profile for Setup 3 with pipe start configuration]{
+            ASLD beam profile for Setup 3 with pipe start configuration.
+        }
+    \end{figure}
+
 
     \section{Conclusion}
     \newpage
