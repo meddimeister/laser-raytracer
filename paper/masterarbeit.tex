@@ -210,6 +210,19 @@ beam quality evaluated.
     meaning that the emitted light is a perfect sine wave with constant
     amplitude und frequency and has a definite amplitude and phase pattern
     across any transverse plane inside the laser~\cite{lasers_siegman}.
+    A measure for the quality of a laser beam is the $M^2$ factor, which
+    is defined as in \equref{equ:m2}.
+
+    \begin{equation}
+        \label{equ:m2}
+        M^2 = \frac{\theta \pi w_0}{\lambda}
+    \end{equation}
+
+    where $\theta$ is the beam divergence and $\frac{\lambda}{\pi}$ is
+    the beam parameter product for a diffraction-limited Gaussian beam
+    with the same wavelength ~\cite{m2_rpphotonics}.
+    $w_0$ is the beam radius at the waist of the beam.
+    A perfect beam therefore has an $M^2$ factor of 1.
 
     \subsection{Stimulated Emission}
 
@@ -3257,6 +3270,13 @@ beam quality evaluated.
         E_{irr} = \frac{P_{irr}}{P_{pump}}
     \end{equation}
 
+    Note that this value is purely the power the crystal is exposed
+    to on its surface.
+    As in a sidepump setup the rays are not only absorbed once but
+    it is possible for rays to hit the medium multiple times,
+    $E_{irr}$ can take on values greater than 1.
+    In fact as can be seen in the sections below, this effect should
+    be exploited by a good setup.
     The absorbed power can also be described by defining the geometric
     optical efficiency as in \equref{equ:geom_eff}, where
     $P_{abs}$ is the amount of absorbed power and $P_{pump}$ is
@@ -3265,19 +3285,28 @@ beam quality evaluated.
 
     \begin{equation}
         \label{equ:geom_eff}
-        E_{opt} = \frac{P_{abs}}{P_{pump}}
+        E_{geom} = \frac{P_{abs}}{P_{pump}}
     \end{equation}
 
     Additionally, one can define an absorption efficiency, which
     describes the amount of power absorbed in relation to the
     amount of power hitting the laser rod. 
-    This can be seen in \equref{equ:geom_eff}.
+    This can be seen in \equref{equ:abs_eff}.
 
     \begin{equation}
-        \label{equ:geom_eff}
+        \label{equ:abs_eff}
         E_{abs} = \frac{P_{abs}}{P_{irr}}
     \end{equation}
 
+    Lastly, the total optical-to-optical efficiency is defined as
+    the output power of the laser beam in relation to the pump
+    power.
+    The optical-to-optical efficiency is defined in \equref{equ:opt_eff}.
+
+    \begin{equation}
+        \label{equ:opt_eff}
+        E_{opt} = \frac{P_{out}}{P_{pump}}
+    \end{equation}
 
     The solutions are compared using these defined efficiencies and
     the variance of the absorbed power across the crystal.
@@ -3317,10 +3346,67 @@ beam quality evaluated.
     Here the left mirror has a reflectivity of 100\% whereas
     the right mirror has a reflectivity of 96\%.
 
+    The reference solution achieved a continuous wave output of
+    \SI{30.52}{W}, which corresponds to a optical-to-optical
+    efficiency of 4.24\% with a beam quality of 4.82 
+    and 4.30 in the $x$ and $y$ direction respectively.
+    It was achieved by the method of feedback compensation of an 
+    initial algebraicly derived solution, where the intensity
+    of pumplight on the surface of the crystal was meant to be
+    distributed evenly.
+    As one can see later on, this approach disregards many optical
+    effects actually present in a real setup.
+    These effects can make a significant difference in the output
+    power and the beam quality and can only be properly modelled
+    using raytracing techniques.
+    The results in the setups below are chosen to illustrate
+    the most important effects for a solar laser.
+
     \subsection{Setup 1: Fixed Crystal Position and fixed Mirror Endpoints}
     
+    The first setup is based on the constraints given by the reference
+    solution.
+    Mainly the start and endpoint of the mirror is fixed and only the shape
+    in between is optimized.
+    This means that the control points at both ends of the Bezier curve
+    are fixed in place and the problem becomes a 4 dimensional problem,
+    meaning that both control points in the middle have two coordinates
+    that the algorithm can vary.
+    Furthermore it is not permitted to move the crystal and the mirror
+    assembly in any way.
+    This is done so the results are compareable to the reference solution
+    in a more direct way.
+    The parameter ranges and other optimization related parameters can be
+    seen in \tabref{tab:setup1_parameters}.
     
-    \begin{table}
+    The optimization was started by an initial random search with a 
+    maximum number of black-box evaluations.
+    The resulting startpoint for the BiMADS algorithm and the
+    subsequent best solution can be seen in \figref{fig:setup1_rand}.
+    The best solution was chosen from a number of pareto efficient
+    points returned by the BiMADS run.
+    It can be seen that in this case the initial random search solution
+    was already quite close to the best solution returned by BiMADS.
+    The specific values can be seen in \tabref{tab:setup1_results}.
+    The best solution was solution 1 with a continuous wave output
+    of \SI{35.14}{W}, which would be an optical-to-optical 
+    efficiency of 4.88\%.
+    This would be an improvement of 15.14\% in terms of power compared
+    to the reference solution.
+    The beam quality also improved in both $x$ and $y$ direction.
+    In \figref{fig:fixed_rand_depths} it can be seen that the solution
+    tries to avoid hitting the circular faces of the rod as much as
+    possible.
+    Furthermore it can be observed that only a small part of the secondary
+    rays is actually directed towards the crystal.
+    This is likely the biggest loss of power in the pump setup and one of
+    the effects the reference solution disregarded.
+    For this reason it was tried to open up more parameters to the
+    optimization algorithm in Setup 2.
+    The resulting beam widths for Setup 1 in the resonator are shown in
+    \figref{fig:setup1_rand_beam}. 
+
+    \begin{table}[H]
     \centering
     \setlength\tabcolsep{8pt}
     \renewcommand{\arraystretch}{1.5}
@@ -3362,6 +3448,7 @@ beam quality evaluated.
         & $d$ & $0mm$\\ 
         \hline 
     \end{tabular}
+    \label{tab:setup1_parameters}
     \caption{Parameters for Setup 1}
     \end{table}
 
@@ -3432,13 +3519,13 @@ beam quality evaluated.
 
     \begin{figure}[H]
         \includegraphics[width=1.0\textwidth]{images/fixed_rand/beam.png} \\
-        \label{fig:setup3_rand_beam}
+        \label{fig:setup1_rand_beam}
         \caption[ASLD beam profile for Setup 1 with initial random search]{
             ASLD beam profile for Setup 1 with initial random search.
         }
     \end{figure}
     
-    \subsection{Setup 3: Open Crystal Position and open Mirror Endpoints}
+    \subsection{Setup 2: Open Crystal Position and open Mirror Endpoints}
    
     \begin{table}[H]
     \centering
@@ -3482,7 +3569,7 @@ beam quality evaluated.
         & $d$ & $[-300mm, 2000mm]$\\ 
         \hline 
     \end{tabular}
-    \caption{Parameters for Setup 3}
+    \caption{Parameters for Setup 2}
     \end{table}
 
     \paragraph{Random Search}
@@ -3530,7 +3617,7 @@ beam quality evaluated.
         $d$           &-0.299994&-0.299915&-0.294753&-0.267227&-0.267243&-0.236607&-0.236138&-0.236142\\
         \hline
     \end{tabular}
-    \label{tab:setup3_results}
+    \label{tab:setup2_results}
     \caption[]{}
     \end{table}
 
@@ -3540,9 +3627,9 @@ beam quality evaluated.
         \includegraphics[width=0.5\textwidth]{images/open_rand/start.png}
         \includegraphics[width=0.5\textwidth]{images/open_rand/0.png}
         \end{tabular}
-        \label{fig:setup3_rand}
-        \caption[VTK Output for Setup 3 with initial random search]{
-            VTK Output for Setup 3 with initial random search
+        \label{fig:setup2_rand}
+        \caption[VTK Output for Setup 2 with initial random search]{
+            VTK Output for Setup 2 with initial random search
             }
     \end{figure}
 
@@ -3554,19 +3641,19 @@ beam quality evaluated.
             \includegraphics[width=0.5\textwidth]{images/open_rand/3.png} &
             \includegraphics[width=0.5\textwidth]{images/open_rand/4.png} \\
         \end{tabular}
-        \label{fig:setup3_rand_depths}
-        \caption[VTK Output for Setup 3 with initial random search for 
+        \label{fig:setup2_rand_depths}
+        \caption[VTK Output for Setup 2 with initial random search for 
         different raytracing depths]{
-            VTK Output for Setup 3 with initial random search for different 
+            VTK Output for Setup 2 with initial random search for different 
             raytracing depths.
             }
     \end{figure}
 
     \begin{figure}[H]
         \includegraphics[width=1.0\textwidth]{images/open_rand/beam.png} \\
-        \label{fig:setup3_rand_beam}
-        \caption[ASLD beam profile for Setup 3 with initial random search]{
-            ASLD beam profile for Setup 3 with initial random search.
+        \label{fig:setup2_rand_beam}
+        \caption[ASLD beam profile for Setup 2 with initial random search]{
+            ASLD beam profile for Setup 2 with initial random search.
         }
     \end{figure}
 
@@ -3615,7 +3702,7 @@ beam quality evaluated.
         $d$           &-0.2647&-0.281156&-0.280846&-0.280857&-0.280857&-0.278955&-0.242194&-0.242155\\
         \hline
     \end{tabular}
-    \label{tab:setup3_results_pipe}
+    \label{tab:setup2_results_pipe}
     \caption[]{}
     \end{table}
 
@@ -3625,9 +3712,9 @@ beam quality evaluated.
         \includegraphics[width=0.5\textwidth]{images/open_pipe/start.png}
         \includegraphics[width=0.5\textwidth]{images/open_pipe/0.png}
         \end{tabular}
-        \label{fig:setup3_rand}
-        \caption[VTK Output for Setup 3 with pipe start configuration]{
-            VTK Output for Setup 3 with pipe start configuration
+        \label{fig:setup2_rand}
+        \caption[VTK Output for Setup 2 with pipe start configuration]{
+            VTK Output for Setup 2 with pipe start configuration
             }
     \end{figure}
 
@@ -3639,19 +3726,19 @@ beam quality evaluated.
             \includegraphics[width=0.5\textwidth]{images/open_pipe/3.png} &
             \includegraphics[width=0.5\textwidth]{images/open_pipe/4.png} \\
         \end{tabular}
-        \label{fig:setup3_rand_depths}
-        \caption[VTK Output for Setup 3 with pipe start configuration
+        \label{fig:setup2_rand_depths}
+        \caption[VTK Output for Setup 2 with pipe start configuration
         different raytracing depths]{
-            VTK Output for Setup 3 with pipe start configuration for different 
+            VTK Output for Setup 2 with pipe start configuration for different 
             raytracing depths.
             }
     \end{figure}
 
     \begin{figure}[H]
         \includegraphics[width=1.0\textwidth]{images/open_pipe/beam.png} \\
-        \label{fig:setup3_rand_beam}
-        \caption[ASLD beam profile for Setup 3 with pipe start configuration]{
-            ASLD beam profile for Setup 3 with pipe start configuration.
+        \label{fig:setup2_rand_beam}
+        \caption[ASLD beam profile for Setup 2 with pipe start configuration]{
+            ASLD beam profile for Setup 2 with pipe start configuration.
         }
     \end{figure}
 
