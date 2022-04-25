@@ -3197,7 +3197,7 @@ beam quality evaluated.
         \centering
         \import{images/}{setup.pdf_tex}
         \label{fig:setup_example}
-        \caption{Example setup of the solar laser. The mirrorshape
+        \caption[Example setup of the solar laser]{Example setup of the solar laser. The mirrorshape
         is determined using the four control points 
         $\vec{p}_1,\vec{p}_2,\vec{p}_3,\vec{p}_4$.
         The distance from the left side of the crystal to the origin
@@ -3365,52 +3365,78 @@ beam quality evaluated.
     \caption{Parameters for Setup 1}
     \end{table}
 
-    \subsection{Setup 2: Fixed Crystal Position and open Mirror Endpoints}
-    
-    \begin{table}
+    \begin{table}[H]
     \centering
     \setlength\tabcolsep{8pt}
     \renewcommand{\arraystretch}{1.5}
-    \begin{tabular}{| c | p{40mm} | c |}
+    \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
         \hline
-        \multirow{4}{*}{Raytracing Settings} & Optimization rays & 10000 \\
-        \cline{2-3}
-        & Optimization segments & 100 \\
-        \cline{2-3}
-        & Final step rays & 100000 \\
-        \cline{2-3}
-        & Final step segments & 10000 \\
+        Solution      &1&2&3&4&5&6&7&8\\
         \hline
-        \multirow{4}{*}{Optimization Settings} & Maximum initial random search black-box evaluations & 10000 \\
-        \cline{2-3}
-        & BiMADS Maximum black-box evaluations per MADS run & 1000 \\
-        \cline{2-3}
-        & BiMADS constraint type & Progressive barrier \\
-        \cline{2-3}
-        & BiMADS poll direction type & Orthogonal N+1 \\
+        Absorbed Power[W] &155.456&154.82&141.873&112.068&109.658&101.866&100.084&87.0989\\
         \hline
-        \multirow{9}{*}{Optimization Parameters} & 
-        $\vec{p}_1.x$ & $[4.2mm, 1000mm]$ \\
-        \cline{2-3}
-        & $\vec{p}_2.x$ & $[4.2mm, 1000mm]$\\
-        \cline{2-3}
-        & $\vec{p}_3.x$ & $[4.2mm, 1000mm]$\\ 
-        \cline{2-3}
-        & $\vec{p}_4.x$ & $[4.2mm, 1000mm]$\\ 
-        \cline{2-3}
-        & $\vec{p}_1.y$ & $[-2000mm, 2000mm]$ \\
-        \cline{2-3}
-        & $\vec{p}_2.y$ & $[-2000mm, 2000mm]$\\
-        \cline{2-3}
-        & $\vec{p}_3.y$ & $[-2000mm, 2000mm]$\\ 
-        \cline{2-3}
-        & $\vec{p}_4.y$ & $[-2000mm, 2000mm]$\\ 
-        \cline{2-3}
-        & $d$ & $0mm$\\ 
-        \hline 
+        Variance[W] &13.4928&12.6642&2.434&0.436452&0.122846&0.0898468&0.089896&0.07905\\
+        \hline
+        Irradiation Efficiency &1.30777&1.30023&1.16738&0.859776&0.841942&0.787295&0.773275&0.671508\\
+        \hline
+        Optical Efficiency &0.215911&0.215028&0.197046&0.15565&0.152303&0.141481&0.139006&0.120971\\
+        \hline
+        Absorption Efficiency &0.165098&0.165378&0.168793&0.181036&0.180895&0.179705&0.179763&0.180148\\
+        \hline
+        Output@720W cw[W]  &35.1404&35.0354&25.9142&17.0002&16.4267&14.5716&13.4548&8.56171\\
+        \hline
+        Beam quality x&4.24863&3.66082&4.80861&4.06553&4.25407&3.8807&3.71565&3.00602\\
+        \hline
+        Beam quality y&3.21936&3.11194&4.31524&4.06699&3.49234&3.70622&3.52263&2.86639\\
+        \hline
+        $\vec{p}_3.x$ &0.0717597&0.0713839&0.075&0.0588601&0.0581199&0.055299&0.0549953&0.000887443\\ 
+        \hline
+        $\vec{p}_4.x$ &0.127662&0.127861&0.129658&0.119626&0.120006&0.117166&0.116901&0.0780785\\ 
+        \hline
+        $\vec{p}_3.y$ &1.40028e-05&2.005e-05&0.0053&0.0140468&0.0137284&0.0149437&0.0147491&0.00322298\\ 
+        \hline
+        $\vec{p}_4.y$ &0.136468&0.134671&0.128551&0.105853&0.109474&0.106736&0.107392&0.017174\\ 
+        \hline
     \end{tabular}
-    \caption{Parameters for Setup 2}
+    \label{tab:setup1_results}
+    \caption[]{}
     \end{table}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{c c}
+        \includegraphics[width=0.5\textwidth]{images/fixed_rand/start.png}
+        \includegraphics[width=0.5\textwidth]{images/fixed_rand/0.png}
+        \end{tabular}
+        \label{fig:setup1_rand}
+        \caption[VTK Output for Setup 1 with initial random search]{
+            VTK Output for Setup 1 with initial random search
+            }
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{c c}
+            \includegraphics[width=0.5\textwidth]{images/fixed_rand/1.png} &
+            \includegraphics[width=0.5\textwidth]{images/fixed_rand/2.png} \\
+            \includegraphics[width=0.5\textwidth]{images/fixed_rand/3.png} &
+            \includegraphics[width=0.5\textwidth]{images/fixed_rand/4.png} \\
+        \end{tabular}
+        \label{fig:setup1_rand_depths}
+        \caption[VTK Output for Setup 1 with initial random search for 
+        different raytracing depths]{
+            VTK Output for Setup 1 with initial random search for different 
+            raytracing depths.
+            }
+    \end{figure}
+
+    \begin{figure}[H]
+        \includegraphics[width=1.0\textwidth]{images/fixed_rand/beam.png} \\
+        \label{fig:setup3_rand_beam}
+        \caption[ASLD beam profile for Setup 1 with initial random search]{
+            ASLD beam profile for Setup 1 with initial random search.
+        }
+    \end{figure}
     
     \subsection{Setup 3: Open Crystal Position and open Mirror Endpoints}
    
@@ -3510,7 +3536,10 @@ beam quality evaluated.
 
     \begin{figure}[H]
         \centering
+        \begin{tabular}{c c}
+        \includegraphics[width=0.5\textwidth]{images/open_rand/start.png}
         \includegraphics[width=0.5\textwidth]{images/open_rand/0.png}
+        \end{tabular}
         \label{fig:setup3_rand}
         \caption[VTK Output for Setup 3 with initial random search]{
             VTK Output for Setup 3 with initial random search
@@ -3592,7 +3621,10 @@ beam quality evaluated.
 
     \begin{figure}[H]
         \centering
+        \begin{tabular}{c c}
+        \includegraphics[width=0.5\textwidth]{images/open_pipe/start.png}
         \includegraphics[width=0.5\textwidth]{images/open_pipe/0.png}
+        \end{tabular}
         \label{fig:setup3_rand}
         \caption[VTK Output for Setup 3 with pipe start configuration]{
             VTK Output for Setup 3 with pipe start configuration

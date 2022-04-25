@@ -17,8 +17,8 @@
 #include <cmath>
 #include <cstddef>
 
-#define MIRRORSHAPE 1
-#define DIM 4
+#define MIRRORSHAPE 2
+#define DIM 9
 
 using namespace std;
 
@@ -97,7 +97,10 @@ int main(int argc, char *argv[]) {
     dvec2 point = bezier(start, paramPoint1, paramPoint2, end, x);
     return point;
   };
+  //fixed
   paramsStart = {0.0, 0.075, 0.0, 0.0};
+  //opt
+  //paramsStart = {0.069074, 0.1252, 0.000768847, 0.128551};
   paramsLower = {0.0, 0.075, 0.0, 0.0};
   paramsUpper = {0.075, 0.15, 0.3, 0.3};
 
@@ -120,12 +123,10 @@ int main(int argc, char *argv[]) {
     return point;
   };
   
-  //round
-  //paramsStart = {0.0042, 0.0207, 0.1047, 0.1500,  0.0, 0.0, 0.0121, 0.224, -0.3};
   //pipe
-  paramsStart = {0.0500, 0.0500, 0.0500, 0.0500, -2.0,  0.0,  1.0,  2.0, -0.0};
+  //paramsStart = {0.0500, 0.0500, 0.0500, 0.0500, -2.0,  0.0,  1.0,  2.0, -0.0};
   //opt
-  //paramsStart = {0.00421015, 0.0454322, 0.938627, 0.99383, 0.0308448, 0.180656, 1.99935, 1.99992, -0.291902};
+  paramsStart = {0.011252, 0.514011, 0.675923, 0.974793, 0.0451067, 0.78755, 0.919188, 1.37116, -0.283361};
   paramsLower = {0.0042, 0.0042, 0.0042, 0.0042, -2.0, -2.0, -2.0, -2.0, -0.3};
   paramsUpper = {1.0000, 1.0000, 1.0000, 1.0000,  2.0,  2.0,  2.0,  2.0, 2.0};
 
