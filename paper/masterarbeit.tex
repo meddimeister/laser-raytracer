@@ -17,7 +17,7 @@
 \newtheorem{definition}{Definition}
 
 % SETUP OF LSSPUB
-\lsstitle{Optimization of Mirrorshapes in Optically Pumped Solar Lasers Using Ray Tracing Simulation Techniques}%
+\lsstitle{Optimization of mirror shapes in optically pumped solar lasers using ray tracing simulation techniques}%
 \lssauthor{Matthias König}%
 \lsstype{Master's Thesis}%
 \lssabstract{
@@ -26,7 +26,7 @@ This work showcases the application of ray tracing techniques for the calculatio
 optically pumped solar lasers.
 It aims at using a lightweight and fast physically based raytracer combined with a biobjective
 mesh adaptive direct search algorithm to optimize total power absorption and to minimize variance across the crystal.
-An exemplatory setup of a side pumped Nd:Yag solar laser was simulated, optimized and the resulting
+An exemplary setup of a side pumped Nd:YAG solar laser was simulated, optimized and the resulting
 beam quality evaluated.
 }
 
@@ -87,12 +87,12 @@ beam quality evaluated.
 
     \section{Introduction}
 
-    In the light of the recent developements in global energy policy,
+    In the light of the recent developments in global energy policy,
     renewable energy has become one of the most important
     problems humanity has to solve.
     Ever new ways of exploiting the sun's vast amount of energy are
     becoming relevant if nations across the world want to achieve
-    net zero carbon emissions.
+    net-zero carbon emissions.
     One of those novel methods is the generation of hydrogen from
     water using solar energy.
     It can be achieved by common electrolysis or by reacting alkali
@@ -103,13 +103,13 @@ beam quality evaluated.
     This reaction is exotherm and therefore causes a large amount of heat
     and produces hydrogen gas which could be stored in hydrogen fuel cells.
     Now if one can reduce the magnesium oxide to pure magnesium using
-    the suns energy one would have a solution to store solar energy
+    the sun's energy one would have a solution to store solar energy
     using hydrogen.
-    To drive the reduction of magneisum oxide a laser can be used but
+    To drive the reduction of magnesium oxide a laser can be used but
     a considerable amount if energy is needed.
     In order to reduce losses that are induced by using a conventional
     solar panel that drives a diode to pump the laser, it could be
-    benefitial to pump the laser crystal directly using sunlight.
+    beneficial to pump the laser crystal directly using sunlight.
     This is exactly what Shigeaki Uchida and his team in Japan have
     been researching~\cite{solar_lasers_wiki}~\cite{solar_lasers_magnesium}.
     
@@ -129,21 +129,21 @@ beam quality evaluated.
 
     Solar lasers require the collection of sunlight and focusing
     onto a gain medium to surpass the lasing threshold thereof.
-    As it is the most simple and cost effective method, usually
+    As it is the simplest and cost-effective method, usually
     a primary collector is used together with a secondary mirror in a 
     two stage collector to focus the sunlight onto the gain medium
     ~\cite{solar_lasers_magnesium}.
-    The primary collector can be another mirror or a fresnel lens
+    The primary collector can be another mirror or a Fresnel lens
     as a cheaper alternative.
     The beam power and quality is significantly impacted by the
     amount of power absorbed by the gain medium and the uniformity
     of the absorption profile.
     The natural divergence of sunlight and dispersion effects in the
-    fresnel lens make it important that the secondary mirror is shaped
+    Fresnel lens make it important that the secondary mirror is shaped
     in an optimal way.
     Both absorbed power and the uniformity of absorption need to be
     optimized.
-    For the optical design of the collection system it is benefitial
+    For the optical design of the collection system it is beneficial
     that the system is simulated accurately beforehand.
     For both the simulation and optimization part of the design process
     a free and open source framework was developed in this work in the
@@ -153,7 +153,7 @@ beam quality evaluated.
     for C++ applications.
     It provides a fast 2D raytracer for the calculation of the
     absorption profile in the gain medium which is then used by a
-    mesh adaptive direct search algorithm in a biobjective manner (BIMADS) 
+    mesh adaptive direct search algorithm in a biobjective manner (BiMADS) 
     to increase both absorbed power and uniformity of the absorption profile.
     This is done via the open source library NOMAD version 3~\cite{nomad3},
     which implements the MADS~\cite{mads_original} algorithm and a biobjective
@@ -161,13 +161,13 @@ beam quality evaluated.
     It offers the efficient derivative free optimization of a black-box
     function with constraints.
 
-    The application of the framework is then demonstrated via an examplatory
+    The application of the framework is then demonstrated via an examplary
     setup of a Nd:YAG solar laser using a two stage concentrator consisting
-    of a fresnel lense and a secondary mirror.
+    of a Fresnel lens and a secondary mirror.
     In principle, any parameter of the setup can be optimized but for this
-    example in particular the mirrorshape is the interesting property. 
-    The result of the BIMADS algorithm is a pareto front of optimal points 
-    determined by the algortihm.
+    example in particular the mirror shape is the interesting property. 
+    The result of the BiMADS algorithm is a Pareto front of optimal points 
+    determined by the algorithm.
     Depending on whether a more even distribution of power is desired or
     the total amount of power absorbed is relevant to the application,
     some points of the pareto front are then chosen and simulated with
@@ -181,12 +181,12 @@ beam quality evaluated.
     by \b{S}timulated \b{E}mission of \b{R}adiation.
     Lasers amplify coherent radiation at the infrared, visible, or
     ultraviolet part of the electromagnetic spectrum~\cite{lasers_siegman}.
-    The principle was originally used in so called masers the 
+    The principle was originally used in so-called masers the 
     amplification of \b{M}icrowave radiation or even radio frequencies.
-    The advantages of using a laser system as a lightsource are that
+    The advantages of using a laser system as a light source are that
     they produce a directional beam of coherent light which can be 
     focused to a narrow spot~\cite{lasers_liverpool}.
-    Additionally the emitted light is usually of a very narrow spectrum
+    Additionally, the emitted light is usually of a very narrow spectrum
     and thus reduces dispersion effects when shooting the beam through
     different media.
     Lasers are therefore used in a wide variety of applications which
@@ -194,7 +194,7 @@ beam quality evaluated.
     optical communication.
 
     A laser usually consists of a gain medium that is capable of amplifying
-    light that passes through by stimulated emission, a pumplight to
+    light that passes through by stimulated emission, a pump light to
     excite the atoms of the gain medium to higher quantum states and
     an optical feedback mechanism - often called cavity or oscillator - 
     which usually
@@ -208,7 +208,7 @@ beam quality evaluated.
     output beam quality.
     An ideal output beam is both temporally and spatially coherent,
     meaning that the emitted light is a perfect sine wave with constant
-    amplitude und frequency and has a definite amplitude and phase pattern
+    amplitude and frequency and has a definite amplitude and phase pattern
     across any transverse plane inside the laser~\cite{lasers_siegman}.
     A measure for the quality of a laser beam is the $M^2$ factor, which
     is defined as in \equref{equ:m2}.
@@ -238,16 +238,16 @@ beam quality evaluated.
     but again with the same amount of energy as the difference between 
     states of the electron.
     This can occur spontaneously at any time as the name suggests. 
-    The main priciple why the gain medium amplifies light is the priciple
+    The main principle why the gain medium amplifies light is the principle
     of stimulated emission.
-    Electrons in the gain medium are stimlated by photons to a higher
+    Electrons in the gain medium are stimulated by photons to a higher
     energy state.
-    If now a again photon with the same amount of energy and a certain
+    If now again photon with the same amount of energy and a certain
     direction hits the atom the electron jumps back to the lower state
     again emitting a photon of the same energy but crucially and contrary
     to spontaneous emission in the exact same direction and the exact
     amount of phase shift as the incoming photon.
-    Therefore amplifying the light by essentially "duplicating" the incoming
+    Therefore, amplifying the light by essentially "duplicating" the incoming
     photon.
 
     Now if one wants a coherent output beam one needs to make sure that
@@ -266,10 +266,10 @@ beam quality evaluated.
     In order to be able to amplify the emitted light, more atoms in the
     gain medium have to be in an already excited higher state than
     in the lower state.
-    Otherwise "duplicated" photons will be reabsorbed by atoms in lower
-    state and will not be able to stimulate another emmission or make
+    Otherwise, "duplicated" photons will be reabsorbed by atoms in lower
+    state and will not be able to stimulate another emission or make
     it out of the laser cavity.
-    Hence the population of atoms needs to be inverted~\cite{lasers_liverpool}.
+    Hence, the population of atoms needs to be inverted~\cite{lasers_liverpool}.
     For this to happen an external source of energy needs to be supplied.
     This is called pumping and is usually achieved by a pump flash light
     or another laser.
@@ -302,14 +302,14 @@ beam quality evaluated.
     neodymium doped yttrium aluminum garnets (Nd:YAG).
 
     \newpage
-    \section{Raytracing Framework}
+    \section{Raytracing Framework} \label{sec:raytracing}
     With the advent of cheap processors and increasingly powerful 
     consumer hardware, ray tracing has become more popular in
     recent years.
     For the purpose of global illumination in video games and image
     processing, more advanced techniques have been continuously
     developed and improved.
-    In optical design ray tracing is used to analyse the imaging 
+    In optical design ray tracing is used to analyze the imaging 
     quality of optical systems or as in this work other 
     illumination properties can be simulated.
     The need for fast refresh rates in video games and the requirement
@@ -322,22 +322,22 @@ beam quality evaluated.
     context.
 
     As in optical design systems are mostly rotationally symmetrical,
-    the framework is meant to be used in a two dimensional setup
+    the framework is meant to be used in a two-dimensional setup
     and calculated quantities, e.g. absorbed power in a medium 
-    converted to three dimensional values after a simulation step.
+    converted to three-dimensional values after a simulation step.
     This significantly reduces the amount of rays needed to avoid
     undersampling effects and to produce stable results across multiple
     simulation runs.
     Intersection tests also require less computation and objects in the
     scene require less fundamental shapes to test a ray against.
-    The resulting performance gains makes it possible to run the 
+    The resulting performance gains make it possible to run the 
     simulation thousands of times in an iterative process to 
     optimize some parameters in the optical setup even on consumer
     grade hardware.
-    The objects in a scene are preproccessed to group fundamental shapes
+    The objects in a scene are preprocessed to group fundamental shapes
     into leaves of a quadtree to reduce the amount of shapes a ray has
     to be tested against even further.
-    To achieve the satisfied accuracy and to reduce noise the appropiate
+    To achieve the satisfied accuracy and to reduce noise the appropriate
     sampling strategies have to be used for a given problem.
     The most important techniques are provided including 
     uniform sampling, stratified and importance sampling.
@@ -359,14 +359,14 @@ beam quality evaluated.
     GLM is based on the OpenGL Shading Language (GLSL) and so in a 
     potential later step the framework
     could be ported to work on graphics cards providing that the
-    data structures are changed to be accessable from a GPU.
+    data structures are changed to be accessible from a GPU.
     As in the specific problem in this work the tracing of each ray
     has side effects on the scene and on itself,
     i.e. the absorbed power of each ray has to be accumulated,
     it was decided to focus more on single core performance first
     and leave the parallel execution and execution on GPUs for a 
     later point.
-    Furthermore IO utilities for simulations are provided for Comma 
+    Furthermore, IO utilities for simulations are provided for Comma 
     Separated Values (CSV) files and structured output for the 
     commonly used Visualization Toolkit (VTK)~\cite{vtk}.
 
@@ -379,14 +379,14 @@ beam quality evaluated.
     of the raytracer is explained.
     Lastly some methods of sampling are shown before the structure of the 
     developed framework is presented with code samples.
-    Here the usage of classes is demonstrated and it is shown how specific
+    Here the usage of classes is demonstrated, and it is shown how specific
     objects are defined.
     In particular the objects which are relevant for the simulation
     of laser cavities and which are used in the example setup are shown.
 
     \subsection{Raytracing Basics}  \label{sec:raytracing_basics}
 
-    The techiques presented in this chapter are largely explained
+    The techniques presented in this chapter are largely explained
     in the excellent lecture \emph{Global Illumination} by 
     Stamminger at FAU~\cite{globillum}.
     While the lecture applies those techniques in a different context,
@@ -395,16 +395,16 @@ beam quality evaluated.
     a selection of the techniques are still relevant to using
     ray tracing in scientific computing.
     Since the aim of both fields is slightly different, the priorities
-    shift regarding to computational performance or numerical
+    shift regarding computational performance or numerical
     accuracy.
-    In scientific computing more focus is layed on the accurate modelling
+    In scientific computing more focus is laid on the accurate modelling
     of physical phenomena.
     For example, while in image processing it is sufficient to use a
     faster approximation of Snell's law in \equref{equ:snell} in application
-    of physical rayracing one migt rather evaluate the actual law and
+    of physical rayracing one might rather evaluate the actual law and
     take the additional computational cost of evaluating trigonometric
     functions into account.
-    Nevertheless there is a large overlap between the two fields of
+    Nevertheless, there is a large overlap between the two fields of
     application and a lot of techniques are entirely applicable
     in scientific computing as is.
 
@@ -426,12 +426,12 @@ beam quality evaluated.
     The question if a ray intersects an object can usually only be answered
     for simple fundamental shapes, e.g. lines, circles, axis aligned bounding
     boxes (AABBs) in 2D or planes, triangles, spheres, etc. in 3D.
-    Therefore objects are normally comprised of a collection of fundamental
+    Therefore, objects are normally comprised of a collection of fundamental
     shapes and an intersection occurs if one of the fundamental shapes is
     intersected.
     Naturally, an object can be intersected multiple times by the same ray
     and so the results have to be searched for the smallest $t$.
-    Each fundamental shape should be represented in a parametrised form 
+    Each fundamental shape should be represented in a parametrized form, 
     so the intersection test can be represented as a system of equations.
     The two fundamental shapes used in this work are 2D lines and axis
     aligned bounding boxes (AABBs).
@@ -487,7 +487,7 @@ beam quality evaluated.
     $t$ by crossing \equref{equ:line_intersect} with $\vec{b} - \vec{a}$.
     The resulting $t$ is then checked against the condition and
     a normal at the intersection point is calculated.
-    The intersected rays can be seen in in \figref{fig:line_intersect}.
+    The intersected rays can be seen in \figref{fig:line_intersect}.
 
     \begin{center}
         \begin{figure}
@@ -510,7 +510,7 @@ beam quality evaluated.
     \end{center}
 
     Another important shape to intersect are AABBs.
-    They are rectangles aligned with the axis of the coordinate system
+    They are rectangles aligned with the axis of the coordinate system,
     so they require minimal memory space and intersection tests are
     as simple as possible.
     They most often used to surround complex objects or parts of it
@@ -642,14 +642,14 @@ beam quality evaluated.
     for the expression $\frac{n_i}{n_t} \sin(\theta_i)$ to become
     greater than one, the light is no longer transmitted to the 
     medium wit lower refractive index.
-    Instead the entirety of the light ray is reflected back to the
+    Instead, the entirety of the light ray is reflected back to the
     medium with higher refractive index.
     This phenomenon is called total internal reflection and is an 
     effect that is abused in many physical applications, e.g.
     fiber optics communication.
-    The light can travel along an optical fibre and even bends in the fibre
-    because the material has high enoungh refractive index and the angle
-    of light hitting the inside border from the fibre to air or other
+    The light can travel along an optical fiber and even bends in the fiber
+    because the material has high enough refractive index and the angle
+    of light hitting the inside border from the fiber to air or other
     materials is low enough.
     In such scenarios the critical angle below which total internal reflection occurs is
     then given by ${\theta_i}_{crit} = \asin(\frac{n_t}{n_i})$. 
@@ -678,7 +678,7 @@ beam quality evaluated.
 		T_{total} = \frac{T_{\perp} + T_{\parallel}}{2}
     \end{equation}
     
-    An additional effect that can be significant espacially for broadband
+    An additional effect that can be significant especially for broadband
     applications is the dependency of the index of refraction of a medium
     on the wavelength of the light passing through and the dispersion
     of light resulting from this.
@@ -709,7 +709,7 @@ beam quality evaluated.
     and try to fill each branch of the tree with an equal amount of 
     objects or shapes.
     
-    Similarly one can also subdivide an object itself and sort the
+    Similarly, one can also subdivide an object itself and sort the
     fundamental shapes comprising that object into a quadtree.
     This method was chosen in this work as there are a limited amount of
     objects in the scene with the objects possibly being quite complex.
@@ -726,14 +726,14 @@ beam quality evaluated.
     the ray doesn't intersect are ignored.
     If a leaf has been hit all the shapes inside are then tested for
     intersection.
-    Finally the $t$ values of all the intersections are compared and
+    Finally, the $t$ values of all the intersections are compared and
     the minimum and the maximum chosen as entry and exit points. 
     The advantage of this is that AABB intersection tests are done really
     fast and a large number of fundamental shape intersection tests
     are avoided.
     An illustration of subdivision of a mirror comprised of line segments
-    is given in \figref{fig:quadtree} and a the intersecting algorithm
-    for a single object is givin in \algref{alg:object_intersect}.
+    is given in \figref{fig:quadtree} and the intersecting algorithm
+    for a single object is given in \algref{alg:object_intersect}.
 
     \begin{center}
         \begin{figure}
@@ -794,7 +794,7 @@ beam quality evaluated.
     The returned sample is then later scaled to the desired range depending
     on the usecase.
     It is also to be noted that calls to a sampler must be ensured to
-    be as effiecient as possible as a large number of calls will be
+    be as efficient as possible as a large number of calls will be
     made during the simulation.
 
     The simplest sampling scheme is uniform sampling.
@@ -816,7 +816,7 @@ beam quality evaluated.
     keeping the randomness of uniform sampling.
     An application of stratified sampling would be the definition of
     a light source in the simulation.
-    The direction or origin of the rays the light source emitts can be
+    The direction or origin of the rays the light source emits can be
     sampled according to stratified sampling to ensure a smooth
     illumination of the scene.
     The difference between uniform and stratified uniform sampling can
@@ -853,7 +853,7 @@ beam quality evaluated.
     Now it is also possible to sample according to some other distribution.
     One just has to know the probability density function (pdf) $p$ to know
     how likely it is that a sample $x_i$ is generated.
-    Probability density functions are nonnegative across the domain
+    Probability density functions are non-negative across the domain
     and their integral over the domain is always 1.
     This corresponds to the probability that a sampled value is in the
     interval $[x_1, x_2]$ which is of course the case when all
@@ -875,12 +875,12 @@ beam quality evaluated.
     the contribution is worth less and vice versa.     
     Of course this requires some preprocessing in order to generate the
     distribution $P$ from a pdf $p$.
-    Usually one wants to generate $p$ from $f$ but there are also 
+    Usually one wants to generate $p$ from $f$, but there are also 
     cases where one might choose another function to deduce the
     pdf and subsequently the distribution.
 
     One method of building such a distribution is to first integrate
-    $f$ in the domain $[x_1, x_2]$ and normalize the function so the
+    $f$ in the domain $[x_1, x_2]$ and normalize the function, so the
     integral is guaranteed to be 1.
     Then to sample according to the resulting pdf one discretizes the
     pdf to a finite amount of equidistant intervals $p_i = [{x_1}_i, {x_2}_i]$.
@@ -930,42 +930,42 @@ beam quality evaluated.
     It is to be noted that the raytracer has been specifically designed in
     order to be used in the optimization of geometrical parameters in
     rotationally symmetrical systems.
-    Therefore the decision was made to work in a 2D context rather than a 3D
+    Therefore, the decision was made to work in a 2D context rather than a 3D
     one.
     The additional computational cost of going from a 2D to a 3D context for
     raytracing is significant and since the framework is to be used as
     the optimization part of the design process the results can then be
-    taken and further analysed in a 3D raytracer.
+    taken and further analyzed in a 3D raytracer.
     Suppose a 2D raytracer needs $10000$ rays to reduce the noise to a
     satisfactory level.
     Then it can be assumed that a 3D raytracer needs about $10000 \cdot
     10000$ rays to produce the same result.
     The only difference is that transversal rays cannot be modelled in
-    2D but transveral rays which may occur by divergence of sunlight or
-    scattering effects in inpure media are statistically distributed
+    2D but transversal rays which may occur by divergence of sunlight or
+    scattering effects in unpure media are statistically distributed
     equally across the full rotation of a rotationally symmetrical system and the impact
-    on the result is therefore negligable.
+    on the result is therefore negligible.
     Additionally, the described objects in the scene require a significantly
     higher amount of fundamental shapes, which compounds the performance
     loss of needing more rays even further.
-    Furthermore the ray intersect equations shown above would become more
+    Furthermore, the ray intersect equations shown above would become more
     complex and would require more arithmetic and cases.
     So for the relatively small benefit of being able to model transversal
-    rays it is infeasable in a rotationally symmetrical system to simulate in a 3D environment.
+    rays it is infeasible in a rotationally symmetrical system to simulate in a 3D environment.
     Of course, if the system is not rotationally symmetrical then there
     is no other choice than to trace the scene in 3D, but this is
     not the norm in laser optical systems.
     In the following chapter the most important parts of the raytracer
     framework are presented.
-    The datastructures and algortihms are shown in an UML class diagram
+    The datastructures and algorithms are shown in an UML class diagram
     and an example application of the datastructure or algorithm is given. 
     It is to be noted that not all fields, methods or datatypes
     are shown in the UML diagrams and the code should therefore
     be seen as pseudocode instead of specific C++ code.
     When the classes have already been explained and the fields
-    are not necessary to understand the relation between them
+    are not necessary to understand the relation between them,
     they are omitted from the diagram to keep the diagrams more
-    managable.
+    manageable.
     The \emph{float} datatype represents some floating point datatype
     and not necessarily the C++ datatype.
     The \emph{vec*} vector datatypes are either the GLM~\cite{glm} datatypes
@@ -973,10 +973,10 @@ beam quality evaluated.
     to mimic the vector arithmetic of GLM for higher dimensions.
     Pointer datatypes in the UML diagrams are entirely reliant on
     the STL smart pointers in C++.
-    Thus the user usually constructs instances of the objects or shapes
+    Thus, the user usually constructs instances of the objects or shapes
     via smart pointers which implement reference counting
     in order to manage heap allocated resources.
-    Therefore there is no need for the user to worry about 
+    Therefore, there is no need for the user to worry about 
     memory management. 
     Before going into more detail for each part of the raytracing
     framework a rough overview over the structure and different
@@ -1060,12 +1060,12 @@ beam quality evaluated.
     The simplest action is to just terminate the ray at some $t$
     in which case it will no longer be considered in the tracing
     algorithm.
-    Rays can alse be reflected at a point $t$ with a certain normal, 
+    Rays can also be reflected at a point $t$ with a certain normal, 
     where the original ray is terminated and a new ray according to \equref{equ:reflection} with a small
-    $\epsilon$ shift for te origin in the reflected direction is returned.
+    $\epsilon$ shift for the origin in the reflected direction is returned.
     Another action is to refract the ray between the boundary
     of two media with refractive indices $n_1$ and $n_2$.
-    Here a tuple of new rays is returned and the original ray
+    Here a tuple of new rays is returned, and the original ray
     is terminated.
     The first element is the reflected ray and the second
     element is the transmitted ray into the medium.
@@ -1124,10 +1124,10 @@ beam quality evaluated.
     shape.
     This AABB is then used to construct the quadtree for the object the shape
     is part of.
-    When a shape is intersected an interection result is returned, which
+    When a shape is intersected an intersection result is returned, which
     contains the enter and leave $t$ value of the intersection and a boolean
     that represents whether an intersection has even occurred.
-    Furthermore the normals at the enter and leave point are contained
+    Furthermore, the normals at the enter and leave point are contained
     in the intersection result.
     Each shape also has a line representation in order to later output
     the scene in the VTK format for visualization.
@@ -1226,12 +1226,12 @@ beam quality evaluated.
     This is then later used in the construction of the quadtree of the object
     the shape is in.
 
-    \subsubsection{Objects}
+    \subsubsection{Objects} \label{sec:objects}
 
     Objects are represented by the Object2D class and are essentially a collection of
     Shape2D instances. 
     Similarly to the Shape2D class the Object2D is just the base class
-    for the specific objects implemeted by the user or predefined by
+    for the specific objects implemented by the user or predefined by
     the framework.
     To initialize an object a list of shapes has to be provided.
     The constructor of the Object2D class then builds the quadtree
@@ -1239,12 +1239,12 @@ beam quality evaluated.
     \secref{sec:raytracing_acceleration}.
     The intersection test for the object is then done as shown in
     \algref{alg:object_intersect}.
-    Furthermore the object base class provides a virtual method 
+    Furthermore, the object base class provides a virtual method 
     for a user defined action to be executed once a ray hits the
     object.
     A few presets are already implemented namely pass, absorb and reflect.
     Pass just ignores the object entirely, absorb terminates the ray at the
-    entry point of the intersection and reflect reflects the ray at the
+    entry point of the intersection and reflects the ray at the
     hitpoint.
     The user defined action provides the capability for the framework to
     be extensible and customizable.
@@ -1253,10 +1253,10 @@ beam quality evaluated.
     For example, the ray could hit the surface and spawn multiple
     new rays instead of just being reflected modelling
     some sort of scattering effect.
-    This isn't implemented by the framework out of the box but
-    the user can easliy implement this functionality in a single
+    This isn't implemented by the framework out of the box, but
+    the user can easily implement this functionality in a single
     function.
-    The Object2D class therefore is intended to provide the bare bones
+    The Object2D class therefore is intended to provide the bare-bones
     functionality for efficient tracing of an object, but the
     actual physical modelling of the interaction of a light ray
     with the object can be entirely customized by the user.
@@ -1265,7 +1265,7 @@ beam quality evaluated.
     implemented with minimal programming.
     Examples of how the usage of the Object2D class is intended can
     be seen in the paragraphs below.
-    Here a thin lense approximation, a reflective mirror, and a grid
+    Here a thin lens approximation, a reflective mirror, and a grid
     representing a laser crystal are implemented and can be used by
     the user.
     A UML class diagram of the Object2D class and associated
@@ -1273,7 +1273,7 @@ beam quality evaluated.
 
     \paragraph{Medium2D}
     All object that consist of some material that is transmissible by
-    light and have a non negligable thickness should implement the
+    light and have a non negligible thickness should implement the
     Medium2D interface.
     It holds information about the material via the materials
     Sellmeier coefficients and implements the all the phenomena
@@ -1288,7 +1288,7 @@ beam quality evaluated.
     Like all objects in the simulation it inherits from the 
     Object2D class and implements the \emph{action} method in to
     include the above described effects.
-    Furthermore the Medium2D class provides the abstract \emph{actionEnter}
+    Furthermore, the Medium2D class provides the abstract \emph{actionEnter}
     and \emph{actionTransmit} methods which are executed
     once the ray first hits the medium and once the transmitted part
     of the ray was traced within the medium respectively.
@@ -1304,7 +1304,7 @@ beam quality evaluated.
     Here the power of the ray is modified by each cell the ray intersects 
     in order to model the absorption of light within a medium.
 
-    The Medium2D inteface should serve as the base class for all
+    The Medium2D interface should serve as the base class for all
     user defined objects where the tracing of light needs to
     be physically accurate.
     This means that no approximations are made and the required
@@ -1318,17 +1318,17 @@ beam quality evaluated.
     new rays entering the scene.
     These rays then need to be traced, increasing the overhead
     of tracing a medium accurately even more.
-    Therefore it is advised to use the Medium2D interface with
+    Therefore, it is advised to use the Medium2D interface with
     great care and sparingly in order to keep the computational
     cost to a minimum.
     Only the most relevant objects to the simulation should be
     traced with full physical accuracy.
     Suppose one wants to model a mirror using the Medium2D class.
-    Technically this is possible, but practically it is infeasable,
+    Technically this is possible, but practically it is infeasible,
     since the only thing the user is most likely interested in
     is the reflected part of the incoming ray.
     The same is true for lenses or optical elements where either
-    the dispersion effects are negligable or the angle of
+    the dispersion effects are negligible or the angle of
     incidence is such that almost all light is transmitted
     anyway.
     In this case the user is most likely only interested in the
@@ -1346,18 +1346,18 @@ beam quality evaluated.
     as the ray tracing in all media.
     This is modelled by the Medium2D interface, which implement all
     relevant effects in a transmissible material.
-    Although it is phyysically accurate to trace the light rays with
+    Although it is physically accurate to trace the light rays with
     the Medium2D class, significant amounts of computation is needed
     to calculate and describe the light paths.
     Furthermore, the geometry of the lens needs to be modelled accurately.
     This is simple for conventional glass lenses where the geometry can be
     described only by the radii of the surfaces and the thickness of the lens.
-    But for fresnel lenses this process can be quite complex and time
-    consuming, both in the modelling phase and the computational cost
+    But for Fresnel lenses this process can be quite complex and time-consuming,
+    both in the modelling phase and the computational cost
     of tracing many fundamental shapes.
     Thus it is rarely feasable to trace lenses without any amount
     of simplification.
-    The question of choosing the appropiate amount of approximation depends on the goal of the
+    The question of choosing the appropriate amount of approximation depends on the goal of the
     simulation and the use case of the optical system and cannot be
     generally answered.
     It can be required to trace a specific lens with all the effects described
@@ -1367,25 +1367,25 @@ beam quality evaluated.
     aligned in their optical axis, rays are predominantly 
     entering the system at shallow angles and dispersion effects can 
     be largely neglected.
-    Other tasks my require rays to hit the lens at odd angles so the
+    Other tasks may require rays to hit the lens at odd angles, so the
     correct geometry of refraction is important, but dispersion effects
     and transmitted power are not that important or can be 
     approximated by another way.
-    Therefore the user ultimately needs to decide which amount of 
+    Therefore, the user ultimately needs to decide which amount of 
     approximation is acceptable for the task at hand.        
 
     Suppose the user simulates a camera objective.
     Like in most optical systems a larger number of lenses are 
     aligned in their optical axis and rays are only hitting the lens
     with a small angle with respect to those axis.
-    Here the only thing that matters is the correct refraction of
+    Here, the only thing that matters is the correct refraction of
     rays according to the rules of geometric ray tracing in a thin lens.
     Parallel rays always intersect the focal point and rays that
     travel through the middle of the lens will not be refracted
     at all.
     Those lenses are therefore often modelled by the ABCD ray transfer
     matrix~\cite{abcd_lens_rpphotonics}.
-    The lens is seen as a sort of blackbox with a certain thickness
+    The lens is seen as a sort of black-box with a certain thickness
     and the transfer matrix describes how a ray is transmitted
     through the lens.
     The only information needed is the thickness of the lens and
@@ -1416,12 +1416,12 @@ beam quality evaluated.
     its Sellmeier coefficients.
     If one still wants to model dispersion effects with this approach,
     one method could be to provide an artificial thickness function 
-    or just upper bound depending on the applications requirement for
+    or just upper bound depending on the application's requirement for
     physical accuracy.
     Then the Sellmeier coefficients for the desired material of the lens
     in combination with the sampled thickness at the hitpoint can be used
     to disperse the ray correctly.
-    An example for this would be a fresnel lens made from PMMA.
+    An example for this would be a Fresnel lens made from PMMA.
     The sawtooth pattern of the ridges could then be given as a function
     to be sampled at the hitpoint.
 
@@ -1436,14 +1436,14 @@ beam quality evaluated.
     \paragraph{Mirror2D}
 
     Mirrors like lenses are commonly used in optical systems.
-    Most of the time one wants optimize the shape of a mirror system
-    in order to fullfill some optical property.
+    Most of the time one wants to optimize the shape of a mirror system
+    in order to fulfill some optical property.
     As all objects in the framework, mirrors are also considered to be
     rotationally symmetrical.
     The mirrors implemented in the Mirror2D class consist of line segments
     of the class Line2D, the amount of which can be given as an argument
     to the constructor.
-    Additionally the shape of the mirror can be given as a parametrized
+    Additionally, the shape of the mirror can be given as a parametrized
     2D curve.
     The function should take a single parameter $t \in [0, 1]$ and return
     2D points along the curve.
@@ -1462,11 +1462,11 @@ beam quality evaluated.
     When the ray first hits the medium a hit action can be given if
     the hitpoint contains relevant information to the user.
     Then the distance within each cell the ray is travelling through
-    is eveluated.
+    is evaluated.
     It is to be noted that it is assumed the medium is homogenous and
     has constant refractive index.
-    Thus the rays travel in a straight line within the medium.
-    Additionally to the hit action a cell action can be given as a
+    Thus, the rays travel in a straight line within the medium.
+    Additionally, to the hit action a cell action can be given as a
     parameter to the constructor.
     The cell action function is executed once the ray hits a cell.
     The distance travelled through the cell is evaluated and given to the
@@ -1503,11 +1503,11 @@ beam quality evaluated.
     optimized by evaluating $\alpha(\lambda)$ only once the ray hits the
     medium and keeping track of this value for successor cells.
     The absorbed power is then added to the cells value.
-    Thus after a full simulation of the scene the absorbption profile
+    Thus, after a full simulation of the scene the absorption profile
     is known.
-    Additionally the total irradiation is evaluated when the ray hits
+    Additionally, the total irradiation is evaluated when the ray hits
     the medium, if the user requires this information.
-    Supplying the apsorption spectrum can be done by using the various
+    Supplying the absorption spectrum can be done by using the various
     utilities the framework provides.
     These are described in \secref{sec:utilities}.
 
@@ -1616,11 +1616,11 @@ beam quality evaluated.
     If one wants to observe the absorption of energy in a thin piece of
     ionized glass with a weak absorption coefficient it might be required
     to choose a higher depth in order to bounce the ray through the 
-    glass multiple times until the absorbed power becomes insignificant
+    glass multiple times until the absorbed power becomes insignificant,
     and a steady state is reached.
     Theoretically the user can implement a preprocessing step where the
     simulation is executed multiple times with increasing depth until
-    a steady state is reached or no more rays are created and choose
+    a steady state is reached, or no more rays are created and choose
     that depth parameter for the optimization.
     There are valid reasons though to choose a smaller value than is
     actually required to reach steady state.
@@ -1640,14 +1640,14 @@ beam quality evaluated.
     If a ray has not been terminated it will be tested against
     all objects in the scene.
     The intersection results are then stored in an ordered
-    datastructure, sorted in an ascending order by the $t$ value
+    datastructure, sorted in ascending order by the $t$ value
     of the object intersection result.
     The actions defined by the intersected objects are then
     executed in that order.
-    If preceeding object terminates the ray or all actions
-    have been executed the iteration is stopped and the
+    If preceding object terminates the ray or all actions
+    have been executed the iteration is stopped, and the
     created rays are stored for the current depth.
-    Created rays can also be immediatly terminated by the action of 
+    Created rays can also be immediately terminated by the action of 
     the creating object.
     An example for this would be the refraction of the ray where the
     transmitted ray is terminated at the boundary of the object and
@@ -1796,14 +1796,14 @@ beam quality evaluated.
     A VtkWriter class is provided to output the scene, rays and tracing results
     for included grids.
     Here the user can specify the percentage of rays to output since
-    it is often not feasable to output all the rays in the simulation
+    it is often not feasible to output all the rays in the simulation
     but just a representation to observe the behavior of rays.
     The rays are then sampled uniformly using the Sampler class for each
     depth.
     Also, all bounding boxes of objects are output additionally.
     For the input and output of tables in the CSV format the two CSV classes
     are provided.
-    The user can specify the datatype for each column in the CSV file so
+    The user can specify the datatype for each column in the CSV file, so
     the values are parsed accordingly.
     Probably the most important part of the included utilities are the
     function utilities.
@@ -1815,13 +1815,13 @@ beam quality evaluated.
     the interpolated value as efficiently as possible.
     This is particularly important if the user wants to evaluate a function
     in one of the raytracing action functions.
-    Furthermore a timer class is implemented to enable accurate timing
+    Furthermore, a timer class is implemented to enable accurate timing
     measurements and an argument parser is provided.
     As a part of the Maths module commonly used physics laws are implemented
     such as Snell's law, the Fresnel laws etc.
 
     \newpage
-    \section{Optimization}
+    \section{Optimization} \label{sec:optimization}
 
     \subsection{Optimization Methods Overview} \label{sec:opt_overview}
 
@@ -1852,7 +1852,7 @@ beam quality evaluated.
     strictly positive, implying that the shape of the function is convex.
     With this knowledge one can deduct that there is a global minimum, 
     thus the algorithm can be chosen accordingly, and that the 
-    solution of this algorithm will be the the global minimum.
+    solution of this algorithm will be the global minimum.
     Unfortunately it is often the case that many properties of a 
     physical simulation can only be evaluated using
     complex program codes and cannot be described in a linear or 
@@ -1887,8 +1887,8 @@ beam quality evaluated.
     Depending on the knowledge about the function $f$, one has to choose
     between a large number of iterative methods.
     Iterative methods can be roughly categorized into second-order, 
-    first-order and zero-order optimization algortihms.
-    The second-order algortihms rely on the second derivative or
+    first-order and zero-order optimization algorithms.
+    The second-order algorithms rely on the second derivative or
     Hessian matrix of the function to converge.
     First-order methods evaluate the gradient of the function, whereas
     zero-order methods only need to evaluate the function itself.
@@ -1903,7 +1903,7 @@ beam quality evaluated.
     The main difference of the three types of categories is accuracy
     and time constraints.
     The Newton method~\cite{solomon_numerical} - a second-order method -
-    chooses the stepsize after eveluating the steepest descent
+    chooses the stepsize after evaluating the steepest descent
     direction optimally using the Hessian matrix, thus needing
     a fewer amount of steps and delivering an accurate solution to
     the problem.
@@ -1923,9 +1923,9 @@ beam quality evaluated.
     simulations are often hard to analyze in terms of slope and 
     curvature, and often produce non-smooth noisy results.
     Disregarding the noise, some problems might even be smooth and
-    differentiable for a certain neighborhood of values but non smooth
+    differentiable for a certain neighborhood of values but non-smooth
     for others.
-    To identify these neighborhoods is in itself a non trivial problem,
+    To identify these neighborhoods is in itself a non-trivial problem,
     that might involve a large amount of computational expense.
     Especially for codes that rely on some sort of random number generation
     the goal is often to generate some sampled version of the actual function
@@ -1934,9 +1934,9 @@ beam quality evaluated.
     little about the expected result is known beforehand.
     These types of functions are often called \emph{oracle} functions
     or \emph{black-box} functions, implying that properties like
-    the slope or curvature are either not well defined at some points
+    the slope or curvature are either not well-defined at some points
     or are not available to the optimization algorithm.
-    This situation can occurr in a variety of applications and
+    This situation can occur in a variety of applications and
     for a variety of reasons.
     One reason might be that a small there are some points where the
     black-box function is non-smooth and therefore not differentiable.
@@ -1946,7 +1946,7 @@ beam quality evaluated.
     Another reason can be that the black-box function might be
     computationally expensive to evaluate at a single point making
     the calculation of a gradient or even just part of the gradient
-    infeasable in an iterative context.
+    infeasible in an iterative context.
     So the goal in this case would be to optimize a function with
     a minimal amount of actual function evaluations.
     For these cases of application zero-order or derivative-free 
@@ -1966,7 +1966,7 @@ beam quality evaluated.
     usually exploit this knowledge in some way to get results
     either faster or more accurately.
     But if the derivative is not given in a closed form but has to be
-    calculated by evaluating a series of expensive fuction calls, then
+    calculated by evaluating a series of expensive function calls, then
     derivative-free methods can shine.
 
     As stated by Larson, Menickelly and Wild in~\cite{derivative_free_methods},
@@ -1982,14 +1982,14 @@ beam quality evaluated.
     free approaches to optimize those geometric parameters.
     The first reason is that there are configurations in the
     simulation setup where the function value is discontinuous.
-    This can be seen in \figref{fig:opt_discontinuous} where a two
-    dimensional domain was evaluated quite densely to make the discontinuous
+    This can be seen in \figref{fig:opt_discontinuous} where a two-dimensional
+    domain was evaluated quite densely to make the discontinuous
     parts visible.
     Of course this cannot be done during the optimization algorithm, 
     because it would take a lot of computational cost to just evaluate
     the whole domain.
     To sample the function as densely as in \figref{fig:opt_discontinuous}
-    in hihger dimensions one would have to sample exponentially many
+    in higher dimensions one would have to sample exponentially many
     more points depending on the dimensions.
 
     \begin{figure}
@@ -1998,7 +1998,7 @@ beam quality evaluated.
         \includegraphics[width=0.8\textwidth]{images/discontinuity.pdf} \\
         \includegraphics[width=0.8\textwidth]{images/noisyness.pdf}
         \end{tabular}
-        \caption[Discontinuity and noisyness of the objective function]{
+        \caption[Discontinuity and noisiness of the objective function]{
             Discontinuous (top) and noisy (bottom) points of an objective function
             resulting from a ray tracing simulation.
             The bottom plot is just the same plot as the top one but rotated
@@ -2006,10 +2006,10 @@ beam quality evaluated.
             The simulation was carried out using a similar setup to the setup described
             in \secref{sec:setup} but with a parabolic mirror of the form
             $a*x^2 + b$ where $a$ and $b$ are would be the two input
-            parametes to the optimization algorithm.
+            parameters to the optimization algorithm.
             It can be observed that the objective function is more a stepfunction than
             a continuous one, making the calculation of a gradient using
-            finite differences inpractical.
+            finite differences impractical.
             Additionally, one can observe that the function has deterministic noise 
             on top of the discontinuity.
         }
@@ -2029,12 +2029,12 @@ beam quality evaluated.
     cost a lot in terms of gradient evaluation.
     Even more so if one calculates the second-order gradient using
     central differences.
-    The thid reason is that derivative free optimization methods
+    The third reason is that derivative free optimization methods
     can deal well with noisy input.
     This is particularly useful if the function is evaluated
     with some sort of random sampling involved.
     In this work the ray tracer calculates the absorption of light in a
-    transmissable medium.
+    transmissible medium.
     The geometry, power, and wavelength of the rays in the scene are
     randomly sampled.
     This means that across multiple evaluations of the function the
@@ -2042,14 +2042,14 @@ beam quality evaluated.
     This is a common problem in raytracing and can only be reduced by
     sampling more often, i.e. shooting more rays into the scene.
     Since the computational cost has to be limited for a function
-    evalution in some capacity the noise level cannot be reduced
+    evaluation in some capacity the noise level cannot be reduced
     to zero completely.
     It is to be noted though that during the simulation all
     random variables are kept the same and the sampling only
     occurs during the setup process of the simulation.
-    Thus two evaluations of the function with the same parameters
+    Thus, two evaluations of the function with the same parameters
     deliver the same result.
-    This means that there is noise but the noise is deterministic
+    This means that there is noise, but the noise is deterministic
     in nature.
     Evaluating a gradient with noisy values is generally a bad idea
     and will lead to large variance in the direction in the 
@@ -2059,7 +2059,7 @@ beam quality evaluated.
     While this is certainly possible it comes with even more
     computational cost than just calculating the gradient normally.
     Additionally, there is no easy why to calculate a gradient
-    analyticly.
+    analytically.
     It is technically possible to generate an algorithmic
     differentiation as an alternative to derivative free 
     methods as discussed in ~\cite{derivative_free_methods}.
@@ -2070,10 +2070,10 @@ beam quality evaluated.
     significant amount of absolute values and conditional jumps.
     But after considering that raytracing basically consists of
     trigonometric functions, absolute values and conditional jumps
-    it was deemed inpractical to try an approach with algorithmic
+    it was deemed impractical to try an approach with algorithmic
     differentiation.
     For these reasons gradient based and therefore also second-order
-    methods along with algortihmic differentiation was not used in
+    methods along with algorithmic differentiation was not used in
     this work and derivative free methods were preferred instead.
 
     There are also multiple types and categories of derivative
@@ -2087,17 +2087,17 @@ beam quality evaluated.
     black-box function is itself deterministic or has stochastic
     elements to it.
     As described above, in this work the black-box function is
-    noisy but the evaluation is stricly deterministic.
-    Therefore here only methods are explained where the function
+    noisy, but the evaluation is strictly deterministic.
+    Therefore, here only methods are explained where the function
     is deterministic.
-    Perhaps confusingly one can still aplly randomized methods on
+    Perhaps confusingly one can still apply randomized methods on
     a deterministic function.
     This can have the benefit of not getting stuck on stationary
     saddle points as easily as deterministic methods.
     In fact most presented methods can be extended to use some
     factor of randomization and thus becoming randomized
     methods.
-    Also there are hybrid methods which use some parts of
+    Also, there are hybrid methods which use some parts of
     each subtype making the distinction between methods not
     as clear.
     As in this work the deterministic MADS algorithm is used on
@@ -2191,7 +2191,7 @@ beam quality evaluated.
     $D_k$ differently.
     As stated in ~\cite{derivative_free_methods}, convergence
     proofs for directional direct search methods require that the
-    set $D_k$ is a so called \emph{positive spanning set} for the
+    set $D_k$ is a so-called \emph{positive spanning set} for the
     domain $\Omega$.
     This means nothing more than that the set of directions form
     a spanning set for describing any point $\vec{x}$ in the domain $\Omega$
@@ -2221,7 +2221,7 @@ beam quality evaluated.
     Here the black-box function is modelled by surrogate representing
     the function.
     When iterating the function is locally approximated by a function
-    that has some desireable properties for optimization.
+    that has some desirable properties for optimization.
     For example a surrogate function could be a polynomial
     which is known to be smooth and differentiable.
     The optimization is then carried out by using information
@@ -2238,10 +2238,10 @@ beam quality evaluated.
     and properties of the model function is known.
     So the main problem with gradient based methods is circumvented
     by this approach.
-    One drawback is the relyance on the smoothness of the model function.
+    One drawback is the reliance on the smoothness of the model function.
     While the model function is smooth the original black-box
     function can be highly discontinuous.
-    Thus the model is either not trusted at the discontinuous points
+    Thus, the model is either not trusted at the discontinuous points
     or a larger number of points needs to be evaluated in order to
     "model" the discontinuity.
     These methods work well if the model function can closely resemble
@@ -2249,24 +2249,24 @@ beam quality evaluated.
     This is a problem in the simulation carried out in this work, since
     the objective function is discontinuous and noisy.
     
-    In conlusion it was determined that derivative free direct search
+    In conlusion, it was determined that derivative free direct search
     methods offer the most suitable features for the task at hand.
     In particular one special form of direct search called the
     mesh adaptive direct search (MADS) offers the capacity to
-    deal with the non smoothness and noisyness of the objective
+    deal with the non smoothness and noisiness of the objective
     function in this work.
-    Additionally it can handle constraints on the input parameters
+    Additionally, it can handle constraints on the input parameters
     even if they are also given in a black-box or oracle form,
     something that can come in handy in the design process of 
     any optical system.
     The MADS algorithm can work with a limited amount of black-box
     evaluations and prohibits the unnecessary evaluation of
     the objective function at points that do not satisfy constraints.
-    This is benefitial in the design phase of optical systems as
+    This is beneficial in the design phase of optical systems as
     often manufacturing limitations need to be considered when
     optimizing certain parameters. 
-    Furthermore it offers the capability of solving biobjective
-    optimization, which is also required when opimizing both
+    Furthermore, it offers the capability of solving biobjective
+    optimization, which is also required when optimizing both
     the absorbed power and the variance of the absorption profile.
     The MADS algorithm is explained and examined in detail in 
     \secref{sec:mads}.
@@ -2275,13 +2275,13 @@ beam quality evaluated.
 
     The mesh adaptive direct search class of algorithms was originally
     proposed by Audet and Dennis in 2006~\cite{mads_original}.
-    It was specifically designed to optimize nonlinear, nonsmooth
+    It was specifically designed to optimize nonlinear, non-smooth
     constrained functions.
     The explanations in this chapter are taken from~\cite{mads_original}
     and theoretical mathematical concepts for the purpose of understanding
     the inner workings of MADS are added where deemed necessary.
 
-    \subsubsection{Optimality and Clarke's Calculus for nonsmooth Optimization} 
+    \subsubsection{Optimality and Clarke's Calculus for nons-mooth Optimization} 
     \label{sec:optimality}
 
     Usually optimality in an optimization problem of the form as in
@@ -2289,7 +2289,7 @@ beam quality evaluated.
     points.
     A stationary point is a point where the gradient goes to 0 in all
     directions ~\cite{solomon_numerical}.
-    Therefore a stationary point $\vec{x}$ must satisfy \equref{equ:stationary_grad}.
+    Therefore, a stationary point $\vec{x}$ must satisfy \equref{equ:stationary_grad}.
 
     \begin{equation}
         \label{equ:stationary_grad}
@@ -2299,7 +2299,7 @@ beam quality evaluated.
     For most cases this criterium is adequate if the function $f$ is differentiable.
     Since the direct directional search methods where mainly developed
     to optimize non-smooth functions, one needs a more general way
-    of defining optimiality.
+    of defining optimality.
     Defining optimality in a different way implies that a substitute
     definition of the derivative or differentiability as a whole
     is required.
@@ -2348,7 +2348,7 @@ beam quality evaluated.
     starts at increasingly later points in the original series.
     One can think of a value that is the smallest possible value that is
     an upper bound of a series (function values) at $n \rightarrow \infty$.
-    So basically ome is not interested in the bounding values in the start
+    So basically one is not interested in the bounding values in the start
     of the series but in the bound which eventually is a bound for all
     values except for a finite amount of values. 
     With those definitions Clark defined the generalized directional
@@ -2375,7 +2375,7 @@ beam quality evaluated.
     This is useful since at some point the slope is definitely bound
     because of local Lipschitz continuity of $f$.
     It guarantees that the Clarke directional derivative always exists
-    for locally Lipschitz contiuous functions and the value of $f^{\circ}$
+    for locally Lipschitz continuous functions and the value of $f^{\circ}$
     is a finite quantity ~\cite{clarke}.
     Colloquially one could say that if one knows that the function always
     has some neighborhood around the current point where the slope is bounded,
@@ -2389,7 +2389,7 @@ beam quality evaluated.
     This circumvents the problem of a derivative defined only with
     the differential quotient, as those can become infinite or
     undefined if the function does not behave well at $\vec{x}$.
-    Clark then defines a gradient from the diectional derivative as
+    Clark then defines a gradient from the directional derivative as
     a set of directions $\xi$, where the projection of $\xi$ onto
     the direction $\vec{v}$ is smaller than the directional
     derivatives for every direction possible.
@@ -2406,7 +2406,7 @@ beam quality evaluated.
 
     This definition of a gradient is not used in the algorithm itself
     but is helpful to understand why the algorithm converges even
-    for nonsmooth functions.
+    for non-smooth functions.
     It can be proven that for differentiable functions the Clark
     generalized gradient collapses to a set with a single element,
     that being the conventional gradient $\nabla f(\vec{x})$
@@ -2421,14 +2421,14 @@ beam quality evaluated.
     But for only locally Lipschitz continuous functions it was shown
     in a convergence analysis by Audet and Dennis that the Clarke 
     generalized directional
-    derivatives are nonnegative for the finite set of fixed directions
+    derivatives are non-negative for the finite set of fixed directions
     used in GPS methods.
     If the criterium for optimality is just the statement that the
-    Clarke generalized directional derivatives have to be nonnegative
+    Clarke generalized directional derivatives have to be non-negative
     along the pattern directions, then GPS methods can provide
     adequate solutions.
     But this restriction to the finite set of directions produces a 
-    weaker optimality criterium than the one fullfilled by the
+    weaker optimality criterium than the one fulfilled by the
     MADS class of algorithms.
     The criterium for optimality for MADS methods is thus given by
     reaching a Clarke stationary point and is defined in 
@@ -2448,13 +2448,13 @@ beam quality evaluated.
     \end{definition}
 
     This definition also neatly showcases a more intuitive way of thinking
-    about the Clarks generalized gradient.
+    about the Clarke generalized gradient.
     One can think of the set of vectors in the gradient as the directions
     populating a tangent cone limited by the corresponding Clarke directional
     derivatives at that point.
     If the cone has a positive slope on all sides, the point is a minimum.
-    Therefore the new formulation of the optimization problem for
-    the MADS class of optimization algolrithms is just given by finding
+    Therefore, the new formulation of the optimization problem for
+    the MADS class of optimization algorithms is just given by finding
     a Clarke stationary point within the domain $\Omega$.
     Of course for this to happen one would need to sample infinitely
     many directions, which is not possible in the optimization
@@ -2474,9 +2474,9 @@ beam quality evaluated.
     to say the criterium has been fulfilled with a certain degree of
     confidence. 
 
-    \subsubsection{Constrained Optimization with the Barrier Approach}
+    \subsubsection{Constrained Optimization with the Barrier Approach} \label{sec:constrained}
 
-    Another advantage that MADS algolrithms have is the handling of
+    Another advantage that MADS algorithms have is the handling of
     constraints.
     For this it is necessary to revisit the definition of the optimization
     problem once again.
@@ -2485,7 +2485,7 @@ beam quality evaluated.
     For the constrained optimization with MADS algorithms none of
     those properties are required.
     The constraints can just be given as black-box functions or
-    oracles which decide whether an point satisfies the constraint
+    oracles which decide whether a point satisfies the constraint
     or not.
     A big limitation of GPS methods is the directional dependence of
     evaluating constraint functions caused by the restriction of the poll
@@ -2511,29 +2511,29 @@ beam quality evaluated.
         \end{gathered}
     \end{equation}
 
-    The MADS class of algorithms can use a so called barrier approach where the
+    The MADS class of algorithms can use a so-called barrier approach where the
     constraint functions are just treated as points where the objective function
     goes to infinity.
-    This is possible, because there is asymptotically dense polling of directions
+    This is possible, because there is asymptotically dense polling of directions,
     so the barriers are accurately found during the iteration.
     The optimization is then carried out as if the domain is unconstrained.
     It is important to note that the barries $\delta\Omega$ are not 
-    eveluated beforehand but are only found during the iteration by
+    evaluated beforehand but are only found during the iteration by
     sampling the poll directions and finding those points.
     The points where one or more of the constraints is not satisfied are often called
-    infeasable points.
+    infeasible points.
     As stated in ~\cite{mads_original}, "a key advantage of the barrier
     approach is that one can avoid expensive function calls to $f$ whenever
     a constraint is violated".
     This translates to only evaluating the poll directions where the
-    poll point is a feasable point.
+    poll point is a feasible point.
     The definition of Clarke's directional derivative can then be modified
-    so that only feasable points are present in the formula.
+    so that only feasible points are present in the formula.
     This is modification was originated by Jahn and is also shown
     and referenced in ~\cite{mads_original}.
     Since the modification is quite trivial the definition of optimality
     using this approach does not change much except that the
-    "sampled" points for building the tangent cone have to be feasable
+    "sampled" points for building the tangent cone have to be feasible
     points.  
 
     \subsubsection{Mesh Generation and Execution of MADS algorithms}
@@ -2589,15 +2589,15 @@ beam quality evaluated.
     to exploit some problem specific knowledge about the objective
     function.
     The way the user chooses those points does not affect the convergence
-    properties of the algortihm since the "lower bound" for convergence
+    properties of the algorithm since the "lower bound" for convergence
     is given by the poll step.
     If a better point is found during the search step this point becomes
-    the new best value, the mesh size parameter $\Delta^m_k$ is increased
+    the new best value, the mesh size parameter $\Delta^m_k$ is increased,
     and the iteration is continued.
     If the search step does not yield a better solution then the poll
     step is executed and a better solution is searched with the
     trial points produced by the poll directions.
-    Should the poll search also fail and the current solution
+    Should the poll search also fail, and the current solution
     still be the best solution, the mesh size for the next iteration
     $\Delta^m_{k+1}$ is decreased to produce a finer mesh and the
     objective function can generally be evaluated closer and closer
@@ -2628,12 +2628,12 @@ beam quality evaluated.
     This inherently limits the possible poll directions to the fixed finite
     set of directions $D$ given in the generation of the mesh.
     If the selection of trial points is independent of the current mesh
-    size, the possible trial point are limited by a so called \emph{frame}.
+    size, the possible trial point are limited by a so-called \emph{frame}.
     The frame is defined by separate poll size parameter $\Delta^p_k$
     which limits the mesh distance at which trial point can be from
     the current point.
     For GPS methods it holds that $\Delta^p_k = \Delta^m_k$.
-    The MADS class of algortihms on the other hand does not impose such
+    The MADS class of algorithms on the other hand does not impose such
     a hard restriction on the frame size.
     Here it must hold that $\Delta^p_k \geq \Delta^m_k$ for all iterations $k$.
     The only additional requirement given to the different size parameters is
@@ -2647,7 +2647,7 @@ beam quality evaluated.
     and yields a positive spanning set of directions $D_k$ which contrary to
     GPS methods is \underline{not} a subset of $D$.
     The set of poll points $P_k$ is a set of mesh points which are generated
-    using a nonnegative integer combination $\vec{d}$ of the directions in $D$
+    using a non-negative integer combination $\vec{d}$ of the directions in $D$
     and the mesh size parameter $\Delta^m_k$.
     The distance of the current best point or also called the \emph{frame center}
     is also bound by a constant times the poll size parameter $\Delta^p_k$.
@@ -2665,7 +2665,7 @@ beam quality evaluated.
     parameter can decrease more rapidly than the frame size parameter.
     For a GPS method where those two parameters are always equal the number
     of possibilities for poll directions is finite and fixed.
-    Now suppose that the MADS algorithm iterates indefinitly and always
+    Now suppose that the MADS algorithm iterates indefinitely and always
     fails to find a better solution point, meaning that the mesh
     and frame size is successively reduced.
     It is ensured that if $\Delta^p_k \geq \Delta^m_k$ holds for all iterations,
@@ -2675,7 +2675,7 @@ beam quality evaluated.
     Now if all those poll points still do not deliver a better point
     after a certain threshold of iterations or evaluations one can say
     that in the limit the condition for optimiality using Clarke's
-    generalized gradient is fullfilled.
+    generalized gradient is fulfilled.
     This is indeed proven in ~\cite{mads_original} and the reader is
     encouraged to look at the proof themselves as it is enough for this
     work to understand the inner workings of the MADS algorithm,
@@ -2687,7 +2687,7 @@ beam quality evaluated.
     visually.
     The example illustrates how a finite set $D$ of mesh directions in
     $\mathbb{R}^2$ can generate an infinite amount of poll directions
-    for the MADS algortihm but a finite and fixed amount of directions
+    for the MADS algorithm but a finite and fixed amount of directions
     for GPS methods.
     So let the set $D$ be the set of eight directions 
     $\{(d_1,d_2)^T \neq (0,0)^T : d_1,d_2 \in \{-1,0,1\}\}$.
@@ -2695,11 +2695,11 @@ beam quality evaluated.
     There are eight different distinct positive spanning sets 
     consisting of three directions.
     The number three is chosen arbitrarily here and can also be
-    upto eight directions but at a minimum three directions are 
+    up to eight directions but at a minimum three directions are 
     required to generate a positive spanning set $D_k$.
     This is due to the fact that factors $\lambda_i$ for a 
     positive spanning set have to be positive as shown in \equref{equ:pss}.
-    So in oreder to reach every point in $\mathbb{R}^2$ one needs at
+    So in order to reach every point in $\mathbb{R}^2$ one needs at
     least two vectors that would be just a spanning set and 
     one additional direction to have some sort of way to reach
     negative directions.
@@ -2757,8 +2757,8 @@ beam quality evaluated.
     \subsection{Biobjective MADS}
     \subsubsection{Multiobjective Optimization}
 
-    As discussed in the preceeding sections, the problem of single objective
-    nonsmooth optimization can be solved using the MADS algorithm.
+    As discussed in the preceding sections, the problem of single objective
+    non-smooth optimization can be solved using the MADS algorithm.
     Many optimization problems in scientific computation and engineering
     applications have to consider multiple objectives at the same time.
     The optimization problem in this work for example consists of
@@ -2784,7 +2784,7 @@ beam quality evaluated.
     \end{equation}
 
     Note that in \equref{equ:optimization_multi} the question of optimality is
-    specificly left vague as in multiobjective optimization a notion
+    specifically left vague as in multiobjective optimization a notion
     of minimum does not make much sense.
     This is because now the objective function is no longer real valued.
     It arises the question of what point $\vec{x}$ is more optimal than
@@ -2807,7 +2807,7 @@ beam quality evaluated.
     To compare two points in order to determine which point is more
     optimal than the other, there cannot be a total order relation defined
     on the image space of $F$.
-    Instead there is a partial order relation called \emph{Pareto dominance}
+    Instead, there is a partial order relation called \emph{Pareto dominance}
     relation.
     As shown in ~\cite{multiobjective}, this relation is defined in
     \defref{def:pareto_dominance}.
@@ -2834,7 +2834,7 @@ beam quality evaluated.
     subdivides the image space $Y$ or in this case $\mathbb{R}^p$ into three zones.
     The first zone is the \emph{dominance zone}, which are all the image
     points that dominate $\vec{x}$.
-    The \emph{dominated zone} then are all the image points dominated and
+    The \emph{dominated zone} then are all the image points dominated, and
     the \emph{indifferent zone} are all the image points indifferent to $\vec{x}$.
     An example of this in $\mathbb{R}^2$ image space can be seen in figure
     \figref{fig:dominance_zones}, which is based on Figure 2.1 in ~\cite{multiobjective}.
@@ -2883,7 +2883,7 @@ beam quality evaluated.
     point in $X$ where all except at least one objective function $f_j$ of the single objective
     functions $f_i$ are either equal or less than the objective functions at the current point,
     whereas $f_j$ is truly smaller.
-    As a geometric interpretation in a two dimensional image space this means
+    As a geometric interpretation in a two-dimensional image space this means
     there cannot be another point where the image point is to the left or down or both.
     This is exactly the meaning of dominance zones in \figref{fig:dominance_zones}.
     An example of Pareto efficient points in $\mathbb{R}^2$ is given in \figref{fig:pareto_front},
@@ -2905,9 +2905,9 @@ beam quality evaluated.
         \label{fig:pareto_front}
     \end{figure}
     
-    The goal of any multiobjective optimization algortihm should be to deliver
+    The goal of any multiobjective optimization algorithm should be to deliver
     a set of points which approximates the Pareto front as closely as possible.
-    There are multiple was of formulating a multiobjective problem as
+    There are multiple ways of formulating a multiobjective problem as
     a single objective problem.
     One way would be to weight the single objective functions $f_i$ by a factor
     $w_i \geq 0$ so that $\sum_i w_i = 1$.
@@ -2915,13 +2915,14 @@ beam quality evaluated.
     optimal for the multiobjective problem.
     If one solves the linear weighted problem for different combinations,
     a subset of the Pareto front is generated.
-    The disadvantage of this method is that not all points of the pareto front
+    The disadvantage of this method is that not all points of the Pareto front
     can be generated due to the limitation to the linear weighted form.
     Another method would be to define a reference point $\vec{r} \in Y$ and
     minimizing the $q$-norm as in \equref{equ:reference_point}, where
     $1 \leq q \leq \infty$.
 
     \begin{equation}
+        \label{equ:reference_point}
         \min_{\vec{x} \in \Omega} || F(\vec{x}) - \vec{r} ||_q
     \end{equation}
 
@@ -2930,7 +2931,7 @@ beam quality evaluated.
     Therefore, solving the reference point problem for different reference point
     produces an approximation of the Pareto front~\cite{multiobjective}.
     The only disadvantage is that if the point is chosen incorrectly
-    also non efficient points are generated.
+    also non-efficient points are generated.
     The general question with the reference point approach is how to
     choose those reference points.
     Along with other approaches of solving the multiobjective optimization
@@ -2954,10 +2955,10 @@ beam quality evaluated.
     This is proven for a bunch of choices for $\Phi_r$ in ~\cite{multiobjective}
     and the reader is encouraged to convince themselves of this property.
     In the next section the concrete implementation of the BiMADS algorithm
-    for the solution of biobjective nonsmooth optimization problems 
+    for the solution of biobjective non-smooth optimization problems 
     is shortly presented.
 
-    \subsubsection{BiMADS}
+    \subsubsection{BiMADS} \label{sec:bimads}
 
     The BiMADS algorithm was originally presented by Audet, Savard and Zghal
     in ~\cite{multiobjective} in 2008.
@@ -2987,25 +2988,25 @@ beam quality evaluated.
     $f_1, f_2$ - can be determined and the values of the objectives of
     those neighboring points can be combined to get a new reference point $\vec{r}$
     that surely dominates the chosen point $\vec{x}_j$.
-    In short, that BiMADS algorithm choses its reference points in a
+    In short, that BiMADS algorithm choses its' reference points in a
     way to minimize the gaps between the Pareto efficient points in $Y_{\mathcal{L}}$.
     This achieves better coverage of the Pareto front.
     The MADS algorithm is then executed for the single objective problem
     with respect to $\vec{r}$ and started from the chosen point $\vec{x}_j$.
-    Additionally to choosing the reference point, the algorithm then stores
+    Additionally, to choosing the reference point, the algorithm then stores
     a weighting factor for that specific $\vec{x}_j$ in order to achieve
     better coverage and increase the stopping criterium for MADS should
     that point be chosen again.
     Once a reference point $\vec{r}$ was derived from a point $\vec{x}_j$ the
     weighting is increased, which then in turn diminishes that points
-    ability to be chosen again in the successing iterations.
+    ability to be chosen again in the succeeding iterations.
     This approach of choosing the reference points gives an even distribution
     of non-dominated points along the Pareto front.
     Since the basic idea of the BiMADS algorithm was explained and is
     sufficient to understand the application of the algorithm in this
     work, the convergence analysis for BiMADS is left to the reader
     to study in ~\cite{multiobjective}.
-    A detailed overfew of the BiMADS algorithm is given in \algref{alg:bimads}.
+    A detailed overview of the BiMADS algorithm is given in \algref{alg:bimads}.
 
     \begin{algorithm}
         \label{alg:bimads}
@@ -3065,7 +3066,7 @@ beam quality evaluated.
     open source library NOMAD~\cite{nomad3}.
     It was developed by Charles Audet, Sebastien Le Digabel
     and Christophe Tribes.
-    The library offers a C++ interface to describe blackbox optimization
+    The library offers a C++ interface to describe black-box optimization
     problems and solve them using the MADS algorithm.
     Additionally to the library interface, one can also optimize
     any user created program in batch mode, which takes inputs and generates
@@ -3073,12 +3074,12 @@ beam quality evaluated.
     While this approach can help to get a working optimization
     off the ground quickly, it was decided that the added
     flexibility and performance of the customizable library interface
-    is better suited for the blackbox problem in this work.
+    is better suited for the black-box problem in this work.
     It is to be noted that the NOMAD library currently is undergoing
-    a rewrite in verion 4 and unfortunately some features of version 3
+    a rewrite in version 4 and unfortunately some features of version 3
     including the BiMADS implementation where missing when trying out
     the newest version.
-    Thus the older version 3 of NOMAD available at 
+    Thus, the older version 3 of NOMAD available at 
     ~\cite{nomad_website} had to be used in this work.
 
     The integration into the raytracing framework is done by defining
@@ -3094,21 +3095,21 @@ beam quality evaluated.
     There are also multiple parameters that need to be set in order to
     define the optimization problem.
     The dimension of the problem needs to be defined and the maximum number
-    of blackbox evaluations per MADS run needs to be defined.
+    of black-box evaluations per MADS run needs to be defined.
     For the constraint functions different types of handling are available.
     The barrier approach can be set to be enforced rigorously by 
-    prohibiting the MADS frame to evaluate infeasable points.
-    There are also more relaxed tyoes of constraint handling, e.g. by allowing
+    prohibiting the MADS frame to evaluate infeasible points.
+    There are also more relaxed types of constraint handling, e.g. by allowing
     infeasible points during the iteration but not as the final solution
     for a Pareto efficient point.
     This approach was also chosen in this work as the algorithm can then pass
     through barriers potentially reaching a better solution on the other side.
-    Also the type of allowed mesh directions and the number of 
+    Also, the type of allowed mesh directions and the number of 
     generated poll points per iteration can be set by a parameter.
-    Unfortunately in version 3 of NOMAD the ouput of the pareto front
+    Unfortunately in version 3 of NOMAD the ouput of the Pareto front
     is only available via reading the conole output of the BiMADS run
-    or by setting a file as an statistics file.
-    Therefore if the solutions are required by the user in the
+    or by setting a file as a statistics file.
+    Therefore, if the solutions are required by the user in the
     parts of the program after the BiMADS run, the user either has to
     read in the file or reroute the console output and parse the resulting
     text.
@@ -3129,11 +3130,11 @@ beam quality evaluated.
     simulated using the raytracer framework presented in \secref{sec:raytracing}
     and the BiMADS algorithm presented in \secref{sec:optimization}.
     The BiMADS algorithm is employed to optimize geometric parameters such
-    as mirrorshape and positions of optical components.
+    as mirror shape and positions of optical components.
     The BiMADS algorithm has two objective functions.
-    One fucntion evaluates the total absorbed power and the other one
+    One function evaluates the total absorbed power and the other one
     evaluates the variance of power across the Nd:YAG crystal.
-    To analyse the effect of a high power and low variance absorption
+    To analyze the effect of a high power and low variance absorption
     in the laser rod, the commercial software ASLD (Advanced Software
     for Laser Design) ~\cite{asld_website} was used.
     ASLD provides thermal and structural analysis of laser crystals
@@ -3141,10 +3142,10 @@ beam quality evaluated.
     calculation of laser output power and beam quality of a resonator setup
     using dynamic multimode analysis.
     The stability of the resonator and the resulting beam radius
-    can also be analysed. 
+    can also be analyzed. 
     Additionally, ASLD also has an internal 3D raytracer for the analysis
     of pump light absorption.
-    This is were the obtained mirrorshapes and geometrical parameters
+    This is where the obtained mirror shapes and geometrical parameters
     from the optimization can be loaded into and the resulting output
     beam is calculated.
     Different outputs of optimizations with different parameter constraints
@@ -3152,7 +3153,7 @@ beam quality evaluated.
 
     \subsection{Setup and Simulation Parameters}
     
-    The simulated setup consists of a large fresnel lens with a 
+    The simulated setup consists of a large Fresnel lens with a 
     diameter of \SI{1.2}{m}
     collecting the sunlight and focussing it with a focal length of \SI{1.2}{m}.
     The light then hits a reflective mirror bouncing the light onto an Nd:YAG
@@ -3164,15 +3165,15 @@ beam quality evaluated.
     Sunlight is generated in a \SI{1.2}{m} wide round surface consisting of
     rays according to the solar spectrum.
     Hereby the solar spectrum has been importance sampled with
-    respect to the absorption spectrum of an 1\% doped Nd:YAG crytsal.
+    respect to the absorption spectrum of an 1\% doped Nd:YAG crystal.
     This is done so the majority of rays in the raytracer actually
     have a contribution to the absorbed power in the crystal.
     The rays are also given a divergence equal to the value of solar divergence
     of \ang{0.53338}.
-    The fresnel lens is approximated via the thin lens approach described
+    The Fresnel lens is approximated via the thin lens approach described
     in \secref{sec:objects}.
     For now, no assumption for dispersive effects are made for the
-    fresnel lens.
+    Fresnel lens.
     The mirror shape is described using a Bezier curve with 4 control
     points as in \equref{equ:mirror}.
 
@@ -3198,7 +3199,7 @@ beam quality evaluated.
     for the optimization step.
     The Nd:YAG laser rod is a grid with 158 by 10 cells.
     For dispersion effects within the crystal the Sellmeier coefficients
-    for an Nd:YAG crystal were taken from ~\cite{sellmeier_ndyag}.
+    for a Nd:YAG crystal were taken from ~\cite{sellmeier_ndyag}.
     Absorption of light within the crystal is modelled using the Lambert
     law of absorption described in \equref{equ:lambert}.
     Hereby the absorption spectrum of a 1\% doped Nd:YAG laser
@@ -3206,19 +3207,19 @@ beam quality evaluated.
     Additionally, the irradiated power reaching the crystal is
     tracked when a ray hits the crystal.
     The distance of the laser rod and the mirror to the
-    fresnel lens can be opened as a parameter for the optimization.
+    Fresnel lens can be opened as a parameter for the optimization.
     An example setup can be seen in \figref{fig:setup_example}.
 
     \begin{figure}
         \centering
         \import{images/}{setup.pdf_tex}
         \label{fig:setup_example}
-        \caption[Example setup of the solar laser]{Example setup of the solar laser. The mirrorshape
+        \caption[Example setup of the solar laser]{Example setup of the solar laser. The mirror shape
         is determined using the four control points 
         $\vec{p}_1,\vec{p}_2,\vec{p}_3,\vec{p}_4$.
         The distance from the left side of the crystal to the origin
         is controlled by the parameter $d$.
-        When translating the crytsal with $d$ the mirror is also translated.
+        When translating the crystal with $d$ the mirror is also translated.
         Since in the open setups the start and endpoint of the mirror are
         also open, the position of the mirror relative to the crystal
         can be controlled via the controlpoints.}
@@ -3231,18 +3232,18 @@ beam quality evaluated.
     constrained BiMADS algorithm.
     It was observed that if the random search algorithm
     finds a point that does not satisfy all constraints, the initial MADS
-    runs cannot adequateliy find Pareto efficient points.
+    runs cannot adequately find Pareto efficient points.
     This happens even if a soft barrier approach is used.
     Note that optimal here in the random search step means only for one
     and \underline{not} Pareto optimal for the two objective functions.
-    Therefore the random search should either use a method that only
+    Therefore, the random search should either use a method that only
     generates searchpoints that satisfy the constraints or use the
     rejection method to reject samples that violate one of the
     constraints.
     Since in this case only a single monotony constraint was used,
-    it is easy to generate only samples satisfying this constraint
+    it is easy to generate only samples satisfying this constraint,
     and it was decided to use this approach.
-    Additionally it should also be short and used to
+    Additionally, it should also be short and used to
     gain a rough estimate of a good starting point for the objective
     function for the initial MADS runs for BiMADS.
 
@@ -3261,8 +3262,8 @@ beam quality evaluated.
     observed behavior of the optimization discussed.
     The main focus is the total amount of absorbed power, in
     comparison to the input power, which was set at \SI{720}{W}
-    for the sunlight hitting the fresnel lens.
-    Furthermore the variance of absorbed power in the crystal
+    for the sunlight hitting the Fresnel lens.
+    Furthermore, the variance of absorbed power in the crystal
     is evaluated for the different constraints.
     The amount of power hitting the crystal in relation to the
     pump power can be defined as the irradiation efficiency
@@ -3284,7 +3285,7 @@ beam quality evaluated.
     optical efficiency as in \equref{equ:geom_eff}, where
     $P_{abs}$ is the amount of absorbed power and $P_{pump}$ is
     the power of the pump light or in this case the amount of
-    solar power irradiating the fresnel lens.
+    solar power irradiating the Fresnel lens.
 
     \begin{equation}
         \label{equ:geom_eff}
@@ -3313,7 +3314,7 @@ beam quality evaluated.
 
     The solutions are compared using these defined efficiencies and
     the variance of the absorbed power across the crystal.
-    Finally, the solutions for the different runs are compared to a
+    Finally, the solutions for the different runs are compared to
     each other and a 
     reference solution on the basis of the ASLD beam parameters
     for continuous wave power output and beam quality.
@@ -3324,15 +3325,15 @@ beam quality evaluated.
     over the relevant settings used
     in ASLD, as the optimization program should emulate these parameters
     as closely as possible or ideally be identical.
-    Hereby only the non trivial settings specifc to ASLD are explained 
+    Hereby only the non-trivial settings specific to ASLD are explained 
     as e.g. the pump power was already explained before and is a trivial
     setting.
-    The crystal is traced using Snell's law at the sides and
+    The crystal is traced using Snell's law at the sides
     and using closed faces at the circular faces of the rod.
     This is done because usually one wants to have some sort of resonator
-    setup around the circular faces of the crytsal consisting of 
+    setup around the circular faces of the crystal consisting of 
     two mirrors where no light is able to pass from the outside.
-    Therefore no power should be transmitted through those faces
+    Therefore, no power should be transmitted through those faces
     and a good solution should minimize the loss at the faces.
     Unfortunately ASLD cannot model the Fresnel laws when refracting
     rays into the crystal and instead uses a flat transmissibility 
@@ -3354,7 +3355,7 @@ beam quality evaluated.
     efficiency of 4.24\% with a beam quality of 4.82 
     and 4.30 in the $x$ and $y$ direction respectively.
     It was achieved by the method of feedback compensation of an 
-    initial algebraicly derived solution, where the intensity
+    initial algebraically derived solution, where the intensity
     of pumplight on the surface of the crystal was meant to be
     distributed evenly.
     As one can see later on, this approach disregards many optical
@@ -3375,9 +3376,9 @@ beam quality evaluated.
     are fixed in place and the problem becomes a 4 dimensional problem,
     meaning that both control points in the middle have two coordinates
     that the algorithm can vary.
-    Furthermore it is not permitted to move the crystal and the mirror
+    Furthermore, it is not permitted to move the crystal and the mirror
     assembly in any way.
-    This is done so the results are compareable to the reference solution
+    This is done so the results are comparable to the reference solution
     in a more direct way.
     The parameter ranges and other optimization related parameters can be
     seen in \tabref{tab:setup1_parameters}.
@@ -3397,10 +3398,10 @@ beam quality evaluated.
     This would be an improvement of 15.14\% in terms of power compared
     to the reference solution.
     The beam quality also improved in both $x$ and $y$ direction.
-    In \figref{fig:fixed_rand_depths} it can be seen that the solution
+    In \figref{fig:setup1_rand_depths} it can be seen that the solution
     tries to avoid hitting the circular faces of the rod as much as
     possible.
-    Furthermore it can be observed that only a small part of the secondary
+    Furthermore, it can be observed that only a small part of the secondary
     rays is actually directed towards the crystal.
     This is likely the biggest loss of power in the pump setup and one of
     the effects the reference solution disregarded.
@@ -3560,7 +3561,7 @@ beam quality evaluated.
     The shape allows the rays to bounce multiple times from the mirror
     and thus the crytsal is exposed to a higher amount of power on its
     surface.
-    This can be seen in \tabref{tab:setup2_rand_results} for solution 1
+    This can be seen in \tabref{tab:setup2_results_rand} for solution 1
     as the irradiation efficiency jumped from 130.78\% from Setup 1
     to 165.70\% for Setup 2.
     It can be also observed that the absorption efficiency actually
@@ -3615,6 +3616,7 @@ beam quality evaluated.
         \hline 
     \end{tabular}
     \caption{Parameters for Setup 2}
+    \label{tab:setup2_parameters}
     \end{table}
 
     \begin{table}
@@ -3660,7 +3662,7 @@ beam quality evaluated.
         $d$           [mm] &-299.99&-299.92&-294.75&-267.23&-267.24&-236.61&-236.14&-236.14\\
         \hline
     \end{tabular}
-    \label{tab:setup2_results}
+    \label{tab:setup2_results_rand}
     \caption{Pareto optimal points for Setup 2 with initial random search}
     \end{table}
 
@@ -3711,7 +3713,7 @@ beam quality evaluated.
     reflects the secondary rays in a more shallow angle, thus prolonging
     the lightpath through the gain medium.
     This effect also reflects in the irradiation efficiency, which
-    can be seen in \tabref{tab:setup2_pipe_results}.
+    can be seen in \tabref{tab:setup2_results_pipe}.
     It improved from the solution with random search from 165.71\% to
     171.11\% with a similar absorption efficiency.
     Thus the output beam has a continuous wave output of
@@ -3775,7 +3777,7 @@ beam quality evaluated.
         \includegraphics[width=0.5\textwidth]{images/open_pipe/start.png}
         \includegraphics[width=0.5\textwidth]{images/open_pipe/0.png}
         \end{tabular}
-        \label{fig:setup2_rand}
+        \label{fig:setup2_pipe}
         \caption[VTK Output for Setup 2 with pipe start configuration]{
             VTK Output for Setup 2 with pipe start configuration
             }
@@ -3789,7 +3791,7 @@ beam quality evaluated.
             \includegraphics[width=0.5\textwidth]{images/open_pipe/3.png} &
             \includegraphics[width=0.5\textwidth]{images/open_pipe/4.png} \\
         \end{tabular}
-        \label{fig:setup2_rand_depths}
+        \label{fig:setup2_pipe_depths}
         \caption[VTK Output for Setup 2 with pipe start configuration
         different raytracing depths]{
             VTK Output for Setup 2 with pipe start configuration for different 
@@ -3799,7 +3801,7 @@ beam quality evaluated.
 
     \begin{figure}
         \includegraphics[width=1.0\textwidth]{images/open_pipe/beam.png} \\
-        \label{fig:setup2_rand_beam}
+        \label{fig:setup2_pipe_beam}
         \caption[ASLD beam profile for Setup 2 with pipe start configuration]{
             ASLD beam profile for Setup 2 with pipe start configuration.
         }
@@ -3817,7 +3819,7 @@ beam quality evaluated.
     using a biobjective mesh adaptive direct search algorithm (BiMADS).
     The resulting beam output of the Pareto front was then analysed using 
     ASLD.
-    Here a solution was found that achieves a continuous wave power output
+    Here, a solution was found that achieves a continuous wave power output
     of \SI{38.05}{W} at a pump power of \SI{665}{W}, which 
     corresponds to a optical-to-optical efficiency of 5.72\%.
     Compared to an algebraicly derived reference solution this is an
