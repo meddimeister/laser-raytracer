@@ -3406,7 +3406,7 @@ beam quality evaluated.
     The resulting beam widths for Setup 1 in the resonator are shown in
     \figref{fig:setup1_rand_beam}. 
 
-    \begin{table}[H]
+    \begin{table}
     \centering
     \setlength\tabcolsep{8pt}
     \renewcommand{\arraystretch}{1.5}
@@ -3452,44 +3452,44 @@ beam quality evaluated.
     \caption{Parameters for Setup 1}
     \end{table}
 
-    \begin{table}[H]
+    \begin{table}
     \centering
-    \setlength\tabcolsep{8pt}
+    \setlength\tabcolsep{2pt}
     \renewcommand{\arraystretch}{1.5}
     \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
         \hline
         Solution      &1&2&3&4&5&6&7&8\\
         \hline
-        Absorbed Power[W] &155.456&154.82&141.873&112.068&109.658&101.866&100.084&87.0989\\
+        Absorbed Power[W] &155.46&154.82&141.87&112.07&109.66&101.87&100.08&87.10\\
         \hline
-        Variance[W] &13.4928&12.6642&2.434&0.436452&0.122846&0.0898468&0.089896&0.07905\\
+        Variance[W] &13.49&12.66&2.43&0.44&0.12&0.09&0.09&0.08\\
         \hline
-        Irradiation Efficiency &1.30777&1.30023&1.16738&0.859776&0.841942&0.787295&0.773275&0.671508\\
+        Irradiation Efficiency [\%]&130.78&130.02&116.74&85.98&84.19&78.73&77.33&67.15\\
         \hline
-        Optical Efficiency &0.215911&0.215028&0.197046&0.15565&0.152303&0.141481&0.139006&0.120971\\
+        Optical Efficiency [\%]&21.59&21.50&19.70&15.57&15.23&14.15&13.90&12.10\\
         \hline
-        Absorption Efficiency &0.165098&0.165378&0.168793&0.181036&0.180895&0.179705&0.179763&0.180148\\
+        Absorption Efficiency [\%]&16.51&16.54&16.88&18.10&18.09&17.97&17.98&18.01\\
         \hline
-        Output@720W cw[W]  &35.1404&35.0354&25.9142&17.0002&16.4267&14.5716&13.4548&8.56171\\
+        cw Output@720W [W]  &35.14&35.04&25.91&17.00&16.43&14.57&13.45&8.56\\
         \hline
-        Beam quality x&4.24863&3.66082&4.80861&4.06553&4.25407&3.8807&3.71565&3.00602\\
+        Beam quality x&4.25&3.66&4.81&4.07&4.25&3.88&3.72&3.00\\
         \hline
-        Beam quality y&3.21936&3.11194&4.31524&4.06699&3.49234&3.70622&3.52263&2.86639\\
+        Beam quality y&3.22&3.11&4.32&4.07&3.49&3.71&3.52&2.87\\
         \hline
-        $\vec{p}_3.x$ &0.0717597&0.0713839&0.075&0.0588601&0.0581199&0.055299&0.0549953&0.000887443\\ 
+        $\vec{p}_3.x$ [mm]&71.76&71.38&75.00&58.86&58.12&55.30&55.00&0.89\\ 
         \hline
-        $\vec{p}_4.x$ &0.127662&0.127861&0.129658&0.119626&0.120006&0.117166&0.116901&0.0780785\\ 
+        $\vec{p}_4.x$ [mm]&127.66&127.86&129.66&119.63&120.01&117.17&116.90&78.08\\ 
         \hline
-        $\vec{p}_3.y$ &1.40028e-05&2.005e-05&0.0053&0.0140468&0.0137284&0.0149437&0.0147491&0.00322298\\ 
+        $\vec{p}_3.y$ [mm]&0.01&0.02&0.53&14.05&13.73&14.94&14.75&3.22\\ 
         \hline
-        $\vec{p}_4.y$ &0.136468&0.134671&0.128551&0.105853&0.109474&0.106736&0.107392&0.017174\\ 
+        $\vec{p}_4.y$ [mm]&136.47&134.67&128.55&105.85&109.47&106.74&107.39&17.17\\ 
         \hline
     \end{tabular}
     \label{tab:setup1_results}
     \caption[]{}
     \end{table}
 
-    \begin{figure}[H]
+    \begin{figure}
         \centering
         \begin{tabular}{c c}
         \includegraphics[width=0.5\textwidth]{images/fixed_rand/start.png}
@@ -3501,7 +3501,7 @@ beam quality evaluated.
             }
     \end{figure}
 
-    \begin{figure}[H]
+    \begin{figure}
         \centering
         \begin{tabular}{c c}
             \includegraphics[width=0.5\textwidth]{images/fixed_rand/1.png} &
@@ -3517,7 +3517,7 @@ beam quality evaluated.
             }
     \end{figure}
 
-    \begin{figure}[H]
+    \begin{figure}
         \includegraphics[width=1.0\textwidth]{images/fixed_rand/beam.png} \\
         \label{fig:setup1_rand_beam}
         \caption[ASLD beam profile for Setup 1 with initial random search]{
@@ -3527,7 +3527,49 @@ beam quality evaluated.
     
     \subsection{Setup 2: Open Crystal Position and open Mirror Endpoints}
    
-    \begin{table}[H]
+    In Setup 2 the start and end points for the Bezier curve were opened
+    to the optimization algorithm.
+    Additionally, the distance of the laser rod to the focal point of the
+    lens can be altered making the problem a 9 dimensional problem instead
+    of a 4 dimensional one like in Setup 1.
+    Again, the value ranges can be seen in \tabref{tab:setup2_parameters}.
+    The main goal was to improve upon the poor behavior of Setup 1 when
+    it comes to multiple reflections in the pumping process.
+    The first run was done using random search and the second run was
+    started with the mirror in a straight pipe configuration.
+    In the first run the best solution achieved an output power
+    of \SI{38.22}{W} at a pump power of \SI{690}{W}, which corresponds
+    to an optical-to-optical efficiency of 5.54\%.
+    The lower pump power had to be chosen, as the resonator would become
+    unstable at pump powers above that.
+    The beam quality also significantly improved overall, but the $y$
+    direction improved more than the $x$ direction.
+    The $M^2$ quality is 4.03 for the $x$ direction and 1.96 for the
+    $y$ direction.
+    In \figref{fig:setup2_rand} it can be seen that the start configuration
+    after random search is a more conical shape with the crystal closer
+    to the focal point of the lens.
+    BiMADS then adjusted the middle control points so the angle of the
+    mirror becomes shallower and slightly curved inwards.
+    The mirror can be cut at the point were no more rays hit the mirror
+    as it would not be necessary to build such a large mirror and only
+    the shape is important.
+    The shape allows the rays to bounce multiple times from the mirror
+    and thus the crytsal is exposed to a higher amount of power on its
+    surface.
+    This can be seen in \tabref{tab:setup2_rand_results} for solution 1
+    as the irradiation efficiency jumped from 130.78\% from Setup 1
+    to 165.70\% for Setup 2.
+    It can be also observed that the absorption efficiency actually
+    went down from 16.51\% to 15.65\% compared to Setup 1.
+    This is likely due to the more perpendicular angle the secondary
+    rays hit the laser rod.
+    This angle diminishes the length of the path of a ray through the
+    laser rod and thus reduces the absorption of the ray in the crystal.
+    This can be seen in \figref{fig:setup2_rand_depths}.
+    The beam profile can be seen in \figref{fig:setup2_rand_beam}.
+
+    \begin{table}
     \centering
     \setlength\tabcolsep{8pt}
     \renewcommand{\arraystretch}{1.5}
@@ -3572,56 +3614,54 @@ beam quality evaluated.
     \caption{Parameters for Setup 2}
     \end{table}
 
-    \paragraph{Random Search}
-
-    \begin{table}[H]
+    \begin{table}
     \centering
-    \setlength\tabcolsep{8pt}
+    \setlength\tabcolsep{2pt}
     \renewcommand{\arraystretch}{1.5}
     \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
         \hline
         Solution      &1&2&3&4&5&6&7&8\\
         \hline
-        Absorbed Power[W] &186.759&186.718&185.703&176.553&174.826&160.409&159.861&159.84\\
+        Absorbed Power[W] &186.76&186.72&185.70&176.55&174.83&160.41&159.86&159.84\\
         \hline
-        Variance[W] &2.49616&2.26328&1.58416&0.436452&0.413845&0.136575&0.133112&0.133173\\
+        Variance[W] &2.50&2.26&1.58&0.44&0.41&0.14&0.13&0.13\\
         \hline
-        Irradiation Efficiency &1.65709&1.65652&1.6547&1.56725&1.55209&1.36465&1.36168&1.36157\\
+        Irradiation Efficiency [\%]&165.71&165.65&165.47&156.73&155.21&136.47&136.17&136.16\\
         \hline
-        Optical Efficiency &0.259387&0.25933&0.25792&0.245213&0.242814&0.22279&0.222029&0.222\\
+        Optical Efficiency [\%]&25.94&25.93&25.79&24.52&24.28&22.28&22.20&22.20\\
         \hline
-        Absorption Efficiency &0.156532&0.156551&0.155872&0.156461&0.156443&0.163258&0.163055&0.163047\\
+        Absorption Efficiency [\%]&15.65&15.66&15.59&15.65&15.64&16.33&16.31&16.30\\
         \hline
-        Output@690W cw[W]  &38.2208&37.3604&36.8358&30.1742&32.9153&22.0884&21.2313&21.1807\\
+        cw Output@690W [W]  &38.22&37.36&36.84&30.17&32.92&22.09&21.23&21.18\\
         \hline
-        Beam quality x&4.03186&4.41607&4.10377&4.54892&4.61978&4.87704&4.73166&4.6973\\
+        Beam quality x&4.03&4.42&4.10&4.55&4.62&4.88&4.73&4.70\\
         \hline
-        Beam quality y&1.96171&3.03994&2.18569&4.18909&4.10707&4.54695&4.41803&4.41483\\
+        Beam quality y&1.96&3.04&2.19&4.19&4.11&4.55&4.42&4.41\\
         \hline
-        $\vec{p}_1.x$ &0.00420029&0.0042&0.00428074&0.0042&0.004993&0.00420985&0.004248&0.00425067\\
+        $\vec{p}_1.x$ [mm] &4.20&4.20&4.28&4.20&4.99&4.21&4.25&4.25\\
         \hline
-        $\vec{p}_2.x$ &0.251026&0.246106&0.247624&0.357773&0.354395&0.403453&0.40239&0.402275\\
+        $\vec{p}_2.x$ [mm] &251.03&246.11&248.62&357.77&354.40&403.45&402.39&402.28\\
         \hline
-        $\vec{p}_3.x$ &0.51036&0.524769&0.541623&0.696144&0.697815&0.691056&0.691833&0.691909\\ 
+        $\vec{p}_3.x$ [mm] &510.36&524.77&541.62&696.14&697.82&691.06&691.83&691.91\\ 
         \hline
-        $\vec{p}_4.x$ &0.778925&0.777577&0.774725&0.99293&0.992893&0.999921&0.999946&0.999955\\ 
+        $\vec{p}_4.x$ [mm] &778.93&777.58&774.73&992.93&992.89&999.92&999.95&999.96\\ 
         \hline
-        $\vec{p}_1.y$ &0.0306715&0.0299213&0.0275087&0.0249417&0.0237927&0.0103885&0.0106971&0.0107064\\
+        $\vec{p}_1.y$ [mm] &30.67&29.92&27.51&24.94&23.79&10.39&10.70&10.71\\
         \hline
-        $\vec{p}_2.y$ &0.853278&0.856198&0.855013&0.83422&0.832387&0.791001&0.793445&0.793481\\
+        $\vec{p}_2.y$ [mm] &853.28&856.20&855.01&834.22&832.39&791.00&793.45&793.48\\
         \hline
-        $\vec{p}_3.y$ &1.201&1.20065&1.12187&1.21969&1.19309&1.37838&1.37793&1.37692\\ 
+        $\vec{p}_3.y$ [mm] &1201.00&1200.65&1121.87&1219.69&1193.09&1378.38&1377.93&1376.92\\ 
         \hline
-        $\vec{p}_4.y$ &1.46555&1.46093&1.47381&1.59199&1.59316&1.99991&1.99996&1.99996\\ 
+        $\vec{p}_4.y$ [mm] &1465.55&1460.93&1473.81&1591.99&1593.16&1999.91&1999.96&1999.96\\ 
         \hline
-        $d$           &-0.299994&-0.299915&-0.294753&-0.267227&-0.267243&-0.236607&-0.236138&-0.236142\\
+        $d$           [mm] &-299.99&-299.92&-294.75&-267.23&-267.24&-236.61&-236.14&-236.14\\
         \hline
     \end{tabular}
     \label{tab:setup2_results}
     \caption[]{}
     \end{table}
 
-    \begin{figure}[H]
+    \begin{figure}
         \centering
         \begin{tabular}{c c}
         \includegraphics[width=0.5\textwidth]{images/open_rand/start.png}
@@ -3633,7 +3673,7 @@ beam quality evaluated.
             }
     \end{figure}
 
-    \begin{figure}[H]
+    \begin{figure}
         \centering
         \begin{tabular}{c c}
             \includegraphics[width=0.5\textwidth]{images/open_rand/1.png} &
@@ -3649,7 +3689,7 @@ beam quality evaluated.
             }
     \end{figure}
 
-    \begin{figure}[H]
+    \begin{figure}
         \includegraphics[width=1.0\textwidth]{images/open_rand/beam.png} \\
         \label{fig:setup2_rand_beam}
         \caption[ASLD beam profile for Setup 2 with initial random search]{
@@ -3657,56 +3697,76 @@ beam quality evaluated.
         }
     \end{figure}
 
-    \paragraph{Startpoint Pipe}
-    
-    \begin{table}[H]
+    As it was noticed that a more shallow conical mirror produces much
+    better results, the same optimization was carried out with a mirror
+    shape resembling a straight pipe as a start point.
+    The start configuration can be seen in \figref{fig:setup2_pipe}.
+    The resulting mirror shape is similar to the one resulting from the run
+    with initial random search, although towards the laser rod the mirror is
+    more bent and the angle of the mirror is not quite as shallow.
+    It can be seen in \figref{fig:setup2_pipe_depths} that solution 1
+    reflects the secondary rays in a more shallow angle, thus prolonging
+    the lightpath through the gain medium.
+    This effect also reflects in the irradiation efficiency, which
+    can be seen in \tabref{tab:setup2_pipe_results}.
+    It improved from the solution with random search from 165.71\% to
+    171.11\% with a similar absorption efficiency.
+    Thus the output beam has a continuous wave output of
+    \SI{38.05}{W} at a pump power of \SI{665}{W}, achieving an 
+    optical-to-optical efficiency of 5.72\%.
+    Again, the pump power had to be limited as otherwise the resonator
+    became unstable.
+    Also, the beam quality improved in both $x$ and $y$ direction.
+    The resulting beam can be seen in \figref{fig:setup2_pipe_beam}.    
+
+    \begin{table}
     \centering
-    \setlength\tabcolsep{8pt}
+    \setlength\tabcolsep{2pt}
     \renewcommand{\arraystretch}{1.5}
     \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
         \hline
         Solution      &1&2&3&4&5&6&7&8\\
         \hline
-        Absorbed Power[W] &191.13&185.107&185.703&184.499&184.499&183.376&176.899&176.838\\
+        Absorbed Power[W] &191.13&185.11&185.70&184.50&184.50&183.38&176.90&176.84\\
         \hline
-        Variance[W] &4.08243&0.656283&0.581405&0.579919&0.579918&0.512752&0.308049&0.307249\\
+        Variance[W] &4.08&0.66&0.58&0.58&0.58&0.51&0.31&0.31\\
         \hline
-        Irradiation Efficiency &1.71106&1.66766&1.66571&1.5656&1.6656&1.6533&1.57289&1.57186\\
+        Irradiation Efficiency [\%]&171.11&166.77&166.57&156.56&166.56&165.33&157.29&157.19\\
         \hline
-        Optical Efficiency &0.265458&0.257092&0.256286&0.256248&0.256248&0.254689&0.245693&0.245608\\
+        Optical Efficiency [\%]&26.55&25.71&25.63&25.62&25.62&25.47&24.57&24.56\\
         \hline
-        Absorption Efficiency &0.155143&0.154164&0.15386&0.153847&0.153847&0.154049&0.156205&0.156253\\
+        Absorption Efficiency [\%]&15.51&15.42&15.39&15.38&15.38&15.40&15.62&15.63\\
         \hline
-        Output@665W cw[W]  &38.0459&35.5647&34.287&34.4085&34.3&34.3316&27.895&28.0038\\
+        cw Output@665W [W]  &38.05&35.56&34.29&34.41&34.30&34.33&27.90&28.00\\
         \hline
-        Beam quality x&3.90344&4.48709&4.64939&4.62625&4.63656&4.49723&4.5033&4.52114\\
+        Beam quality x&3.90&4.49&4.65&4.63&4.64&4.48&4.50&4.52\\
         \hline
-        Beam quality y&1.6565&3.47603&3.93324&3.92045&3.95655&3.80461&4.24484&4.22979\\
+        Beam quality y&1.66&3.48&3.93&3.92&3.96&3.80&4.24&4.23\\
         \hline
-        $\vec{p}_1.x$ &0.00447318&0.00425127&0.0042&0.00420299&0.0042033&0.00422858&0.00609447&0.00606513\\
+        $\vec{p}_1.x$ [mm]&4.47&4.25&4.20&4.20&4.20&4.23&6.09&6.07\\
         \hline
-        $\vec{p}_2.x$ &0.071726&0.036325&0.0355318&0.0355358&0.0355359&0.034885&0.107214&0.10722\\
+        $\vec{p}_2.x$ [mm]&71.72&36.33&35.53&35.54&35.54&34.89&107.21&107.22\\
         \hline
-        $\vec{p}_3.x$ &0.081082&0.127823&0.132396&0.132338&0.132336&0.134111&0.247537&0.247626\\ 
+        $\vec{p}_3.x$ [mm]&81.08&127.82&132.37&132.34&132.34&134.11&247.54&247.63\\ 
         \hline
-        $\vec{p}_4.x$ &0.997331&0.99929&0.998178&0.999964&0.999968&0.998946&0.816317&0.816374\\ 
+        $\vec{p}_4.x$ [mm]&997.33&999.29&998.18&999.96&999.97&998.95&816.32&816.37\\ 
         \hline
-        $\vec{p}_1.y$ &0.029702&0.027449&0.0267495&0.0267489&0.0267493&0.026972&0.0256143&0.0255339\\
+        $\vec{p}_1.y$ [mm]&29.70&27.45&26.75&26.75&26.75&26.97&25.61&25.53\\
         \hline
-        $\vec{p}_2.y$ &0.095375&0.07988&0.0797193&0.0797386&0.0797387&0.079853&0.180669&0.180627\\
+        $\vec{p}_2.y$ [mm]&95.38&79.88&79.72&79.74&79.74&79.85&180.67&180.63\\
         \hline
-        $\vec{p}_3.y$ &0.619623&0.589294&0.592914&0.592911&0.592912&0.586527&0.707573&0.707552\\ 
+        $\vec{p}_3.y$ [mm]&619.62&589.29&592.91&592.91&592.91&586.53&707.57&707.55\\ 
         \hline
-        $\vec{p}_4.y$ &1.20947&1.21832&1.21444&1.21371&1.21369&1.21789&1.88648&1.8865\\ 
+        $\vec{p}_4.y$ [mm]&1209.47&1218.32&1214.44&1213.71&1213.69&1217.89&1886.48&1886.5\\ 
         \hline
-        $d$           &-0.2647&-0.281156&-0.280846&-0.280857&-0.280857&-0.278955&-0.242194&-0.242155\\
+        $d$           [mm]&-264.70&-281.16&-280.85&-280.86&-280.86&-278.96&-242.19&-242.16\\
         \hline
     \end{tabular}
     \label{tab:setup2_results_pipe}
     \caption[]{}
     \end{table}
 
-    \begin{figure}[H]
+    \begin{figure}
         \centering
         \begin{tabular}{c c}
         \includegraphics[width=0.5\textwidth]{images/open_pipe/start.png}
@@ -3718,7 +3778,7 @@ beam quality evaluated.
             }
     \end{figure}
 
-    \begin{figure}[H]
+    \begin{figure}
         \centering
         \begin{tabular}{c c}
             \includegraphics[width=0.5\textwidth]{images/open_pipe/1.png} &
@@ -3734,7 +3794,7 @@ beam quality evaluated.
             }
     \end{figure}
 
-    \begin{figure}[H]
+    \begin{figure}
         \includegraphics[width=1.0\textwidth]{images/open_pipe/beam.png} \\
         \label{fig:setup2_rand_beam}
         \caption[ASLD beam profile for Setup 2 with pipe start configuration]{
