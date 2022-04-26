@@ -56,7 +56,7 @@ struct Ray2D {
       ray_transmit.power = (t_perp + t_para) / 2 * power;
     }
 
-    ray_transmit.power = power;
+    //ray_transmit.power = power;
     return {ray_reflect, ray_transmit};
   }
 

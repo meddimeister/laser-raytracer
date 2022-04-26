@@ -301,6 +301,7 @@ beam quality evaluated.
     These are usually neodymium doped media like the most popular choice
     neodymium doped yttrium aluminum garnets (Nd:YAG).
 
+    \newpage
     \section{Raytracing Framework}
     With the advent of cheap processors and increasingly powerful 
     consumer hardware, ray tracing has become more popular in
@@ -1819,6 +1820,7 @@ beam quality evaluated.
     As a part of the Maths module commonly used physics laws are implemented
     such as Snell's law, the Fresnel laws etc.
 
+    \newpage
     \section{Optimization}
 
     \subsection{Optimization Methods Overview} \label{sec:opt_overview}
@@ -3120,6 +3122,7 @@ beam quality evaluated.
     a user guide for NOMAD 3.
     
 
+    \newpage
     \section{Optimization of Pump Light Absorption in a Nd:YAG Solar Laser} \label{sec:setup}
     
     In this chapter a conceptual example of a solar pumped Nd:YAG laser is
@@ -3486,7 +3489,7 @@ beam quality evaluated.
         \hline
     \end{tabular}
     \label{tab:setup1_results}
-    \caption[]{}
+    \caption{Pareto optimal points for Setup 1 with initial random search}
     \end{table}
 
     \begin{figure}
@@ -3658,7 +3661,7 @@ beam quality evaluated.
         \hline
     \end{tabular}
     \label{tab:setup2_results}
-    \caption[]{}
+    \caption{Pareto optimal points for Setup 2 with initial random search}
     \end{table}
 
     \begin{figure}
@@ -3763,7 +3766,7 @@ beam quality evaluated.
         \hline
     \end{tabular}
     \label{tab:setup2_results_pipe}
-    \caption[]{}
+    \caption{Pareto optimal points for Setup 2 with initial pipe configuration}
     \end{table}
 
     \begin{figure}
@@ -3803,7 +3806,57 @@ beam quality evaluated.
     \end{figure}
 
 
+    \clearpage
     \section{Conclusion}
+
+    Ray tracing techniques are well suited to optimize pump light absorption
+    in a gain medium.
+    It was shown that for a solar laser, where many optical effects such as
+    divergence of sunlight or dispersion effects in different media,
+    the power absorption and variance across the crystal can be optimized
+    using a biobjective mesh adaptive direct search algorithm (BiMADS).
+    The resulting beam output of the Pareto front was then analysed using 
+    ASLD.
+    Here a solution was found that achieves a continuous wave power output
+    of \SI{38.05}{W} at a pump power of \SI{665}{W}, which 
+    corresponds to a optical-to-optical efficiency of 5.72\%.
+    Compared to an algebraicly derived reference solution this is an
+    improvement of 34.9\% in terms of output power.
+    Additionally, the beam quality was improved significantly.
+    It was found that mainly the angle of incidence of rays on the crystal
+    and the absorption of secondary rays contribute the most to the final
+    output power of the beam.
+    The optimization of objective functions resulting from a raytracing
+    simulation proved to be nonsmooth and sometimes even discontinuous.
+    For this reason derivative free algorithms should be chosen to
+    optimize the input parameters.
+    It was found that the MADS algorithm performed quite well finding local
+    minima and using the BiMADS algorithm to apply MADS even biobjective
+    functions can be optimized.
+    The inner workings and the theory behind them was examined in detail.
+    The resulting pareto front of solutions can then be filtered for solutions
+    that offer the best compromise between the two objective functions for
+    the task at hand.
+    The black-box functions evaluated in this type of optimization can be
+    computationally expensive, but the more the function is evaluated
+    the more accurate the results are.
+    For this reason the raytracing simulation should be as optimized as
+    possible while still offering physically accurate results.
+    Thus a 2D raytracing framework was developed which applies raytracing
+    techniques commonly used in image processing.
+    The framework was then used as a black-box function for the BiMADS algortihm
+    to optimize geometrical parameters in a setup of a Nd:YAG solar laser.
+    It models opical effects such as Snell's law, the Fresnel laws and
+    Sellmeier dispersion accurately.   
+    Unfortunately the beam analysis software does not model the Fresnel laws,
+    thus the framework had to be adjusted to do the same
+    to deliver comparable results.
+    In the future one could even integrate an optimizer directly into a 
+    beam analysis software and optimize on beam quality and 
+    continuous wave output objective functions directly.
+    Nevertheless the principle of derivative free optimization can still
+    be applied and thus the geometrical setup can be optimized.
+
     \newpage
 
     \bibliographystyle{plain}

@@ -1,10 +1,10 @@
 \babel@toc {english}{}\relax 
 \babel@toc {ngerman}{}\relax 
 \babel@toc {english}{}\relax 
-\contentsline {figure}{\numberline {1}{\ignorespaces Ray-line intersection}}{11}{figure.1}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Ray-AABB intersection}}{12}{figure.2}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Subdivision using quadtrees}}{14}{figure.3}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Uniform vs. stratified sampling}}{15}{figure.4}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Ray-line intersection}}{12}{figure.1}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Ray-AABB intersection}}{13}{figure.2}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Subdivision using quadtrees}}{15}{figure.3}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Uniform vs. stratified sampling}}{16}{figure.4}%
 \contentsline {figure}{\numberline {5}{\ignorespaces Inversion method for importance sampling}}{17}{figure.5}%
 \contentsline {figure}{\numberline {6}{\ignorespaces UML class diagram of the raytracing framework}}{18}{figure.6}%
 \contentsline {figure}{\numberline {7}{\ignorespaces UML class diagram of the Ray2D class}}{19}{figure.7}%
@@ -12,18 +12,18 @@
 \contentsline {figure}{\numberline {9}{\ignorespaces UML class diagram of the Object2D and associated classes}}{24}{figure.9}%
 \contentsline {figure}{\numberline {10}{\ignorespaces UML class diagram of the Sampler and associated classes}}{26}{figure.10}%
 \contentsline {figure}{\numberline {11}{\ignorespaces Different examples of sampler output}}{27}{figure.11}%
-\contentsline {figure}{\numberline {12}{\ignorespaces Discontinuity and noisyness of the objective function}}{30}{figure.12}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Discontinuity and noisyness of the objective function}}{31}{figure.12}%
 \contentsline {figure}{\numberline {13}{\ignorespaces Example of GPS frames}}{38}{figure.13}%
-\contentsline {figure}{\numberline {14}{\ignorespaces Example of MADS frames}}{38}{figure.14}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Example of MADS frames}}{39}{figure.14}%
 \contentsline {figure}{\numberline {15}{\ignorespaces Pareto dominance}}{40}{figure.15}%
 \contentsline {figure}{\numberline {16}{\ignorespaces Pareto front}}{41}{figure.16}%
-\contentsline {figure}{\numberline {17}{\ignorespaces Example setup of the solar laser}}{44}{figure.17}%
-\contentsline {figure}{\numberline {18}{\ignorespaces VTK Output for Setup 1 with initial random search}}{46}{figure.18}%
-\contentsline {figure}{\numberline {19}{\ignorespaces VTK Output for Setup 1 with initial random search for different raytracing depths}}{48}{figure.19}%
-\contentsline {figure}{\numberline {20}{\ignorespaces ASLD beam profile for Setup 1 with initial random search}}{49}{figure.20}%
-\contentsline {figure}{\numberline {21}{\ignorespaces VTK Output for Setup 2 with initial random search}}{51}{figure.21}%
-\contentsline {figure}{\numberline {22}{\ignorespaces VTK Output for Setup 2 with initial random search for different raytracing depths}}{52}{figure.22}%
-\contentsline {figure}{\numberline {23}{\ignorespaces ASLD beam profile for Setup 2 with initial random search}}{53}{figure.23}%
-\contentsline {figure}{\numberline {24}{\ignorespaces VTK Output for Setup 2 with pipe start configuration}}{54}{figure.24}%
-\contentsline {figure}{\numberline {25}{\ignorespaces VTK Output for Setup 2 with pipe start configuration different raytracing depths}}{55}{figure.25}%
-\contentsline {figure}{\numberline {26}{\ignorespaces ASLD beam profile for Setup 2 with pipe start configuration}}{56}{figure.26}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Example setup of the solar laser}}{45}{figure.17}%
+\contentsline {figure}{\numberline {18}{\ignorespaces VTK Output for Setup 1 with initial random search}}{48}{figure.18}%
+\contentsline {figure}{\numberline {19}{\ignorespaces VTK Output for Setup 1 with initial random search for different raytracing depths}}{49}{figure.19}%
+\contentsline {figure}{\numberline {20}{\ignorespaces ASLD beam profile for Setup 1 with initial random search}}{50}{figure.20}%
+\contentsline {figure}{\numberline {21}{\ignorespaces VTK Output for Setup 2 with initial random search}}{52}{figure.21}%
+\contentsline {figure}{\numberline {22}{\ignorespaces VTK Output for Setup 2 with initial random search for different raytracing depths}}{53}{figure.22}%
+\contentsline {figure}{\numberline {23}{\ignorespaces ASLD beam profile for Setup 2 with initial random search}}{54}{figure.23}%
+\contentsline {figure}{\numberline {24}{\ignorespaces VTK Output for Setup 2 with pipe start configuration}}{55}{figure.24}%
+\contentsline {figure}{\numberline {25}{\ignorespaces VTK Output for Setup 2 with pipe start configuration different raytracing depths}}{56}{figure.25}%
+\contentsline {figure}{\numberline {26}{\ignorespaces ASLD beam profile for Setup 2 with pipe start configuration}}{57}{figure.26}%
