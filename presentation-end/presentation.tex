@@ -12,6 +12,7 @@
 \usepackage{wrapfig}
 \usepackage{listings}
 \usepackage{tikz-uml}
+\usepackage{import}
 
 \usepackage[backend=biber,sorting=none,doi=true,style=ieee]{biblatex}
 
@@ -52,6 +53,7 @@
 \addbibresource[label=primary]{references.bib}
 \nocite{*}
 
+\renewcommand{\vec}[1]{\mathbf{#1}}
 
 % Title, authors, and date
 \title[Ray Tracing Simulation of optically pumped Laser Crystals]{Ray Tracing Simulation of optically pumped Laser Crystals}
@@ -257,7 +259,7 @@
     
     \begin{frame}[fragile]{Generating Rays and Random Sampling}
 		The goal is to randomly generate a cone of rays originating in the focus
-		of the fresnel lense.\\
+		of the fresnel lens.\\
 		\bigskip
 		$\implies$ Uniformly sample the opening angle around a direction vector.
 
@@ -417,7 +419,7 @@
 		\bigskip
 		$\Rightarrow$ Need an algorithm to handle two objective functions at the same time (biobjective optimization)\\
 		\bigskip
-		Additional problem: noisy and nonsmooth objective functions!
+		Additional problem: noisy and nonsmooth, computationally expensive objective functions!
 	
 	\begin{figure}
         \centering
@@ -429,16 +431,313 @@
 
 	\end{frame}
 
+	\begin{frame}[fragile]{Derivative-Free Optimization}
+		Minimization problem:
+
+    	\begin{equation*}
+        	\begin{gathered}
+        	\text{Find} \quad \vec{x}_{min} \in \Omega \subseteq \mathbb{R}^n \quad \text{s.t.}\\
+        	f(\vec{x}_{min}) \leq f(\vec{x}) \quad \forall \vec{x} \in \Omega
+        	\end{gathered} 
+    	\end{equation*}
+
+		Global optimization is not possible anyway for non-convex functions.\\
+		Problem: Gradient is not available, or easily computable!\\
+		Use Derivative-Free algorithms, not relying on derivatives of objective functions\\
+		\bigskip
+		$\Rightarrow$ Should be used as last resort, only if little or no information can be exploited\\
+		\bigskip
+		$\Rightarrow$ Objectives are treated as black-box functions, where the goal is to also use as little
+		actual evaluations as possible (caching, etc.)\\
+		\bigskip
+		$\Rightarrow$ Optimality is often defined in an alternative way, to e.g. gradient search algorithms\\
+		\bigskip
+		Types of BBO: Simplex-Methods, Direct-Search-Methods, Model-Based-Methods etc.
+	\end{frame}
+
+	\begin{frame}[fragile]{MADS}
+		Mesh Adaptive Direct Search is a Directional Direct Search method, using two different
+		meshes in order to achieve a stronger optimality criterium than e.g. pattern search methods.\\
+		\bigskip
+		
+		\begin{block}{Main Idea:}
+      	\begin{enumerate}
+			\item<2-> Generate two different meshes (only conceptually)
+        	\item<3-> Let mesh sizes shrink at different rates
+        	\item<4-> Evaluate black-box functions only at intersections of the two meshes
+      	\end{enumerate}
+		\bigskip
+		$\Rightarrow$ Optimality defined by via the Clarke generalized gradient
+    \end{block}
+	\end{frame}
+
+	\begin{frame}[fragile]{MADS}
+		Mesh Adaptive Direct Search is a Directional Direct Search method, using two different
+		meshes in order to achieve a stronger optimality criterium than e.g. pattern search methods.\\
+		\bigskip
+		
+		\begin{block}{Main Idea:}
+      	\begin{enumerate}
+			\item<2-> Generate two different meshes (only conceptually)
+        	\item<3-> Let mesh sizes shrink at different rates
+        	\item<4-> Evaluate black-box functions only at intersections of the two meshes
+      	\end{enumerate}
+		\bigskip
+		$\Rightarrow$ Optimality defined by via the Clarke generalized gradient\\
+		\bigskip
+		$\Rightarrow$ Can be extended and used in a biobjective optimization problem!\\
+    \end{block}
+	\end{frame}
+
+	\begin{frame}[fragile]{Clarke's Calculus}
+		\begin{definition}
+        \label{def:generalized_deriv}
+        Let $X$ be Banach, $\vec{v} \in X$ some direction and 
+        $f : X \rightarrow \mathbb{R}$ a real valued
+        function that is locally Lipschitz continuous.
+        The generalized directional derivative or Clarke directional
+        derivative of $f$ at $\vec{x}$ in direction $\vec{v}$ is given by
+
+        \begin{equation}
+            f^{\circ}(\vec{x};\vec{v}) = 
+            \lim_{y \rightarrow x; \lambda \downarrow 0} \sup
+             \frac{f(\vec{y} + \lambda \vec{v}) - f(\vec{y})}{\lambda}
+        \end{equation}
+    	\end{definition}
+
+		\begin{definition}
+        The Clarke generalized gradient of $f$ at $\vec{x}$ is
+        \begin{equation}
+            \partial f(\vec{x}) = 
+            \{\xi \in X : f^{\circ}(\vec{x}; \vec{v}) >
+             \langle \vec{\xi}, \vec{v} \rangle\}
+             \quad \forall \vec{v} \in X
+        \end{equation}
+	    \end{definition}
+
+
+		\end{frame}
+
+	\begin{frame}[fragile]{Clarke's Calculus}
+		\begin{definition}
+        \label{def:stationary_clarke}
+        A point $\vec{\hat{x}}$ is called a Clarke stationary point,
+        if the following holds
+        
+        \begin{equation}
+            f^{\circ}(\vec{\hat{x}}; \vec{v}) \geq 0 \quad \forall
+             \vec{v} \in \mathbb{R}^n
+            \Longleftrightarrow
+            0 \in \partial f(\vec{\hat{x}})
+        \end{equation}
+    	\end{definition}
+
+		$\Rightarrow$ MADS produces Clarke stationary points!\\
+		\bigskip
+		$\Rightarrow$ Pattern serach does not in general!\\
+		\bigskip
+		$\Rightarrow$ Search directions need to be asymptotically dense!\\
+	\end{frame}
+	
+	\begin{frame}[fragile]{GPS Frames}
+	\begin{figure}
+    \centering
+	\resizebox{4.0in}{!}{
+    \import{images/}{gps.pdf_tex}
+	}
+    \end{figure}
+	\end{frame}
+
+	\begin{frame}[fragile]{MADS Frames}
+    \begin{figure}
+    \centering
+	\resizebox{4.0in}{!}{
+    \import{images/}{mads.pdf_tex}
+	}
+    \end{figure}
+
+	\end{frame}
+
+	\begin{frame}[fragile]{Pareto Optimality}
+	\begin{definition}
+        \label{def:pareto_dominance}
+        Let $\vec{u},\vec{v} \in X$ be two points of the multiobjective
+        function $F: X \rightarrow Y$.
+        \begin{itemize}
+            \item $\vec{u} \preceq \vec{v}$ ($\vec{u}$ weakly dominates $\vec{v}$)
+            $\Longleftrightarrow f_i(\vec{u}) \leq f_i(\vec{v}) \; \forall i \in \{1,\dots,p\}$   
+
+            \item $\vec{u} \prec \vec{v}$ ($\vec{u}$ dominates $\vec{v}$)
+            $\Longleftrightarrow \vec{u} \preceq \vec{v} \; \text{and} \; 
+            f_j(\vec{u}) < f_j(\vec{v}) \; \text{for at least one} \; j \in \{1,\dots,p\}$   
+
+            \item $\vec{u} \sim \vec{v}$ ($\vec{u}$ is indifferent to $\vec{v}$)
+            $\Longleftrightarrow \; \text{$\vec{u}$ does not dominate $\vec{v}$ and $\vec{v}$
+            does not dominate $\vec{u}$}$  
+        \end{itemize}
+    \end{definition}
+	\end{frame}
+
+	\begin{frame}[fragile]{Pareto Optimality}
+	\begin{figure}
+        \centering
+        \resizebox{0.7\textwidth}{!}{\import{images/}{dominance_zones.pdf_tex}}
+    \end{figure}
+	\end{frame}
+
+	\begin{frame}[fragile]{Pareto Optimality}
+	\begin{definition}
+        \label{def:optimality_multi}
+        Let $\vec{x} \in X$ be a point of the multiobjective function $F: X \rightarrow Y$.
+        \begin{itemize}
+            \item $\vec{x}$ is globally Pareto optimal (just called Pareto optimal) 
+            $\Longleftrightarrow$
+            There exists no $\vec{y}$ s.t. $\vec{y} \prec \vec{x}$.
+            If $\vec{x}$ is Pareto optimal then $F(\vec{x})$ is called
+            Pareto efficient.
+
+            \item $\vec{x}$ is locally Pareto optimal $\Longleftrightarrow$
+            There exists an $\epsilon, \sigma > 0$ for which the set
+            $\{\vec{y} \in B_{\epsilon}(\vec{x}) \cap X \, | \, \vec{y} \prec \vec{x},\, 
+            F(\vec{y}) \in B_{\sigma}(F(\vec{x})) \}$ is empty.
+            If $\vec{x}$ is locally Pareto optimal then $F(\vec{x})$ is called
+            locally Pareto efficient.
+        \end{itemize}
+    \end{definition}
+	\end{frame}
+
+	\begin{frame}[fragile]{Pareto Optimality}
+	\begin{figure}
+        \centering
+        \resizebox{0.7\textwidth}{!}{\import{images/}{pareto_front.pdf_tex}}
+    \end{figure}
+	\end{frame}
+
+	\begin{frame}[fragile]{BiMADS}
+		Produces an approximation of the Pareto front!\\
+		\begin{block}{Main Idea:}
+      	\begin{enumerate}
+			\item<2-> Initially run MADS and save all Pareto optimal points
+        	\item<3-> Generate a single objective formulation by a reference point approach
+        	\item<4-> Run MADS and repeat step 2
+        	\item<5-> Pareto optimal points along the way are returned as Pareto front
+      	\end{enumerate}
+		\end{block}
+		\bigskip
+		\bigskip
+		$\Rightarrow$ Implementation used from the NOMAD library\\
+	\end{frame}
+
 	\section{Results}
+
+	\begin{frame}[fragile]{Setup}
+	\begin{figure}
+        \centering
+		\resizebox{\textwidth}{!}{
+        \import{images/}{setup.pdf_tex}
+		}
+    \end{figure}
+	\end{frame}
+
 	\begin{frame}[fragile]{Results}
-		\begin{figure}
-		\centering
-		\includegraphics[width=0.65\textwidth]{images/result.png}
-		\end{figure}
+		\resizebox{\textwidth}{!}{
+		\begin{tabular}{| p{2cm} | c | c | c | c | c | c | c |}
+			\hline
+			Setup & Pump power & Absorbed Power[W] & Variance[W] & cw-Output[W] & opt.-to-opt. Eff. [\%] & Beam quality x & Beam quality y \\
+			\hline
+			Reference (algebraic) & 720 & - & - & 30.52 & 4.24 & 4.82 & 4.30 \\
+			\hline
+			Fixed mirror and crystal distance & 720 & 155.46 & 13.49 & 35.14 & 4.88 & 4.25 & 3.22 \\
+			\hline
+			Open mirror and crytsal distance (initial random search) & 690 & 186.76 & 2.50 & 38.22 & 5.54 & 4.03 & 1.96 \\
+			\hline
+			Open mirror and crytsal distance (pipe configuration) & 665 & 191.13 & 4.08 & 38.05 & 5.72 & 3.90 & 1.66 \\
+			\hline
+		\end{tabular}
+		}
     \end{frame}
 
-	\begin{frame}[fragile]{Outlook}
+	\begin{frame}[fragile]{Fixed setup}
+	\begin{figure}
+        \centering
+		\resizebox{\textwidth}{!}{
+        \begin{tabular}{c c}
+        \includegraphics[width=0.5\textwidth]{images/fixed_rand/start.png}
+        \includegraphics[width=0.5\textwidth]{images/fixed_rand/0.png}
+        \end{tabular}
+		}
+    \end{figure}
     \end{frame}
+
+	\begin{frame}[fragile]{Fixed Setup}
+    \begin{figure}
+        \centering
+		\resizebox{0.5\textwidth}{!}{
+        \begin{tabular}{c c}
+            \includegraphics[width=0.5\textwidth]{images/fixed_rand/1.png} &
+            \includegraphics[width=0.5\textwidth]{images/fixed_rand/2.png} \\
+            \includegraphics[width=0.5\textwidth]{images/fixed_rand/3.png} &
+            \includegraphics[width=0.5\textwidth]{images/fixed_rand/4.png} \\
+        \end{tabular}
+		}
+    \end{figure}
+    \end{frame}
+
+	\begin{frame}[fragile]{Open setup}
+	\begin{figure}
+        \centering
+		\resizebox{\textwidth}{!}{
+        \begin{tabular}{c c}
+        \includegraphics[width=0.5\textwidth]{images/open_rand/start.png}
+        \includegraphics[width=0.5\textwidth]{images/open_rand/0.png}
+        \end{tabular}
+		}
+    \end{figure}
+    \end{frame}
+
+	\begin{frame}[fragile]{Open setup}
+    \begin{figure}
+        \centering
+		\resizebox{0.5\textwidth}{!}{
+        \begin{tabular}{c c}
+            \includegraphics[width=0.5\textwidth]{images/open_rand/1.png} &
+            \includegraphics[width=0.5\textwidth]{images/open_rand/2.png} \\
+            \includegraphics[width=0.5\textwidth]{images/open_rand/3.png} &
+            \includegraphics[width=0.5\textwidth]{images/open_rand/4.png} \\
+        \end{tabular}
+		}
+    \end{figure}
+    \end{frame}
+
+	
+	\begin{frame}[fragile]{Open setup - pipe configuration}
+	\begin{figure}
+        \centering
+		\resizebox{\textwidth}{!}{
+        \begin{tabular}{c c}
+        \includegraphics[width=0.5\textwidth]{images/open_pipe/start.png}
+        \includegraphics[width=0.5\textwidth]{images/open_pipe/0.png}
+        \end{tabular}
+		}
+    \end{figure}
+    \end{frame}
+
+	\begin{frame}[fragile]{Open setup - pipe configuration}
+    \begin{figure}
+        \centering
+		\resizebox{0.5\textwidth}{!}{
+        \begin{tabular}{c c}
+            \includegraphics[width=0.5\textwidth]{images/open_pipe/1.png} &
+            \includegraphics[width=0.5\textwidth]{images/open_pipe/2.png} \\
+            \includegraphics[width=0.5\textwidth]{images/open_pipe/3.png} &
+            \includegraphics[width=0.5\textwidth]{images/open_pipe/4.png} \\
+        \end{tabular}
+		}
+    \end{figure}
+    \end{frame}
+
+
+
 
   { % Questions?
     \setbeamertemplate{footline}{}
@@ -447,12 +746,6 @@
         Thanks for listening.\\
         {\bf Any questions/suggestions?}
       \end{center}
-    \end{frame}
-
-    % References
-    \section*{References}
-    \begin{frame}[allowframebreaks,noframenumbering]{References}
-      \printbibliography
     \end{frame}
   }
 	\end{document}
